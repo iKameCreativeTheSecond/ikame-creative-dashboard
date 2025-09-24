@@ -1,0 +1,103 @@
+/* LineChart.css - style to match the provided screenshot */
+
+.chart-card {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #E6E9EF;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #E6E9EF;
+}
+
+.chart-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-header-icon {
+  display: inline-block;
+}
+
+.chart-header-title {
+  font-weight: 600;
+  color: #101828;
+  font-size: 16px;
+}
+
+.chart-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-button {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #E6E9EF;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.icon-button:hover {
+  background: #F8FAFC;
+  box-shadow: 0 4px 10px rgba(16, 24, 40, 0.08);
+}
+
+.chart-body {
+  position: relative;
+  flex: 1 1 auto;
+}
+
+.chart-overlay-title {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #101828;
+  font-weight: 600;
+  font-size: 16px;
+  z-index: 1;
+}
+
+/* Recharts tweaks */
+.recharts-wrapper {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #E6E9EF;
+}
+
+.recharts-cartesian-axis-tick tspan {
+  fill: #667085;
+  font-size: 12px;
+}
+
+.recharts-tooltip-wrapper {
+  filter: drop-shadow(0 8px 20px rgba(16,24,40,0.12));
+}
+
+.recharts-default-tooltip {
+  border-radius: 8px !important;
+  border: 1px solid #E6E9EF !important;
+}
+
+.recharts-dot {
+  stroke-width: 2;
+}
