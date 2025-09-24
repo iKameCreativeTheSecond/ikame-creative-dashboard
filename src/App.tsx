@@ -1,5 +1,7 @@
 import './App.css'
 import Charts, { type ChartObjectData } from './components/Charts'
+import DateFilter from './components/DateFilter'
+import { useState } from 'react'
 
 // Dữ liệu mẫu cho component Charts thống nhất
 const chartsData: ChartObjectData[] = [
@@ -17,8 +19,16 @@ const chartsData: ChartObjectData[] = [
 ]
 
 export default function App() {
+  const [range, setRange] = useState<{ startDate: string | null; endDate: string | null } | null>(null)
   return (
     <div style={{ padding: '20px' }}>
+      <div style={{ marginBottom: 16 }}>
+        <DateFilter onChange={(r) => { setRange(r); console.log('Selected range', r) }} />
+        <div style={{ marginTop: 8, fontSize: 14 }}>
+          <strong>Đã chọn:</strong>{' '}
+          {range ? `${range.startDate ?? '-'} → ${range.endDate ?? '-'}` : 'Chưa chọn'}
+        </div>
+      </div>
       <Charts 
         data={chartsData} 
         title="Team Performance Dashboard" 
