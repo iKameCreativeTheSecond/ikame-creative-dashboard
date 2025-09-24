@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'recharts'
 import { useMemo, useRef } from 'react'
-import './LineChart.css'
+import './Chart.css'
 
 // Fixed palette to match the sample style
 const PALETTE = [
