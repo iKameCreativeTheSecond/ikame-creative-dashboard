@@ -26,6 +26,7 @@ export type ColumnObjectData = {
   time: string // ISO date string
   score1: number // Điểm 1
   score2: number // Điểm 2
+  score3: number // Điểm 3
 }
 
 export type ColumnChartProps = {
@@ -58,6 +59,7 @@ export default function ColumnChart({ data, title = 'Column Chart', height = 440
           name: obj.name,
           score1: obj.score1,
           score2: obj.score2,
+          score3: obj.score3,
           objectIndex: index,
         }))
       )
@@ -137,12 +139,16 @@ export default function ColumnChart({ data, title = 'Column Chart', height = 440
                 return item ? `${item.name} - ${new Date(item.timeGroup).toLocaleDateString('vi-VN')}` : label
               }}
               formatter={(value: any, name: string) => {
-                const displayName = name === 'score1' ? 'Điểm 1' : 'Điểm 2'
+                const displayName = name === 'score1' ? 'Điểm 1' : 
+                                   name === 'score2' ? 'Điểm 2' : 
+                                   name === 'score3' ? 'Điểm 3' : name
                 return [value, displayName]
               }}
             />
             <Legend 
-              formatter={(value) => value === 'score1' ? 'Điểm 1' : 'Điểm 2'}
+              formatter={(value) => value === 'score1' ? 'Điểm 1' : 
+                                   value === 'score2' ? 'Điểm 2' : 
+                                   value === 'score3' ? 'Điểm 3' : value}
             />
             <Bar 
               dataKey="score1" 
@@ -157,6 +163,14 @@ export default function ColumnChart({ data, title = 'Column Chart', height = 440
               name="score2"
               fill={PALETTE[1].fill}
               stroke={PALETTE[1].stroke}
+              strokeWidth={1}
+              radius={[2, 2, 0, 0]}
+            />
+            <Bar 
+              dataKey="score3" 
+              name="score3"
+              fill={PALETTE[2].fill}
+              stroke={PALETTE[2].stroke}
               strokeWidth={1}
               radius={[2, 2, 0, 0]}
             />
