@@ -6,9 +6,9 @@ import './Chart.css'
 export type ChartObjectData = { 
     name: string;
     time: string;
-    score1: number;
-    score2: number;
-    score3: number;
+    performacePoint: number;
+    basePoint: number;
+    creativePoint: number;
 }
 
 export type ChartsProps = {
@@ -35,8 +35,9 @@ export default function Charts({ data, title = 'Performance Dashboard', height =
             acc[item.name].data.push({
                 name: item.name,
                 time: item.time,
-                score: item.score1
+                score: item.performacePoint
             })
+
             return acc
         }, {} as Record<string, MultiObjectData>)
         
@@ -47,9 +48,9 @@ export default function Charts({ data, title = 'Performance Dashboard', height =
     const columnChartData: ColumnObjectData[] = data.map(item => ({
         name: item.name,
         time: item.time,
-        score1: item.score1,
-        score2: item.score2,
-        score3: item.score3
+        score1: item.performacePoint,
+        score2: item.basePoint,
+        score3: item.creativePoint
     }))
 
     const toggleChartType = () => {

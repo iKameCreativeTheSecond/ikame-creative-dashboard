@@ -7,7 +7,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from 'recharts'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import './Chart.css'
 
 // Fixed palette to match the sample style
@@ -37,6 +37,7 @@ export type ScoreOverTimeChartProps = {
 
 export default function LineChart({ datasets, title = 'Performance Points Chart', height = 440 }: ScoreOverTimeChartProps) {
   const chartRef = useRef<HTMLDivElement>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const chartData = useMemo(() => {
     const allTimes = Array.from(new Set(datasets.flatMap((dataset) => dataset.data.map((entry) => entry.time)))).sort(
@@ -53,6 +54,10 @@ export default function LineChart({ datasets, title = 'Performance Points Chart'
   }, [datasets])
 
   const overlayTitle = `Performance Points - ${datasets.length} ${datasets.length > 1 ? 'teams' : 'team'}`
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen)
+  }
 
   const handleDownload = () => {
     const container = chartRef.current
@@ -73,20 +78,12 @@ export default function LineChart({ datasets, title = 'Performance Points Chart'
   }
 
   return (
-    <div className="chart-card" style={{ height }}>
+    <div className={`chart-card ${isFullscreen ? 'fullscreen' : ''}`} style={isFullscreen ? {} : { height }}>
       <div className="chart-header">
         <div className="chart-header-left">
-          <svg className="chart-header-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M4 20V10M10 20V4M16 20v-6M3 20h18" stroke="#5F6D7A" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
           <span className="chart-header-title">{title}</span>
         </div>
         <div className="chart-actions">
-          <button className="icon-button" title="Đổi kiểu biểu đồ" aria-label="Đổi kiểu biểu đồ">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="M3 3h18M3 9h12M3 15h8M3 21h18" stroke="#5F6D7A" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
           <button className="icon-button" title="Tải xuống" aria-label="Tải xuống" onClick={handleDownload}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="#5F6D7A" strokeWidth="2" strokeLinecap="round"/>
@@ -115,7 +112,7 @@ export default function LineChart({ datasets, title = 'Performance Points Chart'
               height={44}
               tickFormatter={(v: string) => new Date(v).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
             />
-            <YAxis tick={{ fontSize: 12, fill: '#667085' }} label={{ value: 'Performance Points', angle: -90, position: 'insideLeft', offset: -4 }} />
+            <YAxis tick={{ fontSize: 12, fill: '#667085' }} label={{ value: 'Điểm số', angle: -90, position: 'insideLeft', offset: 10 }} />
             <Tooltip
               contentStyle={{ borderRadius: 8, border: '1px solid #E6E9EF', boxShadow: '0 6px 16px rgba(16,24,40,0.12)' }}
               labelFormatter={(v: string) => `Ngày: ${new Date(v).toLocaleDateString('vi-VN')}`}

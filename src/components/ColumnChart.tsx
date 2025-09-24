@@ -8,7 +8,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import './Chart.css' // Sử dụng chung CSS với LineChart
 
 // Fixed palette to match the sample style
@@ -37,6 +37,7 @@ export type ColumnChartProps = {
 
 export default function ColumnChart({ data, title = 'Column Chart', height = 440 }: ColumnChartProps) {
   const chartRef = useRef<HTMLDivElement>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const chartData = useMemo(() => {
     // Nhóm dữ liệu theo thời gian
@@ -67,6 +68,10 @@ export default function ColumnChart({ data, title = 'Column Chart', height = 440
 
   const overlayTitle = `Column Chart - ${data.length} ${data.length > 1 ? 'records' : 'record'}`
 
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen)
+  }
+
   const handleDownload = () => {
     const container = chartRef.current
     if (!container) return
@@ -86,20 +91,12 @@ export default function ColumnChart({ data, title = 'Column Chart', height = 440
   }
 
   return (
-    <div className="chart-card" style={{ height }}>
+    <div className={`chart-card ${isFullscreen ? 'fullscreen' : ''}`} style={isFullscreen ? {} : { height }}>
       <div className="chart-header">
         <div className="chart-header-left">
-          <svg className="chart-header-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M3 13h4v7H3zM10 9h4v11h-4zM17 5h4v15h-4z" fill="#5F6D7A"/>
-          </svg>
           <span className="chart-header-title">{title}</span>
         </div>
         <div className="chart-actions">
-          <button className="icon-button" title="Đổi kiểu biểu đồ" aria-label="Đổi kiểu biểu đồ">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="M3 3h18M3 9h12M3 15h8M3 21h18" stroke="#5F6D7A" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
           <button className="icon-button" title="Tải xuống" aria-label="Tải xuống" onClick={handleDownload}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="#5F6D7A" strokeWidth="2" strokeLinecap="round"/>
@@ -126,7 +123,7 @@ export default function ColumnChart({ data, title = 'Column Chart', height = 440
             />
             <YAxis 
               tick={{ fontSize: 12, fill: '#667085' }} 
-              label={{ value: 'Điểm số', angle: -90, position: 'insideLeft', offset: -4 }} 
+              label={{ value: 'Điểm số', angle: -90, position: 'insideLeft', offset: 10 }} 
             />
             <Tooltip
               contentStyle={{ 
