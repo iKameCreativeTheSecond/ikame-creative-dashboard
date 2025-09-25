@@ -8,13 +8,21 @@ const serverUrl = "http://localhost:8080"; // Change to your server URL
 
 // ...existing code...
 
+type PerformanceData = {
+    TotalPerformancePoint: number;
+    TotalBasePoint: number;
+    TotalCreativeProcessPoint: number;
+    TotalCreativeTaskPoint: number;
+}
+
+
 export default function App() {
   const [range, setRange] = useState<{ startDate: string | null; endDate: string | null } | null>(null)
   const [teamOptions, setTeamOptions] = useState<{ value: string; label: string }[]>([]);
   const [staffOptions, setStaffOptions] = useState<{ value: string; label: string; team: string }[]>([]);
   const [chartsData, setChartsData] = useState<ChartObjectData[]>([]);
 
-  async function getTeamMembers(teams: string[]) 
+  async function getTeamMembers(teams: string[])
   {
     try 
     {
@@ -36,6 +44,27 @@ export default function App() {
     }
   }
 
+  async function getPerformanceData(startDate: string | null, endDate: string | null, identifiers: string[], isTeam: boolean) : Promise<PerformanceData[]>
+  {
+    try 
+    {
+      const response = await fetch(`${serverUrl}performance-point?isTeam=${isTeam}`, {
+          method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+          body: JSON.stringify({ startDate, endDate, identifiers, isTeam }),
+        });
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json() as PerformanceData[];
+    }
+    catch (error)
+    {
+      console.error('Error fetching performance data:', error);
+      return [];
+    }
+  }
+
   // Fetch initial options and chart data
   useEffect(() => {
     // Replace with your actual API endpoints
@@ -52,17 +81,22 @@ export default function App() {
   }, []);
 
   // Handler for filter change
-  const handleFilterChange = (filter: { startDate: string | null; endDate: string | null; team?: string; staff?: string }) => {
-    setRange(filter);
-    // Build query params based on filter
-    const params = new URLSearchParams();
-    if (filter.startDate) params.append('startDate', filter.startDate);
-    if (filter.endDate) params.append('endDate', filter.endDate);
-    if (filter.team) params.append('team', filter.team);
-    if (filter.staff) params.append('staff', filter.staff);
-    fetch(`/api/charts?${params.toString()}`)
-      .then(res => res.json())
-      .then(data => setChartsData(data));
+  const handleFilterChange = (
+    range: { startDate: string | null; endDate: string | null },
+    selectedTeams: string[],
+    selectedStaff: string[]
+  ) => {
+    setRange(range);
+    
+    const performanceDatas = getPerformanceData(
+      range.startDate, 
+      range.endDate,
+      selectedStaff,
+      selectedTeams.length > 0
+    );
+
+    
+
   };
 
   return (

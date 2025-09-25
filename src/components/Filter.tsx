@@ -9,10 +9,21 @@ type Range = {
   endDate: string | null;
 };
 
+type TeamOption = {
+  value: string;
+  label: string;
+}
+
+type StaffOption = {
+  value: string;
+  label: string;
+  team: string;
+};
+
 type Props = {
-  onChange?: (range: Range) => void;
-  teamOptions: { value: string; label: string }[];
-  staffOptions: { value: string; label: string; team: string }[];
+  onChange?: (range: Range, selectedTeams: string[], selectedStaff: string[]) => void;
+  teamOptions: TeamOption[];
+  staffOptions: StaffOption[];
 };
 
 function formatDate(d: Date) {
@@ -37,14 +48,14 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
     ? staffOptions.filter(opt => opt.team === selectedTeams[0])
     : [];
 
-  const applyChange = (s: string | null, e: string | null) => {
+  const applyChange = (s: string | null, e: string | null, selectedTeams: string[], selectedStaff: string[]) => {
     if (s && e && new Date(e) < new Date(s)) {
       alert('End date cannot be before start date.');
       return;
     }
     setStartDate(s);
     setEndDate(e);
-    onChange?.({ startDate: s, endDate: e });
+    onChange?.({ startDate: s, endDate: e }, selectedTeams, selectedStaff);
   };
 
   const setQuickRange = (months: number, weeks = 0) => {
@@ -57,15 +68,17 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
     if (weeks) {
       start.setDate(start.getDate() - weeks * 7);
     }
-    applyChange(formatDate(start), formatDate(end));
+    applyChange(formatDate(start), formatDate(end), selectedTeams, selectedStaff);
   };
 
   // Handlers for Ant Design Select
   const handleTeamsChange = (values: string[]) => {
     setSelectedTeams(values);
+    applyChange(startDate, endDate, selectedTeams, selectedStaff); // Clear selected staff when teams change
   };
   const handleStaffChange = (values: string[]) => {
     setSelectedStaff(values);
+    applyChange(startDate, endDate, selectedTeams, selectedStaff);
   };
 
   return (
@@ -76,7 +89,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
           <input
             type="date"
             value={startDate ?? ''}
-            onChange={(e) => applyChange(e.target.value || null, endDate)}
+            onChange={(e) => applyChange(e.target.value || null, endDate, selectedTeams, selectedStaff)}
           />
         </label>
 
@@ -85,7 +98,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
           <input
             type="date"
             value={endDate ?? ''}
-            onChange={(e) => applyChange(startDate, e.target.value || null)}
+            onChange={(e) => applyChange(startDate, e.target.value || null, selectedTeams, selectedStaff)}
           />
         </label>
       </div>
@@ -129,7 +142,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
           <button
             type="button"
             className="clear"
-            onClick={() => applyChange(null, null)}
+            onClick={() => applyChange(null, null, selectedTeams, selectedStaff)}
           >
             Xóa
           </button>
