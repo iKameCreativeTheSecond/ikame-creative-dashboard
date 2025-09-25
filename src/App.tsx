@@ -3,6 +3,9 @@ import Charts, { type ChartObjectData } from './components/Charts'
 import { useState, useEffect } from 'react'
 import Filter from './components/Filter';
 
+
+const serverUrl = "http://localhost:8080"; // Change to your server URL
+
 // ...existing code...
 
 export default function App() {
@@ -11,17 +14,40 @@ export default function App() {
   const [staffOptions, setStaffOptions] = useState<{ value: string; label: string; team: string }[]>([]);
   const [chartsData, setChartsData] = useState<ChartObjectData[]>([]);
 
+  async function getTeamMembers(teams: string[]) 
+  {
+    try 
+    {
+      const response = await fetch(`${serverUrl}/post/staff-member`, {
+          method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+          body: JSON.stringify({ teams }),
+        }
+      );
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    }
+    catch (error)
+    {
+      console.error('Error fetching team members:', error);
+      return [];
+    }
+  }
+
   // Fetch initial options and chart data
   useEffect(() => {
     // Replace with your actual API endpoints
-    Promise.all([
-      fetch('/api/teams').then(res => res.json()),
-      fetch('/api/staff').then(res => res.json()),
-      fetch('/api/charts').then(res => res.json()),
-    ]).then(([teams, staff, charts]) => {
-      setTeamOptions(teams);
+    getTeamMembers([]).then(members => {
+      const teams = new Set<any>();
+      for (const m of members) {
+        if (teams.has(m.Team)) continue;
+        teams.add(m.Team);
+      }
+      const staff = members.map((m: any) => ({ value: m.Email, label: m.Name, team: m.Team }));
+      setTeamOptions(Array.from(teams).map(t => ({ value: t, label: t })));
       setStaffOptions(staff);
-      setChartsData(charts);
     });
   }, []);
 
