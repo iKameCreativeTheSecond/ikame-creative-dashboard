@@ -74,11 +74,11 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
   // Handlers for Ant Design Select
   const handleTeamsChange = (values: string[]) => {
     setSelectedTeams(values);
-    applyChange(startDate, endDate, selectedTeams, selectedStaff); // Clear selected staff when teams change
+    applyChange(startDate, endDate, values, selectedStaff); // Clear selected staff when teams change
   };
   const handleStaffChange = (values: string[]) => {
     setSelectedStaff(values);
-    applyChange(startDate, endDate, selectedTeams, selectedStaff);
+    applyChange(startDate, endDate, selectedTeams, values);
   };
 
   return (

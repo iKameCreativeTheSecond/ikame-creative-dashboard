@@ -4,15 +4,17 @@ import { useState, useEffect } from 'react'
 import Filter from './components/Filter';
 
 
-const serverUrl = "http://localhost:8080"; // Change to your server URL
+const serverUrl = "http://localhost:8888"; // Change to your server URL
 
 // ...existing code...
 
 type PerformanceData = {
+    StartWeek: string; // ISO date string
     TotalPerformancePoint: number;
     TotalBasePoint: number;
     TotalCreativeProcessPoint: number;
     TotalCreativeTaskPoint: number;
+    Identifier: string; // Email or Team name
 }
 
 
@@ -48,12 +50,14 @@ export default function App() {
   {
     try 
     {
-      const response = await fetch(`${serverUrl}performance-point?isTeam=${isTeam}`, {
+      const jsonBody = JSON.stringify({ startDate, endDate, identifiers });
+      console.log("Request Body:", jsonBody, isTeam);
+      const response = await fetch(`${serverUrl}/post/performance-point?isTeam=${isTeam}`, {
           method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-          body: JSON.stringify({ startDate, endDate, identifiers, isTeam }),
+          body: jsonBody,
         });
       if (!response.ok) throw new Error('Network response was not ok');
       return await response.json() as PerformanceData[];
@@ -87,16 +91,42 @@ export default function App() {
     selectedStaff: string[]
   ) => {
     setRange(range);
-    
-    const performanceDatas = getPerformanceData(
-      range.startDate, 
-      range.endDate,
+    const isoStartDate = range.startDate ? new Date(range.startDate).toISOString() : null;
+    const isoEndDate = range.endDate ? new Date(range.endDate).toISOString() : null;
+
+    getPerformanceData(
+      isoStartDate,
+      isoEndDate,
       selectedStaff,
-      selectedTeams.length > 0
-    );
-
+      selectedTeams.length > 1
+    )
+      .then(data =>
+      {
+        const chartData: ChartObjectData[] = [];
+        if (data)
+        {
+          for (const d of data)
+          {
+            if (d)
+            {
+              chartData.push({
+                name: d.Identifier,
+                time: d.StartWeek,
+                performancePoint: d.TotalPerformancePoint,
+                basePoint: d.TotalBasePoint,
+                creativePoint: d.TotalCreativeProcessPoint + d.TotalCreativeTaskPoint
+              });
+            }
+          }
+        }
+        setChartsData(chartData);
+      })
+      .catch(error =>
+      {
+        console.error(error);
+        setChartsData([]);
+      });
     
-
   };
 
   return (
