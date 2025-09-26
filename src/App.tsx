@@ -94,11 +94,15 @@ export default function App() {
     const isoStartDate = range.startDate ? new Date(range.startDate).toISOString() : null;
     const isoEndDate = range.endDate ? new Date(range.endDate).toISOString() : null;
 
+    let isTeam = false;
+    if (selectedTeams.length >= 2 || (selectedTeams.length === 1 && selectedStaff.length === 0))
+      isTeam = true;
+
     getPerformanceData(
       isoStartDate,
       isoEndDate,
-      selectedStaff,
-      selectedTeams.length > 1
+      isTeam ? selectedTeams : selectedStaff,
+      isTeam
     )
       .then(data =>
       {
@@ -112,7 +116,7 @@ export default function App() {
               chartData.push({
                 name: d.Identifier,
                 time: d.StartWeek,
-                performancePoint: d.TotalPerformancePoint,
+                performacePoint: d.TotalPerformancePoint,
                 basePoint: d.TotalBasePoint,
                 creativePoint: d.TotalCreativeProcessPoint + d.TotalCreativeTaskPoint
               });
