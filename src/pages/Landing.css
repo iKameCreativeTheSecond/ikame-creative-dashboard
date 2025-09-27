@@ -1,0 +1,90 @@
+/* Beautiful landing page styles inspired by the provided image */
+.landing-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #f7fafd;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.landing-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(60, 80, 180, 0.12);
+  padding: 2.5rem 2rem 2rem 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.landing-logo {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1.2rem;
+}
+
+.landing-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3a4a;
+  margin-bottom: 0.5rem;
+}
+
+.landing-subtitle {
+  font-size: 1.1rem;
+  color: #6b7a90;
+  margin-bottom: 1.5rem;
+}
+
+.landing-welcome {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #2d3a4a;
+  margin-bottom: 0.5rem;
+}
+
+.landing-google-btn {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+/* .landing-google-btn:hover {
+  box-shadow: 0 8px 32px rgba(60, 80, 180, 0.16);
+  border: 1px solid #cfd8e6;
+} */
+
+.landing-or {
+  margin: 1.2rem 0 0.8rem 0;
+  color: #b0b8c1;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.landing-demo-btn {
+  background: #2d3a4a;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.85rem 0;
+  width: 100%;
+  font-size: 1.05rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s;
+}
+.landing-demo-btn:hover {
+  background: #3b4a5a;
+}
+
+.landing-demo-desc {
+  color: #6b7a90;
+  font-size: 0.95rem;
+}
