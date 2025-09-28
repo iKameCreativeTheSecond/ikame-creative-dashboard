@@ -1,9 +1,11 @@
 import './Home.css'
 import Charts, { type ChartObjectData } from '../components/Charts'
+import TeamTargetProgress, { type TeamData } from '../components/TeamTargetProgress';
 import { useState, useEffect } from 'react'
 import Filter from '../components/Filter';
 import { useLocation } from 'react-router-dom';
 import TopBar from '../components/TopBar';
+import {  User, type UserInfo } from '../common/GlobalData';
 
 
 const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
@@ -17,12 +19,6 @@ type PerformanceData = {
     TotalCreativeProcessPoint: number;
     TotalCreativeTaskPoint: number;
     Identifier: string; // Email or Team name
-}
-
-type UserInfo = {
-    email: string;
-    name: string;
-    picture: string;
 }
 
 
@@ -155,26 +151,34 @@ export default function Home()
 
     };
 
+    //TODO: Replace with real data from API
+    const teams: TeamData[] = [
+      { name: "Team PLA", total: 358, target: 830, base: 173, creative: 185 },
+      { name: "Team Vi", total: 305, target: 1000, base: 123, creative: 182 },
+      { name: "Team C", total: 412, target: 950, base: 208, creative: 204 },
+    ];
+
     return (
         <>
             <TopBar userName={user.name || user.email || 'User'} imageUrl={user.picture} />
-            <div style={{ padding: '80px 20px 20px 20px' }}>
-                <div style={{ marginBottom: 16 }}>
-                    <Filter
-                        onChange={handleFilterChange}
-                        teamOptions={teamOptions}
-                        staffOptions={staffOptions}
-                    />
-                    <div style={{ marginTop: 8, fontSize: 14 }}>
-                        <strong>Đã chọn:</strong>{' '}
-                        {range ? `${range.startDate ?? '-'} → ${range.endDate ?? '-'}` : 'Chưa chọn'}
+            <div style={{ padding: '480px 20px 20px 20px' }}>
+                    <div style={{ marginBottom: 16 }}>
+                        <Filter
+                            onChange={handleFilterChange}
+                            teamOptions={teamOptions}
+                            staffOptions={staffOptions}
+                        />
+                        <div style={{ marginTop: 8, fontSize: 14 }}>
+                            <strong>Đã chọn:</strong>{' '}
+                            {range ? `${range.startDate ?? '-'} → ${range.endDate ?? '-'}` : 'Chưa chọn'}
+                        </div>
                     </div>
-                </div>
-                <Charts
-                    data={chartsData}
-                    title="Team Performance Dashboard"
-                    height={500}
-                />
+                    <TeamTargetProgress teams={teams} />
+                    <Charts
+                        data={chartsData}
+                        title="Team Performance Dashboard"
+                        height={500}
+                    />
             </div>
         </>
     );

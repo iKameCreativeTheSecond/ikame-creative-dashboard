@@ -1,0 +1,101 @@
+.team-target-progress-container {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 24px;
+  margin: 24px 0;
+}
+.team-target-header {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.team-target-icon {
+  font-size: 22px;
+  margin-right: 8px;
+}
+.team-target-title {
+  font-weight: 600;
+  margin-right: 12px;
+}
+.team-target-date {
+  color: #888;
+  font-size: 14px;
+}
+.team-cards-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.team-card {
+  background: #fafbfc;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  padding: 18px 20px;
+  min-width: 180px;
+  flex: 1;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.team-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.team-total {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.team-target-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+.team-target-label {
+  color: #888;
+}
+.team-percent {
+  color: #d32f2f;
+  font-weight: 600;
+}
+.team-progress-bar {
+  width: 100%;
+  height: 14px;
+  background: #e0e3e7;
+  border-radius: 7px;
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.team-progress-base {
+  background: #1976d2;
+  height: 100%;
+}
+.team-progress-creative {
+  background: #ff9800;
+  height: 100%;
+}
+.team-progress-remaining {
+  background: transparent;
+  height: 100%;
+}
+.team-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 14px;
+}
+.team-base-label {
+  color: #1976d2;
+  font-weight: 500;
+}
+.team-creative-label {
+  color: #ff9800;
+  font-weight: 500;
+}
