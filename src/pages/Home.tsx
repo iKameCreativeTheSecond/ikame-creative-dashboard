@@ -37,7 +37,7 @@ export default function Home()
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': GlobalData.UserToken
+                    'Authorization': GlobalData.getUserToken() || ''
                 },
                 body: JSON.stringify({ teams }),
             });
@@ -56,7 +56,6 @@ export default function Home()
         try 
         {
             const jsonBody = JSON.stringify({ startDate, endDate, identifiers });
-            console.log("Request Body:", jsonBody, isTeam);
             const response = await fetch(`${serverUrl}/post/performance-point?isTeam=${isTeam}`, {
                 method: 'POST',
                 headers: {
@@ -151,7 +150,7 @@ export default function Home()
 
     return (
         <>
-            <TopBar userName={GlobalData.User.name || GlobalData.User.email || 'User'} imageUrl={GlobalData.User.picture} />
+            <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} />
             <div style={{ padding: '480px 20px 20px 20px' }}>
                     <div style={{ marginBottom: 16 }}>
                         <Filter

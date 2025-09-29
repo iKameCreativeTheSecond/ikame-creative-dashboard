@@ -34,12 +34,12 @@ export default function Landing()
             {
                 getUserToken(decoded.email).then(token => 
                 {
-                    GlobalData.UserToken = token;
-                    GlobalData.User = {
+                    GlobalData.setUserToken(token);
+                    GlobalData.setUser({
                         email: decoded.email,
                         name: decoded.name,
                         picture: decoded.picture
-                    };
+                    });
                     navigate('/home');
                 });
             } catch (error) {
