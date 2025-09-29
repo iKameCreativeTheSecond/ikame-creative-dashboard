@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import Filter from '../components/Filter';
 import { useLocation } from 'react-router-dom';
 import TopBar from '../components/TopBar';
-import {  User, type UserInfo } from '../common/GlobalData';
+import { GlobalData, type UserInfo } from '../common/GlobalData';
 
 
 const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
@@ -24,15 +24,6 @@ type PerformanceData = {
 
 export default function Home()
 {
-    const location = useLocation();
-    const userInfo = location.state?.user;
-    const user: UserInfo = userInfo ? {
-        email: userInfo.email,
-        name: userInfo.name,
-        picture: userInfo.picture
-    } : { email: '', name: '', picture: '' };
-
-
     const [ range, setRange ] = useState<{ startDate: string | null; endDate: string | null } | null>(null)
     const [ teamOptions, setTeamOptions ] = useState<{ value: string; label: string }[]>([]);
     const [ staffOptions, setStaffOptions ] = useState<{ value: string; label: string; team: string }[]>([]);
@@ -46,10 +37,10 @@ export default function Home()
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': GlobalData.UserToken
                 },
                 body: JSON.stringify({ teams }),
-            }
-            );
+            });
             if (!response.ok) throw new Error('Network response was not ok');
             return await response.json();
         }
@@ -160,7 +151,7 @@ export default function Home()
 
     return (
         <>
-            <TopBar userName={user.name || user.email || 'User'} imageUrl={user.picture} />
+            <TopBar userName={GlobalData.User.name || GlobalData.User.email || 'User'} imageUrl={GlobalData.User.picture} />
             <div style={{ padding: '480px 20px 20px 20px' }}>
                     <div style={{ marginBottom: 16 }}>
                         <Filter

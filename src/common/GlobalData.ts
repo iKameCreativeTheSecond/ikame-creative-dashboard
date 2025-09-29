@@ -16,4 +16,15 @@ export const User: UserInfo = {
     picture: ''
 };
 
+export class GlobalData
+{
+    static UserToken: string = '';
+    
+    static User: UserInfo = {
+        email: '',
+        name: '',
+        picture: ''
+    }
+}
+
 //endregion

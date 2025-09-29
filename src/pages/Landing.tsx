@@ -2,17 +2,50 @@ import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import './Landing.css';
+import { GlobalData } from "../common/GlobalData";
 
 export default function Landing()
 {
     const navigate = useNavigate();
+
+    async function getUserToken(email: string): Promise<string> 
+    {
+        const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
+        const response = await fetch(`${serverUrl}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data.token;
+    }
 
     function handleLoginSuccess(credentialResponse: any)
     {
         if (credentialResponse.credential) 
         {
             const decoded: { email: string, name: string, picture: string } = jwtDecode(credentialResponse.credential);
-            navigate('/home', { state: { user: decoded } });
+            try 
+            {
+                getUserToken(decoded.email).then(token => 
+                {
+                    GlobalData.UserToken = token;
+                    GlobalData.User = {
+                        email: decoded.email,
+                        name: decoded.name,
+                        picture: decoded.picture
+                    };
+                    navigate('/home');
+                });
+            } catch (error) {
+                console.error('Error during login:', error);
+            }
+
         } else
         {
             console.log("No credential received");
