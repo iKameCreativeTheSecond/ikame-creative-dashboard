@@ -1,3 +1,18 @@
+/* Filter input styling */
+.filter-input {
+    border-radius: 20px;
+    border: 1.5px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background: #fafbfc;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.filter-input:focus {
+    border-color: #bdbdbd;
+}
 /* Popup Modal Overlay Styles */
 .modal-overlay {
     position: fixed;

@@ -35,6 +35,7 @@ export default function TeamManagement()
 
 
     const [ teamMembers, setTeamMembers ] = useState<TeamMember[]>([]);
+    const [ filter, setFilter ] = useState("");
     const [ showModal, setShowModal ] = useState(false);
     const [ editingMember, setEditingMember ] = useState<TeamMember | null>(null);
     const [ formData, setFormData ] = useState<TeamMember>({
@@ -143,10 +144,31 @@ export default function TeamManagement()
         setShowModal(false);
     };
 
+    // Filter team members by name, email, or team
+    const filteredMembers = teamMembers.filter(member => {
+        const filterLower = filter.toLowerCase();
+        return (
+            member.Name.toLowerCase().includes(filterLower) ||
+            member.Email.toLowerCase().includes(filterLower) ||
+            member.Team.toLowerCase().includes(filterLower)
+        );
+    });
+
     return (
         <div className="team-management">
             <h1 className="admin-title">Team Management</h1>
             <p className="admin-description">Add, edit, or remove team members from the system.</p>
+
+            <div style={{ marginBottom: '1rem' }}>
+                <input
+                    type="text"
+                    className="filter-input"
+                    placeholder="Filter by name, email, or team..."
+                    value={filter}
+                    onChange={e => setFilter(e.target.value)}
+                    style={{ width: '500px' }}
+                />
+            </div>
 
             <table className="team-table">
                 <thead>
@@ -161,7 +183,7 @@ export default function TeamManagement()
                     </tr>
                 </thead>
                 <tbody>
-                    {teamMembers.map(member => (
+                    {filteredMembers.map(member => (
                         <tr key={member.ID}>
                             <td>{member.MemberID}</td>
                             <td>{member.Name}</td>
