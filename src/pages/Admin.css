@@ -1,0 +1,217 @@
+.admin-radio-tabs-group {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+.admin-radio-tab {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px 32px;
+    border-radius: 18px;
+    background: transparent;
+    transition: background 0.2s, color 0.2s;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #717171;
+    border: 2px solid transparent;
+    position: relative;
+}
+.admin-radio-tab.selected {
+    background: #fff;
+    color: #0a3cff;
+    border-color: #0a3cff;
+    box-shadow: 0 2px 8px rgba(10,60,255,0.08);
+}
+.admin-radio-tab:hover {
+    background: rgba(255,255,255,0.10);
+    color: #e0e0e0;
+}
+.admin-radio-tab input[type="radio"] {
+    display: none;
+}
+.admin-radio-label {
+    margin-left: 8px;
+}
+.admin-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #f7fafd;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    padding: 30px;
+}
+
+.admin-description {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.admin-sections {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.admin-bg {
+    margin-top: 550px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #cdcdcd 0%, #7487a3 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 30px;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.admin-card {
+    background: #fff;
+    border-radius: 8px;
+
+    
+    justify-content: flex-start;
+    padding: 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    width: 300px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.admin-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.admin-card h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.admin-title {
+    font-size: 4rem;
+    color: #a2a2a2;
+    font-weight: 700;
+    margin-top: 60px;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+    text-align: center;
+}
+
+.admin-card p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.admin-button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+
+    .admin-tabs-modern {
+         display: flex;
+         gap: 32px;
+         margin-bottom: 32px;
+    }
+    .admin-tab-modern {
+        background: none;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-size: 1.3rem;
+        font-weight: 600;
+        padding: 18px 48px 18px 48px;
+        border-radius: 18px 18px 0 0;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        position: relative;
+        z-index: 2;
+    }
+    .admin-tab-modern.active {
+        background: #fff;
+        color: #0a3cff;
+        box-shadow: 0 2px 8px rgba(10,60,255,0.08);
+        border-bottom: 4px solid #0a3cff;
+    }
+    .admin-tab-modern:hover {
+        background: rgba(255,255,255,0.10);
+        color: #e0e0e0;
+    }
+    border-radius: 4px;
+    padding: 10px 15px;
+    font-size: 1rem;
+
+    .admin-content-modern {
+         background: #fff;
+         border-radius: 18px;
+         box-shadow: 0 4px 24px rgba(10,60,255,0.10);
+         padding: 32px;
+         width: 80vw;
+         max-width: 900px;
+         min-height: 300px;
+        margin: 32px auto 0 auto;
+         text-align: left;
+    }
+.admin-tab-underline {
+    width: 80vw;
+    max-width: 900px;
+    height: 2px;
+    background: rgba(255,255,255,0.25);
+    margin: 0 auto 0 auto;
+    position: relative;
+    top: -2px;
+    z-index: 1;
+}
+.admin-table-placeholder {
+    min-height: 220px;
+    background: none;
+    border-radius: 12px;
+    opacity: 0.7;
+}
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin-button:hover {
+    background: #0056b3;
+}
+
+.admin-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.admin-tab {
+    background: #e0e0e0;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.admin-tab.active {
+    background: #007bff;
+    color: #fff;
+}
+
+.admin-tab:hover {
+    background: #0056b3;
+    color: #fff;
+}
+
+.admin-content {
+    text-align: center;
+}

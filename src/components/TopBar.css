@@ -79,6 +79,21 @@
   justify-content: center;
 }
 
+.edit-button {
+  margin-right: 8px;
+  padding: 6px 14px;
+  font-size: 1.05rem;
+  background: #ffffff;
+  color: #2e2e2e;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.edit-button:hover {
+  background: #ededed;
+}
+
 .user-name {
   font-size: 1rem;
   color: #2d3748;

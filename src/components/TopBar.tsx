@@ -1,15 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import './TopBar.css';
-import { FaUserCircle, FaChevronDown, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaUserCircle, FaChevronDown, FaCog, FaSignOutAlt, FaEdit } from 'react-icons/fa';
 
 interface TopBarProps {
     userName: string;
     imageUrl?: string;
 }
 
+
 const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const navigate = useNavigate();
+
 
   const handleSettings = () => {
     //TODO Chuyển hướng hoặc mở modal cài đặt
@@ -22,6 +27,12 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl }) => {
     alert('Đăng xuất!');
     setOpen(false);
   };
+
+    const handleEdit = () => {
+      // TODO : VERUFY IF USER IS ADMIN
+
+      navigate('/admin');
+    };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -41,7 +52,10 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl }) => {
         <span className="site-name">Performance Dashboard</span>
       </div>
       <div className="topbar-right" ref={dropdownRef}>
-        {imageUrl ? (
+        <button className="edit-button" onClick={handleEdit} title="Edit (Admin)">
+          <FaEdit />
+        </button>
+        { imageUrl ? (
           <img src={imageUrl} alt={userName} className="user-icon" />
         ) : (
           <FaUserCircle className="user-icon" />
