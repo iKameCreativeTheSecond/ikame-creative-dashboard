@@ -1,6 +1,6 @@
 import './Home.css'
 import Charts, { type ChartObjectData } from '../components/Charts'
-import TeamTargetProgress, { type TeamData } from '../components/TeamTargetProgress';
+import TeamTargetProgress, { type WeeklyTeamPerformaceData } from '../components/TeamTargetProgress';
 import { useState, useEffect } from 'react'
 import Filter from '../components/Filter';
 import { useLocation } from 'react-router-dom';
@@ -21,6 +21,10 @@ type PerformanceData = {
     Identifier: string; // Email or Team name
 }
 
+type TeamWeeklyTarget = {
+    Team: string;
+    WeeklyTarget: number;
+}
 
 export default function Home()
 {
@@ -28,6 +32,7 @@ export default function Home()
     const [ teamOptions, setTeamOptions ] = useState<{ value: string; label: string }[]>([]);
     const [ staffOptions, setStaffOptions ] = useState<{ value: string; label: string; team: string }[]>([]);
     const [ chartsData, setChartsData ] = useState<ChartObjectData[]>([]);
+    const [ teamWeeklyPerformance, setTeamWeeklyPerformance ] = useState<WeeklyTeamPerformaceData[]>([]);
 
     async function getTeamMembers(teams: string[])
     {
@@ -73,6 +78,67 @@ export default function Home()
         }
     }
 
+    async function getLastWeekTeamPerformance(): Promise<PerformanceData[]>
+    {
+        try
+        {
+            const response = await fetch(`${serverUrl}/get/last-week-team-performance`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GlobalData.getUserToken() || ''
+                }
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json() as PerformanceData[];
+        }
+        catch (error)   
+        {
+            console.error('Error fetching last week team performance:', error);
+            return [];
+        }
+    }
+
+    async function getWeeklyTarget(): Promise<TeamWeeklyTarget[]>
+    {
+        try
+        {
+            const response = await fetch(`${serverUrl}/get/team-weekly-target`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GlobalData.getUserToken() || ''
+                }
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json() as TeamWeeklyTarget[];
+        }
+        catch (error)
+        {
+            console.error('Error fetching team weekly targets:', error);
+            return [];
+        }
+    }
+
+    async function getLastWeekTeamPerformanceAndTarget() : Promise <WeeklyTeamPerformaceData[]> {
+        const points = await getLastWeekTeamPerformance();
+        const targets = await getWeeklyTarget();
+        const res: WeeklyTeamPerformaceData[] = [];
+        for (const point of points)
+        {
+            const p: WeeklyTeamPerformaceData = 
+            {
+                name: point.Identifier,
+                total: point.TotalPerformancePoint,
+                target: targets.find(t => t.Team === point.Identifier)?.WeeklyTarget || 0,
+                base: point.TotalBasePoint,
+                creative: point.TotalCreativeProcessPoint + point.TotalCreativeTaskPoint
+            };
+            res.push(p);
+        }
+        return res;
+    }
+
     // Fetch initial options and chart data
     useEffect(() =>
     {
@@ -89,6 +155,12 @@ export default function Home()
             setTeamOptions(Array.from(teams).map(t => ({ value: t, label: t })));
             setStaffOptions(staff);
         });
+
+        getLastWeekTeamPerformanceAndTarget().then(data =>
+        {
+            setTeamWeeklyPerformance(data);
+        });
+        
     }, []);
 
     // Handler for filter change
@@ -141,13 +213,6 @@ export default function Home()
 
     };
 
-    //TODO: Replace with real data from API
-    const teams: TeamData[] = [
-      { name: "Team PLA", total: 358, target: 830, base: 173, creative: 185 },
-      { name: "Team Vi", total: 305, target: 1000, base: 123, creative: 182 },
-      { name: "Team C", total: 412, target: 950, base: 208, creative: 204 },
-    ];
-
     return (
         <>
             <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} />
@@ -163,7 +228,7 @@ export default function Home()
                             {range ? `${range.startDate ?? '-'} → ${range.endDate ?? '-'}` : 'Chưa chọn'}
                         </div>
                     </div>
-                    <TeamTargetProgress teams={teams} />
+                    <TeamTargetProgress teams={teamWeeklyPerformance} />
                     <Charts
                         data={chartsData}
                         title="Team Performance Dashboard"

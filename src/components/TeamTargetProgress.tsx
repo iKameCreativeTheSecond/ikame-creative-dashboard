@@ -1,7 +1,7 @@
 import React from "react";
 import "./TeamTargetProgress.css";
 
-export type TeamData = {
+export type WeeklyTeamPerformaceData = {
   name: string;
   total: number;
   target: number;
@@ -9,7 +9,7 @@ export type TeamData = {
   creative: number;
 }
 
-function TeamCard({ team }: { team: TeamData }) {
+function TeamCard({ team }: { team: WeeklyTeamPerformaceData }) {
   const percent = Math.round((team.total / team.target) * 100);
   return (
     <div className="team-card">
@@ -41,7 +41,7 @@ function TeamCard({ team }: { team: TeamData }) {
   );
 }
 
-const TeamTargetProgress: React.FC<{ teams: TeamData[] }> = ({ teams }) => {
+const TeamTargetProgress: React.FC<{ teams: WeeklyTeamPerformaceData[] }> = ({ teams }) => {
   return (
     <div className="team-target-progress-container">
       <div className="team-target-header">
