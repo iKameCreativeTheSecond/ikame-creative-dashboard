@@ -58,6 +58,7 @@ export default function Home()
 
     async function getPerformanceData(startDate: string | null, endDate: string | null, identifiers: string[], isTeam: boolean): Promise<PerformanceData[]>
     {
+        if (!startDate || !endDate || identifiers.length === 0) return [];
         try 
         {
             const jsonBody = JSON.stringify({ startDate, endDate, identifiers });
