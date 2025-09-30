@@ -3,19 +3,7 @@ import React, { useState } from "react";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import "./WeeklyOrderManagement.css";
 import "./WeeklyOrderManagement.grid.css";
-
-interface WeeklyOrder {
-  ID: string;
-  StartWeek: string;
-  Goal: string;
-  Strategy: string;
-  Project: string;
-  CPP: number;
-  Icon: number;
-  Banner: number;
-  PLA: number;
-  Video: number;
-}
+import type { WeeklyOrder } from "../common/AdministratorData";
 
 const initialData: WeeklyOrder[] = [
   {

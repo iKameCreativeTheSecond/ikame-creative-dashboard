@@ -1,23 +1,15 @@
 import { useEffect, useState } from 'react';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import './TeamManagement.css';
+import type { TeamMember } from '../common/AdministratorData';
+import AdminData from '../common/AdministratorData';
 
-type TeamMember = {
-    ID: string;
-    MemberID: string;
-    Name: string;
-    YOB: number;
-    Email: string;
-    Role: string;
-    Team: string;
-};
 
 export default function TeamManagement()
 {
     const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
     async function fetchTeamMembers(): Promise<TeamMember[]>
     {
-
         try {
             const response = await fetch(serverUrl + "/get/team-members", {
                 method: "GET",
@@ -48,8 +40,20 @@ export default function TeamManagement()
         Team: ''
     });
 
-    useEffect(() => {
-        fetchTeamMembers().then(data => setTeamMembers(data));
+    useEffect(() =>
+    {
+        if (AdminData.TeamMembers.length > 0)
+        {
+            setTeamMembers(AdminData.TeamMembers);
+        }
+        else
+        {
+            fetchTeamMembers().then(data =>
+            {
+                setTeamMembers(data);
+                AdminData.TeamMembers = data;
+            });
+        }
     }, []);
 
 
@@ -75,7 +79,9 @@ export default function TeamManagement()
                 body: JSON.stringify({ MemberID: id })
             }).then(() => {
                 console.log("Deleted team member with ID:", id);
-                setTeamMembers(teamMembers.filter(member => member.MemberID !== id));
+                const data = teamMembers.filter(member => member.MemberID !== id);
+                AdminData.TeamMembers = data;
+                setTeamMembers(data);
             }).catch((error) => {
                 console.error("Error deleting team member:", error);
                 alert("Failed to delete team member. Please try again.");
@@ -119,8 +125,11 @@ export default function TeamManagement()
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
-            }).then(() => {
-                setTeamMembers(teamMembers.map(m => m.ID === editingMember.ID ? formData : m));
+            }).then(() =>
+            {
+                const data = teamMembers.map(m => m.ID === editingMember.ID ? formData : m);
+                AdminData.TeamMembers = data;
+                setTeamMembers(data);
             }).catch((error) => {
                 console.error("Error updating team member:", error);
                 alert("Failed to update team member. Please try again.");
@@ -134,8 +143,11 @@ export default function TeamManagement()
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(formData)
-            }).then(() => {
-                setTeamMembers([...teamMembers, { ...formData, ID: (Math.random()*1000000).toFixed(0) }]);
+            }).then(() =>
+            {
+                const data = [...teamMembers, { ...formData, ID: (Math.random()*1000000).toFixed(0) }];
+                setTeamMembers(data);
+                AdminData.TeamMembers = data;
             }).catch((error) => {
                 console.error("Error adding new team member:", error);
                 alert("Failed to add new team member. Please try again.");
