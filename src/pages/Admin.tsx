@@ -1,10 +1,11 @@
 import './Admin.css';
 import { useState } from 'react';
 import TeamManagement from '../components/TeamManagement';
+import WeeklyOrderManagement from '../components/WeeklyOrderManagement';
 
 const tabs = [
     { key: 'team', label: 'Team Management' },
-    { key: 'posts', label: 'Posts' },
+    { key: 'order', label: 'Order' },
     { key: 'videos', label: 'Videos' },
     { key: 'contacts', label: 'Contacts' }
 ];
@@ -16,8 +17,8 @@ export default function Admin() {
         switch (activeTab) {
             case 'team':
                 return <TeamManagement />;
-            case 'posts':
-                return <div style={{ color: '#333', fontSize: '1.5rem', marginTop: '40px' }}>Posts content goes here.</div>;
+            case 'order':
+                return <WeeklyOrderManagement />;
             case 'videos':
                 return <div style={{ color: '#333', fontSize: '1.5rem', marginTop: '40px' }}>Videos content goes here.</div>;
             case 'contacts':
