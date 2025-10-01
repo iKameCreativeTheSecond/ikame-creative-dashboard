@@ -8,7 +8,7 @@
   box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .chart-header {
@@ -61,6 +61,7 @@
 .chart-body {
   position: relative;
   flex: 1 1 auto;
+  overflow: visible;
 }
 
 .chart-overlay-title {
@@ -91,13 +92,54 @@
 
 .recharts-tooltip-wrapper {
   filter: drop-shadow(0 8px 20px rgba(16,24,40,0.12));
+  z-index: 99999 !important;
+  position: absolute !important;
 }
 
 .recharts-default-tooltip {
   border-radius: 8px !important;
   border: 1px solid #E6E9EF !important;
+  z-index: 99999 !important;
 }
 
 .recharts-dot {
   stroke-width: 2;
+}
+
+/* Custom tooltip styles */
+.custom-tooltip {
+  background-color: #fff !important;
+  max-width: 260px;
+  border-radius: 16px;
+  padding: 10px 12px;
+  z-index: 99999 !important;
+}
+.custom-tooltip-issue-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  z-index: 99999 !important;
+}
+
+.custom-tooltip > div:last-child {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E0 #F7FAFC;
+}
+
+.custom-tooltip > div:last-child::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-tooltip > div:last-child::-webkit-scrollbar-track {
+  background: #F7FAFC;
+  border-radius: 3px;
+}
+
+.custom-tooltip > div:last-child::-webkit-scrollbar-thumb {
+  background: #CBD5E0;
+  border-radius: 3px;
+}
+
+.custom-tooltip > div:last-child::-webkit-scrollbar-thumb:hover {
+  background: #A0AEC0;
 }

@@ -13,13 +13,14 @@ export type ChartObjectData = {
 
 export type ChartsProps = {
     data: ChartObjectData[]
+    issues?: import('./ProjectIssueTable').ProjectIssue[]
     title?: string
     height?: number
 }
 
 type ChartType = 'line' | 'column'
 
-export default function Charts({ data, title = 'Performance Dashboard', height = 440 }: ChartsProps) {
+export default function Charts({ data, issues = [], title = 'Performance Dashboard', height = 440 }: ChartsProps) {
     const [chartType, setChartType] = useState<ChartType>('line')
 
     // Chuyển đổi dữ liệu cho LineChart
@@ -116,6 +117,7 @@ export default function Charts({ data, title = 'Performance Dashboard', height =
                     <div style={{ height: '100%', paddingTop: '0' }}>
                         <LineChart 
                             datasets={lineChartData} 
+                            issues={issues}
                             title=""  // Bỏ title vì đã có ở header chung
                             height={height - 60} // Trừ đi chiều cao của header
                         />
@@ -123,7 +125,8 @@ export default function Charts({ data, title = 'Performance Dashboard', height =
                 ) : (
                     <div style={{ height: '100%', paddingTop: '0' }}>
                         <ColumnChart 
-                            data={columnChartData} 
+                            data={ columnChartData } 
+                            issues={issues}    
                             title=""  // Bỏ title vì đã có ở header chung
                             height={height - 60} // Trừ đi chiều cao của header
                         />

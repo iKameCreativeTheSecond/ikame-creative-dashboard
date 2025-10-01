@@ -251,7 +251,7 @@ export default function Home()
         getProjectIssues(isoStartDate, isoEndDate).then(data =>
         {
             console.log('Project issues data:', data);
-            setProjectIssues(data);
+            if (data) setProjectIssues(data);
         }).catch(error =>
         {
             console.error(error);
@@ -277,6 +277,7 @@ export default function Home()
                     <TeamTargetProgress teams={teamWeeklyPerformance} />
                     <Charts
                         data={chartsData}
+                        issues={projectIssues}
                         title="Team Performance Dashboard"
                         height={500}
                     />
