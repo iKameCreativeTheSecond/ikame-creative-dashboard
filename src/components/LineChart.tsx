@@ -13,18 +13,23 @@ import { useMemo, useRef } from 'react'
 import './Chart.css'
 import type { ProjectIssue } from './ProjectIssueTable'
 
-// Fixed palette to match the sample style
+// Fixed palette to match the sample style - expanded for score1 and score2
 const PALETTE = [
   { stroke: '#FF7A00' },
+  { stroke: '#FF9F40' }, // Lighter orange for score2
   { stroke: '#8B5CF6' },
+  { stroke: '#A78BFA' }, // Lighter purple for score2
   { stroke: '#06B6D4' },
+  { stroke: '#22D3EE' }, // Lighter cyan for score2
   { stroke: '#22C55E' },
+  { stroke: '#4ADE80' }, // Lighter green for score2
 ]
 
 export type ObjectData = {
   name: string // Tên đối tượng
   time: string // ISO date string
-  score: number // Điểm
+  score: number // Điểm 1
+  score2: number // Điểm 2
 }
 
 export type MultiObjectData = {
@@ -68,14 +73,25 @@ const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: 
           <p style={{ margin: '0 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#6B7280' }}>
             ĐIỂM HIỆU SUẤT:
           </p>
-          {payload.map((entry: any) => (
-            <div key={entry.dataKey} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '12px' }}>
-              <span style={{ width: '12px', height: '12px', borderRadius: '50%', marginRight: '8px', display: 'inline-block', backgroundColor: entry.color }}></span>
-              <span style={{ color: '#374151' }}>
-                {entry.dataKey}: {entry.value !== null ? entry.value : '-'}
-              </span>
-            </div>
-          ))}
+          {payload.map((entry: any) => {
+            // Tạo tên hiển thị đẹp hơn từ dataKey
+            let displayName = entry.name || entry.dataKey;
+            if (entry.dataKey.includes('_score2')) {
+              const teamName = entry.dataKey.replace('_score2', '');
+              displayName = `${teamName} Base`;
+            } else if (!entry.dataKey.includes('_score2') && entry.dataKey !== 'time') {
+              displayName = `${entry.dataKey} Performance`;
+            }
+            
+            return (
+              <div key={entry.dataKey} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '12px' }}>
+                <span style={{ width: '12px', height: '12px', borderRadius: '50%', marginRight: '8px', display: 'inline-block', backgroundColor: entry.color }}></span>
+                <span style={{ color: '#374151' }}>
+                  {displayName}: {entry.value !== null ? entry.value : '-'}
+                </span>
+              </div>
+            );
+          })}
         </>
       )}
       {issuesAtTime.length > 0 && (
@@ -111,7 +127,8 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
       const entry: Record<string, number | null | string> = { time }
       datasets.forEach((dataset) => {
         const dataPoint = dataset.data.find((d) => d.time === time)
-        entry[dataset.name] = dataPoint ? dataPoint.score : null
+        entry[`${dataset.name}`] = dataPoint ? dataPoint.score : null
+        entry[`${dataset.name}_score2`] = dataPoint ? dataPoint.score2 : null
       })
       return entry
     })
@@ -147,7 +164,7 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
     });
   }, [issues, chartData]);
 
-  const overlayTitle = `Performance Points - ${datasets.length} ${datasets.length > 1 ? 'teams' : 'team'}`
+  const overlayTitle = `Performance Points (2 Scores) - ${datasets.length} ${datasets.length > 1 ? 'teams' : 'team'}`
 
   const handleDownload = () => {
     const container = chartRef.current
@@ -186,12 +203,16 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 48, right: 24, left: 8, bottom: 28 }}>
             <defs>
-              {datasets.map((_, idx) => (
-                <linearGradient key={`grad-${idx}`} id={`grad-${idx}`} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={PALETTE[idx % PALETTE.length].stroke} stopOpacity={0.35} />
-                  <stop offset="95%" stopColor={PALETTE[idx % PALETTE.length].stroke} stopOpacity={0.06} />
+              {datasets.flatMap((_, idx) => [
+                <linearGradient key={`grad-${idx * 2}`} id={`grad-${idx * 2}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={PALETTE[(idx * 2) % PALETTE.length].stroke} stopOpacity={0.35} />
+                  <stop offset="95%" stopColor={PALETTE[(idx * 2) % PALETTE.length].stroke} stopOpacity={0.06} />
+                </linearGradient>,
+                <linearGradient key={`grad-${idx * 2 + 1}`} id={`grad-${idx * 2 + 1}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={PALETTE[(idx * 2 + 1) % PALETTE.length].stroke} stopOpacity={0.35} />
+                  <stop offset="95%" stopColor={PALETTE[(idx * 2 + 1) % PALETTE.length].stroke} stopOpacity={0.06} />
                 </linearGradient>
-              ))}
+              ])}
             </defs>
             <CartesianGrid vertical={true} horizontal={false} strokeDasharray="3 3" stroke="#E6E9EF" />
             <XAxis
@@ -208,20 +229,32 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
             allowEscapeViewBox={{ x: false, y: true }}
             position={{ x: undefined, y: undefined }}
             />
-            {datasets.map((dataset, idx) => (
+            {datasets.flatMap((dataset, idx) => [
               <Area
-                key={`${dataset.name}-area`}
+                key={`${dataset.name}-area-score1`}
                 type="monotone"
                 dataKey={dataset.name}
-                name={dataset.name}
-                stroke={PALETTE[idx % PALETTE.length].stroke}
+                name={`${dataset.name} (Điểm 1)`}
+                stroke={PALETTE[(idx * 2) % PALETTE.length].stroke}
                 strokeWidth={2}
-                fill={`url(#grad-${idx})`}
+                fill={`url(#grad-${idx * 2})`}
+                dot={{ r: 3, strokeWidth: 2, stroke: '#fff' }}
+                activeDot={{ r: 5 }}
+                connectNulls
+              />,
+              <Area
+                key={`${dataset.name}-area-score2`}
+                type="monotone"
+                dataKey={`${dataset.name}_score2`}
+                name={`${dataset.name} (Điểm 2)`}
+                stroke={PALETTE[(idx * 2 + 1) % PALETTE.length].stroke}
+                strokeWidth={2}
+                fill={`url(#grad-${idx * 2 + 1})`}
                 dot={{ r: 3, strokeWidth: 2, stroke: '#fff' }}
                 activeDot={{ r: 5 }}
                 connectNulls
               />
-            ))}
+            ])}
             {/* ReferenceDot for issues */}
             {issueDots
               .filter(dot => dot.x !== null)

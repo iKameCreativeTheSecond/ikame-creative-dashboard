@@ -36,7 +36,8 @@ export default function Charts({ data, issues = [], title = 'Performance Dashboa
             acc[item.name].data.push({
                 name: item.name,
                 time: item.time,
-                score: item.performacePoint
+                score: item.performacePoint,
+                score2: item.basePoint,
             })
 
             return acc

@@ -12,13 +12,34 @@ const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost
 
 // ...existing code...
 
-type PerformanceData = {
-    StartWeek: string; // ISO date string
-    TotalPerformancePoint: number;
-    TotalBasePoint: number;
-    TotalCreativeProcessPoint: number;
-    TotalCreativeTaskPoint: number;
-    Identifier: string; // Email or Team name
+class PerformanceData {
+    public StartWeek: string = ''; // ISO date string
+    public TotalPerformancePoint: number = 0;
+    public TotalBasePoint: number = 0;
+    public TotalCreativeProcessPoint: number = 0;
+    public TotalCreativeTaskPoint: number = 0;
+    public Identifier: string = ''; // Email or Team name
+
+    constructor(startWeek: string, totalPerformancePoint: number, totalBasePoint: number, totalCreativeProcessPoint: number, totalCreativeTaskPoint: number, identifier: string) {
+        this.StartWeek = startWeek;
+        this.TotalPerformancePoint = totalPerformancePoint;
+        this.TotalBasePoint = totalBasePoint;
+        this.TotalCreativeProcessPoint = totalCreativeProcessPoint;
+        this.TotalCreativeTaskPoint = totalCreativeTaskPoint;
+        this.Identifier = identifier;
+    }
+
+    public getTotal(): number {
+        return this.getBase() + this.getCreative();
+    }
+
+    public getCreative(): number {
+        return this.TotalCreativeProcessPoint + this.TotalCreativeTaskPoint;
+    }
+
+    public getBase(): number {
+        return this.TotalBasePoint;
+    }
 }
 
 type TeamWeeklyTarget = {
@@ -142,10 +163,10 @@ export default function Home()
             const p: WeeklyTeamPerformaceData = 
             {
                 name: point.Identifier,
-                total: point.TotalPerformancePoint,
+                total: point.getTotal(),
                 target: (targets && Array.isArray(targets)) ? targets.find(t => t.Team === point.Identifier)?.WeeklyTarget || 0 : 0,
-                base: point.TotalBasePoint,
-                creative: point.TotalCreativeProcessPoint + point.TotalCreativeTaskPoint
+                base: point.getBase(),
+                creative: point.getCreative()
             };
             res.push(p);
         }
@@ -230,12 +251,13 @@ export default function Home()
                     {
                         if (d)
                         {
+                            const performance = new PerformanceData(d.StartWeek, d.TotalPerformancePoint, d.TotalBasePoint, d.TotalCreativeProcessPoint, d.TotalCreativeTaskPoint, d.Identifier);
                             chartData.push({
-                                name: d.Identifier,
-                                time: d.StartWeek,
-                                performacePoint: d.TotalPerformancePoint,
-                                basePoint: d.TotalBasePoint,
-                                creativePoint: d.TotalCreativeProcessPoint + d.TotalCreativeTaskPoint
+                                name: performance.Identifier,
+                                time: performance.StartWeek,
+                                performacePoint: performance.getTotal(),
+                                basePoint: performance.getBase(),
+                                creativePoint: performance.getCreative()
                             });
                         }
                     }
@@ -259,6 +281,13 @@ export default function Home()
         })
     };
 
+    const fakeChartData: ChartObjectData[] = [
+        { name: 'Team A', time: new Date('2023-10-01').toISOString(), performacePoint: 80, basePoint: 50, creativePoint: 30 },
+        { name: 'Team B', time: new Date('2023-10-01').toISOString(), performacePoint: 70, basePoint: 40, creativePoint: 30 },
+        { name: 'Team A', time: new Date('2023-10-08').toISOString(), performacePoint: 90, basePoint: 60, creativePoint: 30 },
+        { name: 'Team B', time: new Date('2023-10-08').toISOString(), performacePoint: 60, basePoint: 30, creativePoint: 30 },
+    ];
+
     return (
         <>
             <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} />
@@ -276,7 +305,7 @@ export default function Home()
                     </div>
                     <TeamTargetProgress teams={teamWeeklyPerformance} />
                     <Charts
-                        data={chartsData}
+                        data={fakeChartData}
                         issues={projectIssues}
                         title="Team Performance Dashboard"
                         height={500}
