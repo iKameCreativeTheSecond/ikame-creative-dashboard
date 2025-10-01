@@ -165,6 +165,8 @@ export class AdministratorData
     memberEmailMap: Map<string, string> = new Map<string, string>();
     emailMemberMap: Map<string, string> = new Map<string, string>();
 
+    CretiveTools: CreativeTool[] = [];
+
     public getMemberEmail(name: string): string | undefined
     {
         if (this.memberEmailMap.size === 0)
