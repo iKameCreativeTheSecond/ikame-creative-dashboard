@@ -1,0 +1,180 @@
+.project-issue-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.project-issue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.project-issue-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.project-count {
+    background: #f8f9fa;
+    color: #6c757d;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.project-issue-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.project-issue-table thead {
+    background: #f8f9fa;
+}
+
+.project-issue-table th {
+    padding: 1rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.project-issue-table td {
+    padding: 0.875rem 0.75rem;
+    border-bottom: 1px solid #f1f3f4;
+    color: #212529;
+    font-size: 0.9rem;
+}
+
+.project-issue-table tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.project-issue-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Specific column styling */
+.project-name {
+    font-weight: 600;
+    color: #2c3e50;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-name {
+    background: #e3f2fd;
+    color: #1565c0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.completed-count,
+.order-count {
+    font-weight: 600;
+    text-align: center;
+}
+
+.difference {
+    font-weight: 700;
+    text-align: center;
+    padding: 0.4rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.status-positive {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-negative {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-neutral {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.assignees {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.no-data {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 2rem 1rem !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .project-issue-table-container {
+        padding: 1rem;
+        margin: 0.5rem 0;
+    }
+    
+    .project-issue-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .project-issue-table th,
+    .project-issue-table td {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.8rem;
+    }
+    
+    .project-name,
+    .assignees {
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .table-wrapper {
+        font-size: 0.75rem;
+    }
+    
+    .project-issue-table th {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .project-issue-table td {
+        padding: 0.5rem 0.25rem;
+    }
+}

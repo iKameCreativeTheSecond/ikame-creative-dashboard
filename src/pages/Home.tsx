@@ -1,11 +1,11 @@
 import './Home.css'
 import Charts, { type ChartObjectData } from '../components/Charts'
 import TeamTargetProgress, { type WeeklyTeamPerformaceData } from '../components/TeamTargetProgress';
+import ProjectIssueTable, { type ProjectIssue } from '../components/ProjectIssueTable';
 import { useState, useEffect } from 'react'
 import Filter from '../components/Filter';
-import { useLocation } from 'react-router-dom';
 import TopBar from '../components/TopBar';
-import { GlobalData, type UserInfo } from '../common/GlobalData';
+import { GlobalData } from '../common/GlobalData';
 
 
 const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
@@ -33,6 +33,7 @@ export default function Home()
     const [ staffOptions, setStaffOptions ] = useState<{ value: string; label: string; team: string }[]>([]);
     const [ chartsData, setChartsData ] = useState<ChartObjectData[]>([]);
     const [ teamWeeklyPerformance, setTeamWeeklyPerformance ] = useState<WeeklyTeamPerformaceData[]>([]);
+    const [ projectIssues, setProjectIssues ] = useState<ProjectIssue[]>([]);
 
     async function getTeamMembers(teams: string[])
     {
@@ -125,13 +126,24 @@ export default function Home()
         const points = await getLastWeekTeamPerformance();
         const targets = await getWeeklyTarget();
         const res: WeeklyTeamPerformaceData[] = [];
+        
+        // Add null check to prevent iteration error
+        if (!points || !Array.isArray(points)) {
+            console.warn('Points data is null or not an array:', points);
+            return res;
+        }
+        
+        if (!targets || !Array.isArray(targets)) {
+            console.warn('Targets data is null or not an array:', targets);
+        }
+        
         for (const point of points)
         {
             const p: WeeklyTeamPerformaceData = 
             {
                 name: point.Identifier,
                 total: point.TotalPerformancePoint,
-                target: targets.find(t => t.Team === point.Identifier)?.WeeklyTarget || 0,
+                target: (targets && Array.isArray(targets)) ? targets.find(t => t.Team === point.Identifier)?.WeeklyTarget || 0 : 0,
                 base: point.TotalBasePoint,
                 creative: point.TotalCreativeProcessPoint + point.TotalCreativeTaskPoint
             };
@@ -161,6 +173,51 @@ export default function Home()
         {
             setTeamWeeklyPerformance(data);
         });
+        
+        // Initialize with sample project issues data
+        const sampleProjectIssues: ProjectIssue[] = [
+            {
+                id: '1',
+                project: 'Website Redesign',
+                team: 'Creative Team A',
+                startWeek: '2025-09-23T00:00:00Z',
+                completedCount: 12,
+                orderCount: 15,
+                difference: -3,
+                assignees: ['john@example.com', 'jane@example.com', 'bob@example.com']
+            },
+            {
+                id: '2',
+                project: 'Mobile App UI',
+                team: 'Creative Team B',
+                startWeek: '2025-09-30T00:00:00Z',
+                completedCount: 8,
+                orderCount: 10,
+                difference: -2,
+                assignees: ['alice@example.com', 'charlie@example.com']
+            },
+            {
+                id: '3',
+                project: 'Brand Guidelines',
+                team: 'Creative Team A',
+                startWeek: '2025-09-16T00:00:00Z',
+                completedCount: 18,
+                orderCount: 15,
+                difference: 3,
+                assignees: ['david@example.com', 'eve@example.com', 'frank@example.com', 'grace@example.com']
+            },
+            {
+                id: '4',
+                project: 'Social Media Campaign',
+                team: 'Creative Team C',
+                startWeek: '2025-09-30T00:00:00Z',
+                completedCount: 5,
+                orderCount: 5,
+                difference: 0,
+                assignees: ['henry@example.com']
+            }
+        ];
+        setProjectIssues(sampleProjectIssues);
         
     }, []);
 
@@ -217,8 +274,8 @@ export default function Home()
     return (
         <>
             <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} />
-            <div style={{ padding: '480px 20px 20px 20px' }}>
-                    <div style={{ marginBottom: 16 }}>
+            <div style={{ padding: '80px 20px 20px 20px' }}>
+                <div style={ { marginTop: 660 } }>
                         <Filter
                             onChange={handleFilterChange}
                             teamOptions={teamOptions}
@@ -234,6 +291,10 @@ export default function Home()
                         data={chartsData}
                         title="Team Performance Dashboard"
                         height={500}
+                    />
+                    <ProjectIssueTable 
+                        data={projectIssues} 
+                        title="Current Project Issues"
                     />
             </div>
         </>
