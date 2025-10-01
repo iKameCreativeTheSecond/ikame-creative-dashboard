@@ -1,27 +1,45 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import "./WeeklyOrderManagement.css";
 import "./WeeklyOrderManagement.grid.css";
 import type { WeeklyOrder } from "../common/AdministratorData";
-
-const initialData: WeeklyOrder[] = [
-  {
-    ID: "652e1a...",
-    StartWeek: "2025-09-29",
-    Goal: "Increase sales",
-    Strategy: "Social media ads",
-    Project: "Project A",
-    CPP: 10,
-    Icon: 5,
-    Banner: 3,
-    PLA: 2,
-    Video: 1,
-  },
-];
+import AdminData from "../common/AdministratorData";
 
 const WeeklyOrderManagement: React.FC = () => {
-  const [orders, setOrders] = useState<WeeklyOrder[]>(initialData);
+  const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
+  
+  // Helper function to format date to dd-mm-yyyy
+  const formatDateToDDMMYYYY = (dateString: string): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; // Return original if invalid date
+    
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}-${month}-${year}`;
+  };
+  
+  async function fetchWeeklyOrders(): Promise<WeeklyOrder[]> {
+    try {
+      const response = await fetch(serverUrl + "/get/weekly-order", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching weekly orders:", error);
+      throw error;
+    }
+  }
+
+  const [orders, setOrders] = useState<WeeklyOrder[]>([]);
+  const [filter, setFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WeeklyOrder | null>(null);
   const [formData, setFormData] = useState<WeeklyOrder>({
@@ -37,6 +55,20 @@ const WeeklyOrderManagement: React.FC = () => {
     Video: 0,
   });
 
+  useEffect(() => {
+    if (AdminData.WeeklyOrders.length > 0) {
+      setOrders(AdminData.WeeklyOrders);
+    } else {
+      fetchWeeklyOrders().then(data => {
+        setOrders(data);
+        AdminData.WeeklyOrders = data;
+      }).catch((err) => {
+        // If server fetch fails, use initial data
+        console.error("ERROR.", err);
+      });
+    }
+  }, []);
+
   const handleEdit = (id: string) => {
     const order = orders.find((o) => o.ID === id);
     if (order) {
@@ -47,8 +79,22 @@ const WeeklyOrderManagement: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Bạn có chắc muốn xóa mục này?")) {
-      setOrders(orders.filter((o) => o.ID !== id));
+    if (window.confirm("Are you sure you want to delete this weekly order?")) {
+      fetch(`${serverUrl}/post/delete-weekly-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ID: id })
+      }).then(() => {
+        console.log("Deleted weekly order with ID:", id);
+        const data = orders.filter(order => order.ID !== id);
+        AdminData.WeeklyOrders = data;
+        setOrders(data);
+      }).catch((error) => {
+        console.error("Error deleting weekly order:", error);
+        alert("Failed to delete weekly order. Please try again.");
+      });
     }
   };
 
@@ -77,6 +123,28 @@ const WeeklyOrderManagement: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    
+    // If StartWeek is being changed, automatically set it to Monday of that week
+    if (name === "StartWeek" && value) {
+      const selectedDate = new Date(value);
+      if (!isNaN(selectedDate.getTime())) {
+        // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+        const dayOfWeek = selectedDate.getDay();
+        // Calculate how many days to subtract to get to Monday
+        const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        // Set the date to Monday of that week
+        selectedDate.setDate(selectedDate.getDate() - daysToSubtract);
+        // Format back to YYYY-MM-DD for the input field
+        const mondayDate = selectedDate.toISOString().split('T')[0];
+        
+        setFormData((prev) => ({
+          ...prev,
+          [name]: mondayDate,
+        }));
+        return;
+      }
+    }
+    
     setFormData((prev) => ({
       ...prev,
       [name]: ["CPP", "Icon", "Banner", "PLA", "Video"].includes(name)
@@ -88,22 +156,71 @@ const WeeklyOrderManagement: React.FC = () => {
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingOrder) {
-      setOrders(
-        orders.map((o) => (o.ID === editingOrder.ID ? { ...formData, ID: editingOrder.ID } : o))
-      );
+      // Edit existing order
+      fetch(`${serverUrl}/post/update-weekly-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ...formData, ID: editingOrder.ID })
+      }).then(() => {
+        const data = orders.map(o => o.ID === editingOrder.ID ? { ...formData, ID: editingOrder.ID } : o);
+        AdminData.WeeklyOrders = data;
+        setOrders(data);
+      }).catch((error) => {
+        console.error("Error updating weekly order:", error);
+        alert("Failed to update weekly order. Please try again.");
+      });
     } else {
-      setOrders([
-        ...orders,
-        { ...formData, ID: (Math.random() * 1000000).toFixed(0) },
-      ]);
+      // Add new order
+      console.log("Adding new weekly order:", formData);
+      const newOrder = { ...formData, ID: (Math.random() * 1000000).toFixed(0) };
+      fetch(`${serverUrl}/post/add-new-weekly-order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newOrder)
+      }).then(() => {
+        const data = [...orders, newOrder];
+        setOrders(data);
+        AdminData.WeeklyOrders = data;
+      }).catch((error) => {
+        console.error("Error adding new weekly order:", error);
+        alert("Failed to add new weekly order. Please try again.");
+      });
     }
     setShowModal(false);
   };
 
+  // Filter weekly orders by project, goal, strategy, or start week
+  const filteredOrders = orders.filter(order => {
+    const filterLower = filter.toLowerCase();
+    return (
+      order.Project.toLowerCase().includes(filterLower) ||
+      order.Goal.toLowerCase().includes(filterLower) ||
+      order.Strategy.toLowerCase().includes(filterLower) ||
+      order.StartWeek.toLowerCase().includes(filterLower)
+    );
+  });
+
   return (
-    <div className="weekly-order-management">
-      <h2>Weekly Order Management</h2>
-      <table>
+    <div className="team-management">
+      <h1 className="admin-title">Weekly Order Management</h1>
+      <p className="admin-description">Add, edit, or remove weekly orders from the system.</p>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <input
+          type="text"
+          className="filter-input"
+          placeholder="Filter by project, goal, strategy, or start week..."
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+          style={{ width: '500px' }}
+        />
+      </div>
+
+      <table className="team-table">
         <thead>
           <tr>
             <th>Start Week</th>
@@ -119,9 +236,9 @@ const WeeklyOrderManagement: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
+          {filteredOrders.map((order) => (
             <tr key={order.ID}>
-              <td>{order.StartWeek}</td>
+              <td>{formatDateToDDMMYYYY(order.StartWeek)}</td>
               <td>{order.Goal}</td>
               <td>{order.Strategy}</td>
               <td>{order.Project}</td>
@@ -144,7 +261,7 @@ const WeeklyOrderManagement: React.FC = () => {
       </table>
 
       <button className="floating-button" onClick={handleAdd}>
-        <FaPlus /> Thêm mới
+        <FaPlus />
       </button>
 
       {showModal && (
@@ -159,11 +276,11 @@ const WeeklyOrderManagement: React.FC = () => {
                 </div>
                 <div className="form-group">
                   <label htmlFor="Goal">Goal:</label>
-                  <textarea id="Goal" name="Goal" value={formData.Goal} onChange={handleFormChange} required rows={2} style={{ minHeight: '48px', resize: 'vertical' }} />
+                  <textarea id="Goal" name="Goal" value={formData.Goal} onChange={handleFormChange} required rows={2} style={{ minHeight: '200px', resize: 'vertical' }} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="Strategy">Strategy:</label>
-                  <textarea id="Strategy" name="Strategy" value={formData.Strategy} onChange={handleFormChange} required rows={2} style={{ minHeight: '48px', resize: 'vertical' }} />
+                  <textarea id="Strategy" name="Strategy" value={formData.Strategy} onChange={handleFormChange} required rows={2} style={{ minHeight: '200px', resize: 'vertical' }} />
                 </div>
               </div>
               <div className="form-side-fields">

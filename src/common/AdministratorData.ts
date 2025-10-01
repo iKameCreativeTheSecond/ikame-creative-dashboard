@@ -166,6 +166,10 @@ export class AdministratorData
     emailMemberMap: Map<string, string> = new Map<string, string>();
 
     CretiveTools: CreativeTool[] = [];
+    Levels: Level[] = [];
+    WeeklyTargets: WeeklyTarget[] = [];
+    ProjectDetails: ProjectDetail[] = [];
+
 
     public getMemberEmail(name: string): string | undefined
     {

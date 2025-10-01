@@ -7,7 +7,7 @@ import CreativeToolManagement from '../components/CreativeToolManagement';
 const tabs = [
     { key: 'team', label: 'Team Management' },
     { key: 'creative-tool', label: 'Creative Tool' },
-    { key: 'videos', label: 'Videos' },
+    { key: 'weekly-orders', label: 'Weekly Orders' },
     { key: 'contacts', label: 'Contacts' }
 ];
 
@@ -20,8 +20,8 @@ export default function Admin() {
                 return <TeamManagement />;
             case 'creative-tool':
                 return <CreativeToolManagement />;
-            case 'videos':
-                return <div style={{ color: '#333', fontSize: '1.5rem', marginTop: '40px' }}>Videos content goes here.</div>;
+            case 'weekly-orders':
+                return <WeeklyOrderManagement />;
             case 'contacts':
                 return <div style={{ color: '#333', fontSize: '1.5rem', marginTop: '40px' }}>Contacts content goes here.</div>;
             default:
