@@ -152,6 +152,30 @@ export default function Home()
         return res;
     }
 
+    async function getProjectIssues(startDate: string | null, endDate: string | null): Promise<ProjectIssue[]>
+    {
+        if (!startDate || !endDate) return [];
+        try
+        {
+            const response = await fetch(`${serverUrl}/post/project-issues`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': GlobalData.getUserToken() || ''
+                },
+                body: JSON.stringify({ StartDate : startDate, EndDate: endDate })
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json() as ProjectIssue[];
+        }
+        catch (error)
+        {
+            console.error('Error fetching project issues:', error);
+            return [];
+        }
+    }
+
+
     // Fetch initial options and chart data
     useEffect(() =>
     {
@@ -173,51 +197,6 @@ export default function Home()
         {
             setTeamWeeklyPerformance(data);
         });
-        
-        // Initialize with sample project issues data
-        const sampleProjectIssues: ProjectIssue[] = [
-            {
-                id: '1',
-                project: 'Website Redesign',
-                team: 'Creative Team A',
-                startWeek: '2025-09-23T00:00:00Z',
-                completedCount: 12,
-                orderCount: 15,
-                difference: -3,
-                assignees: ['john@example.com', 'jane@example.com', 'bob@example.com']
-            },
-            {
-                id: '2',
-                project: 'Mobile App UI',
-                team: 'Creative Team B',
-                startWeek: '2025-09-30T00:00:00Z',
-                completedCount: 8,
-                orderCount: 10,
-                difference: -2,
-                assignees: ['alice@example.com', 'charlie@example.com']
-            },
-            {
-                id: '3',
-                project: 'Brand Guidelines',
-                team: 'Creative Team A',
-                startWeek: '2025-09-16T00:00:00Z',
-                completedCount: 18,
-                orderCount: 15,
-                difference: 3,
-                assignees: ['david@example.com', 'eve@example.com', 'frank@example.com', 'grace@example.com']
-            },
-            {
-                id: '4',
-                project: 'Social Media Campaign',
-                team: 'Creative Team C',
-                startWeek: '2025-09-30T00:00:00Z',
-                completedCount: 5,
-                orderCount: 5,
-                difference: 0,
-                assignees: ['henry@example.com']
-            }
-        ];
-        setProjectIssues(sampleProjectIssues);
         
     }, []);
 
@@ -269,13 +248,22 @@ export default function Home()
                 setChartsData([]);
             });
 
+        getProjectIssues(isoStartDate, isoEndDate).then(data =>
+        {
+            console.log('Project issues data:', data);
+            setProjectIssues(data);
+        }).catch(error =>
+        {
+            console.error(error);
+            setProjectIssues([]);
+        })
     };
 
     return (
         <>
             <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} />
             <div style={{ padding: '80px 20px 20px 20px' }}>
-                <div style={ { marginTop: 660 } }>
+                <div style={ { marginTop: 780 } }>
                         <Filter
                             onChange={handleFilterChange}
                             teamOptions={teamOptions}

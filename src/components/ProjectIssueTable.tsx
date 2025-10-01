@@ -1,14 +1,15 @@
+import { useState, useMemo, useCallback } from 'react';
 import './ProjectIssueTable.css';
 
 export type ProjectIssue = {
-    id?: string;
-    project: string;
-    startWeek: string;
-    completedCount: number;
-    assignees: string[];
-    difference: number;
-    team: string;
-    orderCount: number;
+    Id?: string;
+    Project: string;
+    StartWeek: string;
+    CompletedCount: number;
+    Assignees: string[];
+    Difference: number;
+    Team: string;
+    OrderCount: number;
 }
 
 interface ProjectIssueTableProps {
@@ -16,7 +17,95 @@ interface ProjectIssueTableProps {
     title?: string;
 }
 
+interface FilterState {
+    projectName: string[];
+    assignee: string[];
+    team: string[];
+    status: string[];
+}
+
 export default function ProjectIssueTable({ data, title = "Project Issues" }: ProjectIssueTableProps) {
+    // Filter states
+    const [filters, setFilters] = useState<FilterState>({
+        projectName: [],
+        assignee: [],
+        team: [],
+        status: []
+    });
+
+    // Get unique values for filter options
+    const uniqueProjects = useMemo(() => {
+        return Array.from(new Set(data.map(item => item.Project).filter(Boolean))).sort();
+    }, [data]);
+
+    const uniqueTeams = useMemo(() => {
+        return Array.from(new Set(data.map(item => item.Team).filter(Boolean))).sort();
+    }, [data]);
+
+    const uniqueAssignees = useMemo(() => {
+        const allAssignees = data.flatMap(item => item.Assignees);
+        return Array.from(new Set(allAssignees.filter(Boolean))).sort();
+    }, [data]);
+
+    // Filter data based on current filters
+    const filteredData = useMemo(() => {
+        return data.filter(item => {
+            // Project name filter
+            if (filters.projectName.length > 0 && !filters.projectName.includes(item.Project)) {
+                return false;
+            }
+
+            // Team filter
+            if (filters.team.length > 0 && !filters.team.includes(item.Team)) {
+                return false;
+            }
+
+            // Assignee filter
+            if (filters.assignee.length > 0 && !item.Assignees.some(assignee => 
+                filters.assignee.includes(assignee)
+            )) {
+                return false;
+            }
+
+            // Status filter based on Difference value
+            if (filters.status.length > 0) {
+                const matchesStatus = filters.status.some(status => {
+                    if (status === 'positive' && item.Difference > 0) return true;
+                    if (status === 'negative' && item.Difference < 0) return true;
+                    if (status === 'zero' && item.Difference === 0) return true;
+                    return false;
+                });
+                if (!matchesStatus) return false;
+            }
+
+            return true;
+        });
+    }, [data, filters]);
+
+    // Handle filter changes for multi-select
+    const handleFilterChange = useCallback((key: keyof FilterState, value: string) => {
+        setFilters(prev => {
+            const currentValues = prev[key] as string[];
+            const newValues = currentValues.includes(value)
+                ? currentValues.filter(v => v !== value)
+                : [...currentValues, value];
+            return { ...prev, [key]: newValues };
+        });
+    }, []);
+
+    // Clear all filters
+    const clearFilters = useCallback(() => {
+        setFilters({
+            projectName: [],
+            assignee: [],
+            team: [],
+            status: []
+        });
+    }, []);
+
+    // Check if any filters are active
+    const hasActiveFilters = filters.projectName.length > 0 || filters.assignee.length > 0 || filters.team.length > 0 || filters.status.length > 0;
+
     // Format date for display
     const formatDate = (dateString: string) => {
         try {
@@ -35,14 +124,14 @@ export default function ProjectIssueTable({ data, title = "Project Issues" }: Pr
 
     // Get status based on difference
     const getStatusClass = (difference: number) => {
-        if (difference > 0) return 'status-positive';
-        if (difference < 0) return 'status-negative';
+        if (difference < 0) return 'status-positive';
+        if (difference > 0) return 'status-negative';
         return 'status-neutral';
     };
 
     const getStatusText = (difference: number) => {
-        if (difference > 0) return `+${difference}`;
-        if (difference < 0) return `${difference}`;
+        if (difference > 0) return `-${difference}`;
+        if (difference < 0) return `+${difference}`;
         return '0';
     };
 
@@ -50,7 +139,119 @@ export default function ProjectIssueTable({ data, title = "Project Issues" }: Pr
         <div className="project-issue-table-container">
             <div className="project-issue-header">
                 <h3>{title}</h3>
-                <span className="project-count">{data.length} projects</span>
+                <span className="project-count">{filteredData.length} of {data.length} projects</span>
+            </div>
+            
+            {/* Filter Controls */}
+            <div className="filter-controls">
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <label>Project Name:</label>
+                        <div className="multi-select-container">
+                            <div className="multi-select-display">
+                                {filters.projectName.length === 0 ? 'All Projects' : `${filters.projectName.length} selected`}
+                            </div>
+                            <div className="multi-select-options">
+                                {uniqueProjects.map(project => (
+                                    <label key={project} className="multi-select-option">
+                                        <input
+                                            type="checkbox"
+                                            checked={filters.projectName.includes(project)}
+                                            onChange={() => handleFilterChange('projectName', project)}
+                                        />
+                                        <span>{project}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Team:</label>
+                        <div className="multi-select-container">
+                            <div className="multi-select-display">
+                                {filters.team.length === 0 ? 'All Teams' : `${filters.team.length} selected`}
+                            </div>
+                            <div className="multi-select-options">
+                                {uniqueTeams.map(team => (
+                                    <label key={team} className="multi-select-option">
+                                        <input
+                                            type="checkbox"
+                                            checked={filters.team.includes(team)}
+                                            onChange={() => handleFilterChange('team', team)}
+                                        />
+                                        <span>{team}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Assignee:</label>
+                        <div className="multi-select-container">
+                            <div className="multi-select-display">
+                                {filters.assignee.length === 0 ? 'All Assignees' : `${filters.assignee.length} selected`}
+                            </div>
+                            <div className="multi-select-options">
+                                {uniqueAssignees.map(assignee => (
+                                    <label key={assignee} className="multi-select-option">
+                                        <input
+                                            type="checkbox"
+                                            checked={filters.assignee.includes(assignee)}
+                                            onChange={() => handleFilterChange('assignee', assignee)}
+                                        />
+                                        <span>{assignee}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Difference:</label>
+                        <div className="multi-select-container">
+                            <div className="multi-select-display">
+                                {filters.status.length === 0 ? 'All Differences' : `${filters.status.length} selected`}
+                            </div>
+                            <div className="multi-select-options">
+                                <label className="multi-select-option">
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.status.includes('positive')}
+                                        onChange={() => handleFilterChange('status', 'positive')}
+                                    />
+                                    <span>Positive (+)</span>
+                                </label>
+                                <label className="multi-select-option">
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.status.includes('negative')}
+                                        onChange={() => handleFilterChange('status', 'negative')}
+                                    />
+                                    <span>Negative (-)</span>
+                                </label>
+                                <label className="multi-select-option">
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.status.includes('zero')}
+                                        onChange={() => handleFilterChange('status', 'zero')}
+                                    />
+                                    <span>Zero (0)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={clearFilters}
+                        className={`clear-filters-btn ${hasActiveFilters ? 'active' : ''}`}
+                        title="Clear all filters"
+                        disabled={!hasActiveFilters}
+                    >
+                        Clear Filters {hasActiveFilters && '✕'}
+                    </button>
+                </div>
             </div>
             
             <div className="table-wrapper">
@@ -67,25 +268,25 @@ export default function ProjectIssueTable({ data, title = "Project Issues" }: Pr
                         </tr>
                     </thead>
                     <tbody>
-                        {data.length === 0 ? (
+                        {filteredData.length === 0 ? (
                             <tr>
                                 <td colSpan={7} className="no-data">
-                                    No project issues found
+                                    {data.length === 0 ? 'No project issues found' : 'No projects match the current filters'}
                                 </td>
                             </tr>
                         ) : (
-                            data.map((issue, index) => (
-                                <tr key={issue.id || index}>
-                                    <td className="project-name">{issue.project}</td>
-                                    <td className="team-name">{issue.team}</td>
-                                    <td>{formatDate(issue.startWeek)}</td>
-                                    <td className="completed-count">{issue.completedCount}</td>
-                                    <td className="order-count">{issue.orderCount}</td>
-                                    <td className={`difference ${getStatusClass(issue.difference)}`}>
-                                        {getStatusText(issue.difference)}
+                            filteredData.map((issue, index) => (
+                                <tr key={issue.Id || index}>
+                                    <td className="project-name">{issue.Project}</td>
+                                    <td className="team-name">{issue.Team}</td>
+                                    <td>{formatDate(issue.StartWeek)}</td>
+                                    <td className="completed-count">{issue.CompletedCount}</td>
+                                    <td className="order-count">{issue.OrderCount}</td>
+                                    <td className={`difference ${getStatusClass(issue.Difference)}`}>
+                                        {getStatusText(issue.Difference)}
                                     </td>
-                                    <td className="assignees" title={issue.assignees.join(', ')}>
-                                        {formatAssignees(issue.assignees)}
+                                    <td className="assignees" title={issue.Assignees.join(', ')}>
+                                        {formatAssignees(issue.Assignees)}
                                     </td>
                                 </tr>
                             ))
