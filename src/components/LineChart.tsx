@@ -30,6 +30,7 @@ export type ObjectData = {
   time: string // ISO date string
   score: number // Điểm 1
   score2: number // Điểm 2
+  score3: number // Điểm 3 (Creative)
 }
 
 export type MultiObjectData = {
@@ -50,6 +51,9 @@ const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: 
     return null;
   }
 
+  // Lấy thông tin từ payload để tìm timeGroup
+  const currentItem = payload[0]?.payload;
+  if (!currentItem) return null;
 
   // Tìm các issue tại mốc thời gian này
   let issuesAtTime: ProjectIssue[] = [];
@@ -62,36 +66,69 @@ const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: 
     });
   }
 
-  // Nếu có cả issue và điểm, show hai tooltip cạnh nhau
+  // Gom các team/object tại cùng một thời điểm
+  const teamsAtTime: Array<{name: string, score: number | null, score2: number | null, score3: number | null}> = [];
+  
+  // Tìm tất cả các team từ currentItem (loại bỏ time và các key _score2, _score3)
+  const teamNames = Object.keys(currentItem).filter(key => 
+    key !== 'time' && 
+    !key.includes('_score2') && 
+    !key.includes('_score3')
+  );
+
+  teamNames.forEach(teamName => {
+    teamsAtTime.push({
+      name: teamName,
+      score: currentItem[teamName] ?? null,
+      score2: currentItem[`${teamName}_score2`] ?? null,
+      score3: currentItem[`${teamName}_score3`] ?? null
+    });
+  });
+
   return (
     <div className="custom-tooltip" style={{ zIndex: 9999 }}>
       <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '14px', color: '#1F2937' }}>
-        Ngày: {new Date(label as string).toLocaleDateString('vi-VN')}
+        {new Date(label as string).toLocaleDateString('vi-VN')}
       </p>
-      {payload.length > 0 && (
+      {teamsAtTime.length > 0 && (
         <>
           <p style={{ margin: '0 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#6B7280' }}>
             ĐIỂM HIỆU SUẤT:
           </p>
-          {payload.map((entry: any) => {
-            // Tạo tên hiển thị đẹp hơn từ dataKey
-            let displayName = entry.name || entry.dataKey;
-            if (entry.dataKey.includes('_score2')) {
-              const teamName = entry.dataKey.replace('_score2', '');
-              displayName = `${teamName} Base`;
-            } else if (!entry.dataKey.includes('_score2') && entry.dataKey !== 'time') {
-              displayName = `${entry.dataKey} Performance`;
-            }
-            
-            return (
-              <div key={entry.dataKey} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '12px' }}>
-                <span style={{ width: '12px', height: '12px', borderRadius: '50%', marginRight: '8px', display: 'inline-block', backgroundColor: entry.color }}></span>
-                <span style={{ color: '#374151' }}>
-                  {displayName}: {entry.value !== null ? entry.value : '-'}
-                </span>
-              </div>
-            );
-          })}
+          {teamsAtTime.map((team, teamIndex) => (
+            <div key={team.name} style={{ marginBottom: '8px' }}>
+              <p style={{ margin: '0 0 4px 0', fontWeight: '600', fontSize: '11px', color: '#4B5563' }}>
+                {team.name}:
+              </p>
+              {/* Base Score */}
+              {team.score2 !== null && (
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: PALETTE[(teamIndex * 2 + 1) % PALETTE.length].stroke }}></span>
+                  <span style={{ color: '#374151' }}>
+                    Base: {team.score2}
+                  </span>
+                </div>
+              )}
+              {/* Performance Score */}
+              {team.score !== null && (
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: PALETTE[(teamIndex * 2) % PALETTE.length].stroke }}></span>
+                  <span style={{ color: '#374151' }}>
+                    Performance: {team.score}
+                  </span>
+                </div>
+              )}
+              {/* Creative Score */}
+              {team.score3 !== null && (
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: '#06B6D4' }}></span>
+                  <span style={{ color: '#374151' }}>
+                    Creative: {team.score3}
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
         </>
       )}
       {issuesAtTime.length > 0 && (
@@ -129,6 +166,7 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
         const dataPoint = dataset.data.find((d) => d.time === time)
         entry[`${dataset.name}`] = dataPoint ? dataPoint.score : null
         entry[`${dataset.name}_score2`] = dataPoint ? dataPoint.score2 : null
+        entry[`${dataset.name}_score3`] = dataPoint && dataPoint.score3 !== undefined ? dataPoint.score3 : null
       })
       return entry
     })

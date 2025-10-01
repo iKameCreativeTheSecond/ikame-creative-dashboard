@@ -281,12 +281,12 @@ export default function Home()
         })
     };
 
-    const fakeChartData: ChartObjectData[] = [
-        { name: 'Team A', time: new Date('2023-10-01').toISOString(), performacePoint: 80, basePoint: 50, creativePoint: 30 },
-        { name: 'Team B', time: new Date('2023-10-01').toISOString(), performacePoint: 70, basePoint: 40, creativePoint: 30 },
-        { name: 'Team A', time: new Date('2023-10-08').toISOString(), performacePoint: 90, basePoint: 60, creativePoint: 30 },
-        { name: 'Team B', time: new Date('2023-10-08').toISOString(), performacePoint: 60, basePoint: 30, creativePoint: 30 },
-    ];
+    // const fakeChartData: ChartObjectData[] = [
+    //     { name: 'Team A', time: new Date('2023-09-22').toISOString(), performacePoint: 80, basePoint: 50, creativePoint: 30 },
+    //     { name: 'Team B', time: new Date('2023-10-01').toISOString(), performacePoint: 70, basePoint: 40, creativePoint: 30 },
+    //     { name: 'Team A', time: new Date('2023-10-08').toISOString(), performacePoint: 90, basePoint: 60, creativePoint: 30 },
+    //     { name: 'Team B', time: new Date('2023-10-08').toISOString(), performacePoint: 60, basePoint: 30, creativePoint: 30 },
+    // ];
 
     return (
         <>
@@ -305,7 +305,7 @@ export default function Home()
                     </div>
                     <TeamTargetProgress teams={teamWeeklyPerformance} />
                     <Charts
-                        data={fakeChartData}
+                        data={chartsData}
                         issues={projectIssues}
                         title="Team Performance Dashboard"
                         height={500}

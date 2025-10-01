@@ -54,19 +54,31 @@ const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: 
           <p style={{ margin: '0 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#6B7280' }}>
             ĐIỂM HIỆU SUẤT:
           </p>
+          {/* Hiển thị các score từ payload */}
           {payload.map((entry: any) => {
             const displayName = entry.dataKey === 'score1' ? 'Performance' : 
                                entry.dataKey === 'score2' ? 'Base' : 
                                entry.dataKey === 'score3' ? 'Creative' : entry.dataKey;
+            // Hiển thị giá trị gốc cho score1 trong tooltip
+            const displayValue = entry.dataKey === 'score1' ? currentItem.originalScore1 : entry.value;
             return (
               <div key={entry.dataKey} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '12px' }}>
                 <span style={{ width: '12px', height: '12px', borderRadius: '2px', marginRight: '8px', display: 'inline-block', backgroundColor: entry.color }}></span>
                 <span style={{ color: '#374151' }}>
-                  {displayName}: {entry.value !== null ? entry.value : '-'}
+                  {displayName}: {displayValue !== null ? displayValue : '-'}
                 </span>
               </div>
             )
           })}
+          {/* Hiển thị Creative (score3) riêng biệt vì không có trong payload */}
+          {currentItem.score3 !== undefined && (
+            <div key="creative-score" style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '12px' }}>
+              <span style={{ width: '12px', height: '12px', borderRadius: '2px', marginRight: '8px', display: 'inline-block', backgroundColor: '#06B6D4' }}></span>
+              <span style={{ color: '#374151' }}>
+                Creative: {currentItem.score3 !== null ? currentItem.score3 : '-'}
+              </span>
+            </div>
+          )}
         </>
       )}
       {issuesAtTime.length > 0 && (
@@ -128,9 +140,10 @@ export default function ColumnChart({ data, issues = [], title = 'Column Chart',
           timeGroup: group.time,
           displayTime: `${new Date(group.time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} - ${obj.name}`,
           name: obj.name,
-          score1: obj.score1,
+          score1: Math.max(0, obj.score1 - obj.score2), // Giảm score1 đi score2
           score2: obj.score2,
           score3: obj.score3,
+          originalScore1: obj.score1, // Giữ lại giá trị gốc để hiển thị trong tooltip
           objectIndex: index,
         }))
       )
@@ -245,30 +258,23 @@ export default function ColumnChart({ data, issues = [], title = 'Column Chart',
               verticalAlign="bottom"
               height={1}
               formatter={(value) => value === 'score1' ? 'Performance' : 
-                                   value === 'score2' ? 'Base' : 
-                                   value === 'score3' ? 'Creative' : value}
-            />
-            <Bar 
-              dataKey="score1" 
-              name="score1"
-              fill={PALETTE[0].fill}
-              stroke={PALETTE[0].stroke}
-              strokeWidth={1}
-              radius={[2, 2, 0, 0]}
+                                   value === 'score2' ? 'Base' : value}
             />
             <Bar 
               dataKey="score2" 
               name="score2"
+              stackId="stack"
               fill={PALETTE[1].fill}
               stroke={PALETTE[1].stroke}
               strokeWidth={1}
-              radius={[2, 2, 0, 0]}
+              radius={[0, 0, 0, 0]}
             />
             <Bar 
-              dataKey="score3" 
-              name="score3"
-              fill={PALETTE[2].fill}
-              stroke={PALETTE[2].stroke}
+              dataKey="score1" 
+              name="score1"
+              stackId="stack"
+              fill={PALETTE[0].fill}
+              stroke={PALETTE[0].stroke}
               strokeWidth={1}
               radius={[2, 2, 0, 0]}
             />
