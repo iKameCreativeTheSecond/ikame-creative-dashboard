@@ -170,6 +170,7 @@ export class AdministratorData
     WeeklyTargets: WeeklyTarget[] = [];
     ProjectDetails: ProjectDetail[] = [];
 
+    private projectList : string[] = [];
 
     public getMemberEmail(name: string): string | undefined
     {
@@ -188,6 +189,15 @@ export class AdministratorData
         }
         return this.emailMemberMap.get(email);
     }
+
+    public getListProjects(): string[]
+    {
+        if (this.projectList.length > 0) return this.projectList;
+
+        this.ProjectDetails.forEach((p) => this.projectList.push(p.Project));
+        return this.projectList;
+    }
+
 }
 
 const AdminData = new AdministratorData();

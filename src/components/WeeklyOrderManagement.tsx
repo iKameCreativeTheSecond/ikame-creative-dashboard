@@ -21,6 +21,39 @@ const WeeklyOrderManagement: React.FC = () => {
     
     return `${day}-${month}-${year}`;
   };
+
+  // Helper function to get Monday of current week
+  const getMondayOfWeek = (date: Date): Date => {
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(date.setDate(diff));
+  };
+
+  // Helper function to format date for input (YYYY-MM-DD)
+  const formatDateForInput = (date: Date): string => {
+    return date.toISOString().split('T')[0];
+  };
+
+  // Quick filter options - filter from current time backwards
+  const handleQuickFilter = (weeks: number) => {
+    const today = new Date();
+    const currentMonday = getMondayOfWeek(new Date(today));
+    const toDate = formatDateForInput(currentMonday);
+    
+    // Calculate the from date by going backwards from current Monday
+    const fromDate = new Date(currentMonday);
+    fromDate.setDate(fromDate.getDate() - (weeks * 7) + 7); // +7 to include current week
+    const fromDateStr = formatDateForInput(fromDate);
+    
+    setDateFrom(fromDateStr);
+    setDateTo(toDate);
+  };
+
+  // Clear date filters
+  const clearDateFilters = () => {
+    setDateFrom("");
+    setDateTo("");
+  };
   
   async function fetchWeeklyOrders(): Promise<WeeklyOrder[]> {
     try {
@@ -40,6 +73,8 @@ const WeeklyOrderManagement: React.FC = () => {
 
   const [orders, setOrders] = useState<WeeklyOrder[]>([]);
   const [filter, setFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WeeklyOrder | null>(null);
   const [formData, setFormData] = useState<WeeklyOrder>({
@@ -193,15 +228,34 @@ const WeeklyOrderManagement: React.FC = () => {
     setShowModal(false);
   };
 
-  // Filter weekly orders by project, goal, strategy, or start week
+  // Filter weekly orders by project, goal, strategy, start week, and date range
   const filteredOrders = orders.filter(order => {
     const filterLower = filter.toLowerCase();
-    return (
+    const textMatch = (
       order.Project.toLowerCase().includes(filterLower) ||
       order.Goal.toLowerCase().includes(filterLower) ||
       order.Strategy.toLowerCase().includes(filterLower) ||
       order.StartWeek.toLowerCase().includes(filterLower)
     );
+
+    // Date range filter
+    let dateMatch = true;
+    if (dateFrom || dateTo) {
+      const orderDate = new Date(order.StartWeek);
+      if (dateFrom && dateTo) {
+        const fromDate = new Date(dateFrom);
+        const toDate = new Date(dateTo);
+        dateMatch = orderDate >= fromDate && orderDate <= toDate;
+      } else if (dateFrom) {
+        const fromDate = new Date(dateFrom);
+        dateMatch = orderDate >= fromDate;
+      } else if (dateTo) {
+        const toDate = new Date(dateTo);
+        dateMatch = orderDate <= toDate;
+      }
+    }
+
+    return textMatch && dateMatch;
   });
 
   return (
@@ -209,15 +263,57 @@ const WeeklyOrderManagement: React.FC = () => {
       <h1 className="admin-title">Weekly Order Management</h1>
       <p className="admin-description">Add, edit, or remove weekly orders from the system.</p>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="filter-container">
         <input
           type="text"
-          className="filter-input"
-          placeholder="Filter by project, goal, strategy, or start week..."
+          className="main-filter-input"
+          placeholder="🔍 Filter by project, goal, strategy, or start week..."
           value={filter}
           onChange={e => setFilter(e.target.value)}
-          style={{ width: '500px' }}
         />
+        
+        <div className="date-filter-section">
+          <div className="date-input-group">
+            <label className="date-label from-label">📅 From:</label>
+            <input
+              type="date"
+              className="date-input"
+              value={dateFrom}
+              onChange={e => setDateFrom(e.target.value)}
+            />
+          </div>
+          
+          <div className="date-input-group">
+            <label className="date-label to-label">📅 To:</label>
+            <input
+              type="date"
+              className="date-input"
+              value={dateTo}
+              onChange={e => setDateTo(e.target.value)}
+            />
+          </div>
+          
+          <button 
+            className="clear-dates-button"
+            onClick={clearDateFilters}
+          >
+            🗑️ Clear Dates
+          </button>
+        </div>
+        
+        <div className="quick-filter-section">
+          <span className="quick-filter-title">⚡ Quick filters:</span>
+          
+          {[1, 2, 4, 6].map(weeks => (
+            <button 
+              key={weeks}
+              className="quick-filter-button"
+              onClick={() => handleQuickFilter(weeks)}
+            >
+              {weeks} Week{weeks > 1 ? 's' : ''}
+            </button>
+          ))}
+        </div>
       </div>
 
       <table className="team-table">
