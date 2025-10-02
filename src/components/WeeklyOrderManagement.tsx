@@ -98,7 +98,6 @@ const WeeklyOrderManagement: React.FC = () => {
         setOrders(data);
         AdminData.WeeklyOrders = data;
       }).catch((err) => {
-        // If server fetch fails, use initial data
         console.error("ERROR.", err);
       });
     }
@@ -108,7 +107,12 @@ const WeeklyOrderManagement: React.FC = () => {
     const order = orders.find((o) => o.ID === id);
     if (order) {
       setEditingOrder(order);
-      setFormData(order);
+      // Format StartWeek properly for date input
+      const formattedOrder = {
+        ...order,
+        StartWeek: order.StartWeek ? formatDateForInput(new Date(order.StartWeek)) : ""
+      };
+      setFormData(formattedOrder);
       setShowModal(true);
     }
   };
@@ -135,9 +139,14 @@ const WeeklyOrderManagement: React.FC = () => {
 
   const handleAdd = () => {
     setEditingOrder(null);
+    // Set default StartWeek to current Monday
+    const today = new Date();
+    const currentMonday = getMondayOfWeek(new Date(today));
+    const defaultStartWeek = formatDateForInput(currentMonday);
+    
     setFormData({
       ID: "",
-      StartWeek: "",
+      StartWeek: defaultStartWeek,
       Goal: "",
       Strategy: "",
       Project: "",
@@ -192,12 +201,17 @@ const WeeklyOrderManagement: React.FC = () => {
     e.preventDefault();
     if (editingOrder) {
       // Edit existing order
+      const updatedOrder = { ...formData, ID: editingOrder.ID };
+      updatedOrder.StartWeek = new Date(formData.StartWeek).toISOString();
+      // console.log("Updating weekly order:", JSON.stringify(updatedOrder));
+      var bodyJs = JSON.stringify(updatedOrder);
+      console.log("Updating weekly order:", bodyJs);
       fetch(`${serverUrl}/post/update-weekly-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...formData, ID: editingOrder.ID })
+        body: bodyJs
       }).then(() => {
         const data = orders.map(o => o.ID === editingOrder.ID ? { ...formData, ID: editingOrder.ID } : o);
         AdminData.WeeklyOrders = data;
@@ -210,6 +224,7 @@ const WeeklyOrderManagement: React.FC = () => {
       // Add new order
       console.log("Adding new weekly order:", formData);
       const newOrder = { ...formData, ID: (Math.random() * 1000000).toFixed(0) };
+      newOrder.StartWeek = new Date(formData.StartWeek).toISOString();
       fetch(`${serverUrl}/post/add-new-weekly-order`, {
         method: 'POST',
         headers: {
