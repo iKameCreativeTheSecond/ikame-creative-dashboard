@@ -12,16 +12,15 @@ const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost
 
 // ...existing code...
 
+
 class PerformanceData {
-    public StartWeek: string = ''; // ISO date string
     public TotalPerformancePoint: number = 0;
     public TotalBasePoint: number = 0;
     public TotalCreativeProcessPoint: number = 0;
     public TotalCreativeTaskPoint: number = 0;
     public Identifier: string = ''; // Email or Team name
 
-    constructor(startWeek: string, totalPerformancePoint: number, totalBasePoint: number, totalCreativeProcessPoint: number, totalCreativeTaskPoint: number, identifier: string) {
-        this.StartWeek = startWeek;
+    constructor(totalPerformancePoint: number, totalBasePoint: number, totalCreativeProcessPoint: number, totalCreativeTaskPoint: number, identifier: string) {
         this.TotalPerformancePoint = totalPerformancePoint;
         this.TotalBasePoint = totalBasePoint;
         this.TotalCreativeProcessPoint = totalCreativeProcessPoint;
@@ -30,15 +29,40 @@ class PerformanceData {
     }
 
     public getTotal(): number {
-        return this.getBase() + this.getCreative();
+        return Math.round(this.getBase() + this.getCreative());
     }
 
     public getCreative(): number {
-        return this.TotalCreativeProcessPoint + this.TotalCreativeTaskPoint;
+        return Math.round(this.TotalCreativeProcessPoint + this.TotalCreativeTaskPoint);
     }
 
     public getBase(): number {
-        return this.TotalBasePoint;
+        return Math.round(this.TotalBasePoint);
+    }
+}
+
+class PerformanceDataWithTime {
+    public StartDate: string = '';
+    public EndDate: string = '';
+    public TotalPerformancePoint: PerformanceData;
+
+
+    constructor(startDate: string, endDate: string, totalPerformancePoint: number, totalBasePoint: number, totalCreativeProcessPoint: number, totalCreativeTaskPoint: number, identifier: string) {
+        this.StartDate = startDate;
+        this.EndDate = endDate;
+        this.TotalPerformancePoint = new PerformanceData(totalPerformancePoint, totalBasePoint, totalCreativeProcessPoint, totalCreativeTaskPoint, identifier);
+    }
+
+    public getTotal(): number {
+        return this.TotalPerformancePoint.getTotal();
+    }
+
+    public getBase(): number {
+        return this.TotalPerformancePoint.getBase();
+    }
+
+    public getCreative(): number {
+        return this.TotalPerformancePoint.getCreative();
     }
 }
 
@@ -78,13 +102,13 @@ export default function Home()
         }
     }
 
-    async function getPerformanceData(startDate: string | null, endDate: string | null, identifiers: string[], isTeam: boolean): Promise<PerformanceData[]>
+    async function getPerformanceData(startDate: string | null, endDate: string | null, identifiers: string[], isTeam: boolean): Promise<PerformanceDataWithTime[]>
     {
         if (!startDate || !endDate || identifiers.length === 0) return [];
         try 
         {
             const jsonBody = JSON.stringify({ startDate, endDate, identifiers });
-            const response = await fetch(`${serverUrl}/post/performance-point?isTeam=${isTeam}`, {
+            const response = await fetch(`${serverUrl}/post/performance-point?isTeam=${isTeam}&isWeekly=${true}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,7 +116,7 @@ export default function Home()
                 body: jsonBody,
             });
             if (!response.ok) throw new Error('Network response was not ok');
-            return await response.json() as PerformanceData[];
+            return await response.json() as PerformanceDataWithTime[];
         }
         catch (error)
         {
@@ -101,7 +125,7 @@ export default function Home()
         }
     }
 
-    async function getLastWeekTeamPerformance(): Promise<PerformanceData[]>
+    async function getLastWeekTeamPerformance(): Promise<PerformanceDataWithTime[]>
     {
         try
         {
@@ -113,7 +137,7 @@ export default function Home()
                 }
             });
             if (!response.ok) throw new Error('Network response was not ok');
-            return await response.json() as PerformanceData[];
+            return await response.json() as PerformanceDataWithTime[];
         }
         catch (error)   
         {
@@ -157,18 +181,41 @@ export default function Home()
         if (!targets || !Array.isArray(targets)) {
             console.warn('Targets data is null or not an array:', targets);
         }
+
+        // console.log('Fetched targets:', targets);
+        // console.log('Fetched points:', points);
         
-        for (const point of points)
+        try
         {
-            const p: WeeklyTeamPerformaceData = 
+            for (const per of points)
             {
-                name: point.Identifier,
-                total: point.getTotal(),
-                target: (targets && Array.isArray(targets)) ? targets.find(t => t.Team === point.Identifier)?.WeeklyTarget || 0 : 0,
-                base: point.getBase(),
-                creative: point.getCreative()
-            };
-            res.push(p);
+                if (!per) continue; // Skip null or undefined performance data
+                let target: number = 0;
+                for (const t of targets)
+                { 
+                    if (!t) continue; // Skip null or undefined targets
+                    if (t.Team === per.TotalPerformancePoint.Identifier)
+                    {
+                        target = t.WeeklyTarget;
+                        break;
+                    }
+                } 
+                const point = new PerformanceDataWithTime(per.StartDate, per.EndDate, per.TotalPerformancePoint.TotalPerformancePoint, per.TotalPerformancePoint.TotalBasePoint, per.TotalPerformancePoint.TotalCreativeProcessPoint, per.TotalPerformancePoint.TotalCreativeTaskPoint, per.TotalPerformancePoint.Identifier);
+                // console.log('Processing performance for:', point);
+                const p: WeeklyTeamPerformaceData =
+                {
+                    name: point.TotalPerformancePoint.Identifier,
+                    total: point.getTotal(),
+                    target: target,
+                    base: point.getBase(),
+                    creative: point.getCreative()
+                };
+                // console.log('Pushing performance data:', p);
+                res.push(p);
+            }
+        }catch (error)
+        {
+            console.error('Error processing performance and target data:', error);
         }
         return res;
     }
@@ -251,10 +298,11 @@ export default function Home()
                     {
                         if (d)
                         {
-                            const performance = new PerformanceData(d.StartWeek, d.TotalPerformancePoint, d.TotalBasePoint, d.TotalCreativeProcessPoint, d.TotalCreativeTaskPoint, d.Identifier);
+                            const performance = new PerformanceDataWithTime(d.StartDate, d.EndDate, d.TotalPerformancePoint.TotalPerformancePoint, d.TotalPerformancePoint.TotalBasePoint, d.TotalPerformancePoint.TotalCreativeProcessPoint, d.TotalPerformancePoint.TotalCreativeTaskPoint, d.TotalPerformancePoint.Identifier);
+                            console.log('Processing performance data for chart:', performance. StartDate, performance.getBase(), performance.getCreative(), performance.getTotal(), performance.TotalPerformancePoint.Identifier);
                             chartData.push({
-                                name: performance.Identifier,
-                                time: performance.StartWeek,
+                                name: performance.TotalPerformancePoint.Identifier,
+                                time: performance.StartDate,
                                 performacePoint: performance.getTotal(),
                                 basePoint: performance.getBase(),
                                 creativePoint: performance.getCreative()

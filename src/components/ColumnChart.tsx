@@ -240,8 +240,8 @@ export default function ColumnChart({ data, issues = [], title = 'Column Chart',
             <XAxis
               dataKey="displayTime"
               tick={{ fontSize: 12, fill: '#667085' }}
-              angle={0}
-              textAnchor="middle"
+              angle={-15}
+              textAnchor="end"
               height={60}
               interval={0}
             />
