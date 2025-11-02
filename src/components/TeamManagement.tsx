@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import './TeamManagement.css';
 import type { TeamMember } from '../common/AdministratorData';
 import AdminData from '../common/AdministratorData';
@@ -168,57 +168,79 @@ export default function TeamManagement()
 
     return (
         <div className="team-management">
-            <h1 className="admin-title">Team Management</h1>
-            <p className="admin-description">Add, edit, or remove team members from the system.</p>
+            <div className="content-header">
+                <div className="header-left">
+                    <h2 className="content-title">Sick Leave Policy</h2>
+                    <p className="content-subtitle">Employees can be enrolled in one sick policy. Make sure that your policy is compliant with your state rules.</p>
+                </div>
+                <div className="header-right">
+                    <button className="btn-add-policy" onClick={handleAdd}>
+                        + Add policy
+                    </button>
+                </div>
+            </div>
 
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '1.5rem' }}>
                 <input
                     type="text"
                     className="filter-input"
                     placeholder="Filter by name, email, or team..."
                     value={filter}
                     onChange={e => setFilter(e.target.value)}
-                    style={{ width: '500px' }}
                 />
             </div>
 
-            <table className="team-table">
-                <thead>
-                    <tr>
-                        <th>MemberID</th>
-                        <th>Name</th>
-                        <th>YOB</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Team</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredMembers.map(member => (
-                        <tr key={member.ID}>
-                            <td>{member.MemberID}</td>
-                            <td>{member.Name}</td>
-                            <td>{member.YOB}</td>
-                            <td>{member.Email}</td>
-                            <td>{member.Role}</td>
-                            <td>{member.Team}</td>
-                            <td>
-                                <button className="icon-button edit-button" onClick={() => handleEdit(member.ID)}>
-                                    <FaEdit  />
-                                </button>
-                                <button className="icon-button delete-button" onClick={() => handleDelete(member.MemberID)}>
-                                    <FaTrash />
-                                </button>
-                            </td>
+            <div className="table-container">
+                <table className="team-table">
+                    <thead>
+                        <tr>
+                            <th>MemberID</th>
+                            <th>Name</th>
+                            <th>Date Created</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Employees Enrolled</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            <button className="floating-button" onClick={handleAdd}>
-                <FaPlus />
-            </button>
+                    </thead>
+                    <tbody>
+                        {filteredMembers.map(member => (
+                            <tr key={member.ID}>
+                                <td>{member.MemberID}</td>
+                                <td>
+                                    <div className="member-cell">
+                                        <span className="member-avatar">{member.Name.charAt(0)}</span>
+                                        <span>{member.Name}</span>
+                                    </div>
+                                </td>
+                                <td>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                                <td>{member.Email}</td>
+                                <td>
+                                    <span className={`badge badge-${member.Role.toLowerCase()}`}>
+                                        {member.Role}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span className="enrolled-count">0 Employees Enrolled</span>
+                                </td>
+                                <td>
+                                    <div className="action-buttons">
+                                        <button className="icon-button edit-button" onClick={() => handleEdit(member.ID)} title="Edit">
+                                            <FaEdit  />
+                                        </button>
+                                        <button className="icon-button delete-button" onClick={() => handleDelete(member.MemberID)} title="Delete">
+                                            <FaTrash />
+                                        </button>
+                                        <button className="icon-button more-button" title="More">
+                                            ⋮
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
             {showModal && (
                 <div className="modal-overlay">
