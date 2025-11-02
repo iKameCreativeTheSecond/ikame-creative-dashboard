@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import './TeamManagement.css';
+import './AdminContent.css';
 import AdminData, { CreativeTool } from '../common/AdministratorData';
 
 

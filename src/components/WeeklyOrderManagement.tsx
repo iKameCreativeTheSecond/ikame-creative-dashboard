@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
-import "./WeeklyOrderManagement.css";
+import "./AdminContent.css";
 import "./WeeklyOrderManagement.grid.css";
 import type { WeeklyOrder } from "../common/AdministratorData";
 import AdminData from "../common/AdministratorData";

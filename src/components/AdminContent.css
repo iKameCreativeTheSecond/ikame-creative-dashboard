@@ -1,10 +1,8 @@
 /* ==================== TEAM MANAGEMENT ==================== */
 .team-management {
-    background-color: #fff;
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 0;
-    margin: 0;
+    box-shadow: none; /* remove drop shadow around the container */
+    padding: 20px;
     height: 100%;
     width: 100%;
     display: flex;
@@ -17,12 +15,16 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 28px 32px;
+    padding-top: 25px;
+    padding-bottom: 25px;
     border-bottom: 1px solid #e5e7eb;
 }
 
 .header-left {
     flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0; /* allow child input to shrink without overflowing */
 }
 
 .content-title {
@@ -58,7 +60,7 @@
 }
 
 .btn-add-policy:hover {
-    background-color: #4c1d95;
+    background-color: rgb(36, 14, 71);
 }
 
 /* Filter input styling */
@@ -72,8 +74,10 @@
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     width: 100%;
-    max-width: 500px;
-    margin: 0 32px;
+    max-width: 600px; /* let it grow as wide as available */
+    margin: 0; /* stick to the left edge within padding */
+    box-sizing: border-box;
+    flex: 1;
 }
 
 .filter-input:focus {
@@ -88,24 +92,82 @@
     overflow-x: auto;
 }
 
+/* Table footer with pagination */
+.table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #ffffff;
+}
+
+.rows-per-page label {
+    font-size: 14px;
+    color: #374151;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rows-per-page select {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: #fff;
+    font-size: 14px;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.page-button {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #374151;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 32px;
+}
+
+.page-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-indicator {
+    font-size: 13px;
+    color: #374151;
+    margin: 0 6px;
+}
+
 .team-table {
     width: 100%;
-    /* border-collapse: separate; */
-    border-spacing: 0;
+    border-collapse: collapse; /* enable full grid lines */
     background-color: #fff;
+    border: 1px solid #e5e7eb; /* outer border */
 }
 
 .team-table th, .team-table td {
     padding: 18px 16px;
     text-align: left;
-    border-bottom: 1px solid #e5e7eb;
+    border: 1px solid #e5e7eb; /* grid lines for all cells */
 }
 
 .team-table th {
-    background-color: #f9fafb;
-    color: #6b7280;
+    background-color: #ededed;
+    color: #5b21b6;
     font-weight: 600;
-    font-size: 12px;
+    font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     position: sticky;
@@ -199,19 +261,54 @@
 }
 
 .edit-button {
-    color: #f59e0b;
+    /* Base icon color */
+    --btn-color: #f59e0b;
+    color: var(--btn-color);
 }
 
 .edit-button:hover {
-    color: #d97706;
+    /* Invert: icon becomes white, background becomes the icon color */
+    color: #ffffff;
+    background-color: var(--btn-color);
+    transform: none; /* do not scale on hover */
+}
+
+/* Ensure SVG icon actually takes the computed color */
+.edit-button svg {
+    color: inherit;          /* make svg use button color */
+    fill: currentColor;      /* fill paths with current color */
+    stroke: currentColor;    /* stroke paths with current color */
+}
+
+.edit-button:hover svg {
+    color: #ffffff;          /* force white icon on hover */
+    fill: currentColor;
+    stroke: currentColor;
 }
 
 .delete-button {
-    color: #ef4444;
+    /* Base icon color */
+    --btn-color: #ef4444;
+    color: var(--btn-color);
 }
 
 .delete-button:hover {
-    color: #dc2626;
+    /* Invert: icon becomes white, background becomes the icon color */
+    color: #ffffff;
+    background-color: var(--btn-color);
+    transform: none; /* do not scale on hover */
+}
+
+.delete-button svg {
+    color: inherit;
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+.delete-button:hover svg {
+    color: #ffffff;
+    fill: currentColor;
+    stroke: currentColor;
 }
 
 .more-button {

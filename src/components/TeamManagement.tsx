@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import './TeamManagement.css';
+import './AdminContent.css';
 import type { TeamMember } from '../common/AdministratorData';
 import AdminData from '../common/AdministratorData';
 
@@ -28,6 +28,8 @@ export default function TeamManagement()
 
     const [ teamMembers, setTeamMembers ] = useState<TeamMember[]>([]);
     const [ filter, setFilter ] = useState("");
+    const [ currentPage, setCurrentPage ] = useState(1);
+    const [ rowsPerPage, setRowsPerPage ] = useState(10);
     const [ showModal, setShowModal ] = useState(false);
     const [ editingMember, setEditingMember ] = useState<TeamMember | null>(null);
     const [ formData, setFormData ] = useState<TeamMember>({
@@ -166,21 +168,25 @@ export default function TeamManagement()
         );
     });
 
+    // Reset to first page when filter changes
+    useEffect(() => { setCurrentPage(1); }, [filter]);
+
+    // Ensure current page is valid when data size or rowsPerPage changes
+    useEffect(() => {
+        const totalPages = Math.max(1, Math.ceil(filteredMembers.length / rowsPerPage));
+        if (currentPage > totalPages) setCurrentPage(totalPages);
+    }, [filteredMembers.length, rowsPerPage]);
+
+    const totalItems = filteredMembers.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const currentItems = filteredMembers.slice(startIndex, startIndex + rowsPerPage);
+
     return (
         <div className="team-management">
             <div className="content-header">
-                <div className="header-left">
-                    <h2 className="content-title">Sick Leave Policy</h2>
-                    <p className="content-subtitle">Employees can be enrolled in one sick policy. Make sure that your policy is compliant with your state rules.</p>
-                </div>
-                <div className="header-right">
-                    <button className="btn-add-policy" onClick={handleAdd}>
-                        + Add policy
-                    </button>
-                </div>
-            </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div className="header-left">
                 <input
                     type="text"
                     className="filter-input"
@@ -189,6 +195,57 @@ export default function TeamManagement()
                     onChange={e => setFilter(e.target.value)}
                 />
             </div>
+                <div className="header-right">
+                    <button className="btn-add-policy" onClick={handleAdd}>
+                        + Add Member
+                    </button>
+                </div>
+            </div>
+
+                        {/* Table footer with pagination */}
+            <div className="table-footer">
+                <div className="rows-per-page">
+                    <label>
+                        Rows per page:
+                        <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))}>
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                        </select>
+                    </label>
+                </div>
+                <div className="pagination-info">
+                    {totalItems === 0 ? 'No members' : `${startIndex + 1}-${Math.min(startIndex + rowsPerPage, totalItems)} of ${totalItems}`}
+                </div>
+                <div className="pagination-controls">
+                    <button
+                        className="page-button"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(1)}
+                        aria-label="First page"
+                    >«</button>
+                    <button
+                        className="page-button"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        aria-label="Previous page"
+                    >‹</button>
+                    <span className="page-indicator">Page {currentPage} of {totalPages}</span>
+                    <button
+                        className="page-button"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        aria-label="Next page"
+                    >›</button>
+                    <button
+                        className="page-button"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(totalPages)}
+                        aria-label="Last page"
+                    >»</button>
+                </div>
+            </div>
 
             <div className="table-container">
                 <table className="team-table">
@@ -196,15 +253,14 @@ export default function TeamManagement()
                         <tr>
                             <th>MemberID</th>
                             <th>Name</th>
-                            <th>Date Created</th>
                             <th>Email</th>
+                            <th>Team</th>
                             <th>Role</th>
-                            <th>Employees Enrolled</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredMembers.map(member => (
+                        {currentItems.map(member => (
                             <tr key={member.ID}>
                                 <td>{member.MemberID}</td>
                                 <td>
@@ -213,15 +269,12 @@ export default function TeamManagement()
                                         <span>{member.Name}</span>
                                     </div>
                                 </td>
-                                <td>{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                                <td>{member.Email}</td>
+                                <td>{ member.Email }</td>
+                                <td>{member.Team}</td>
                                 <td>
                                     <span className={`badge badge-${member.Role.toLowerCase()}`}>
                                         {member.Role}
                                     </span>
-                                </td>
-                                <td>
-                                    <span className="enrolled-count">0 Employees Enrolled</span>
                                 </td>
                                 <td>
                                     <div className="action-buttons">
@@ -230,9 +283,6 @@ export default function TeamManagement()
                                         </button>
                                         <button className="icon-button delete-button" onClick={() => handleDelete(member.MemberID)} title="Delete">
                                             <FaTrash />
-                                        </button>
-                                        <button className="icon-button more-button" title="More">
-                                            ⋮
                                         </button>
                                     </div>
                                 </td>
