@@ -1,9 +1,5 @@
-#root {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 2rem;
-    text-align: center;
-}
+/* Removed global #root constraints that were shrinking all routes (including /admin).
+   If you need page-specific layout for Home, scope it to a class instead. */
 
 .logo {
     height: 6em;
