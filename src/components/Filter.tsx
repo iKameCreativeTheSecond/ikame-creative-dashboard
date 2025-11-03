@@ -83,9 +83,27 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
 
   return (
     <div className="date-filter">
+      <div className="filter-header">
+        <div className="filter-header-left">
+          <svg
+            className="filter-header-icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M3 5a1 1 0 011-1h16a1 1 0 01.8 1.6l-6.2 8.27a1 1 0 00-.2.6V19a1 1 0 01-.55.9l-3 1.5A1 1 0 019 20.5v-5.03a1 1 0 00-.2-.6L2.2 6.6A1 1 0 013 5z"
+              fill="#5F6D7A"
+            />
+          </svg>
+          <span className="filter-header-title">Filter</span>
+        </div>
+      </div>
       <div className="date-filter-row">
         <label>
-          Ngày bắt đầu
+          From
           <input
             type="date"
             value={startDate ?? ''}
@@ -94,7 +112,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
         </label>
 
         <label>
-          Ngày kết thúc
+          To
           <input
             type="date"
             value={endDate ?? ''}
@@ -133,7 +151,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
       </div>
 
       <div className="date-filter-quick">
-        <span>Lựa chọn nhanh:</span>
+        <span>Quick Options:</span>
         <div className="quick-buttons">
           <button type="button" onClick={() => setQuickRange(0, 1)}>1 tuần</button>
           <button type="button" onClick={() => setQuickRange(1)}>1 tháng</button>

@@ -11,17 +11,42 @@
   border: 1px solid #eef2f6;
 }
 
+/* Header for the filter card */
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.filter-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-header-title {
+  font-weight: 600;
+  color: #101828;
+  font-size: 16px;
+}
+
+.filter-header-icon {
+  display: inline-block;
+}
+
 /* Row for the start/end date inputs */
 .date-filter-row {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
   width: 100%;
 }
 
 .date-filter label {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   font-size: 13px;
   color: #0f172a;
@@ -59,6 +84,53 @@
   font-size: 13px;
   color: #64748b;
   padding: 0 6px;
+}
+
+/* Modern styling for date inputs (scoped to the filter only) */
+.date-filter input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 8px 10px;
+  height: 36px;
+  line-height: 20px;
+  min-width: 175px;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+}
+
+.date-filter input[type="date"]:hover {
+  background: #f8fafc;
+  border-color: #d0d8e2;
+}
+
+.date-filter input[type="date"]:focus {
+  outline: none;
+  border-color: #6366f1; /* indigo */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.date-filter input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.75;
+  filter: invert(38%) sepia(16%) saturate(986%) hue-rotate(191deg) brightness(94%) contrast(92%);
+  margin-left: 4px;
+}
+
+.date-filter input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.date-filter input[type="date"]:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Quick presets area */
@@ -115,7 +187,7 @@
 
   .date-filter-row {
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     align-items: stretch;
   }
 
