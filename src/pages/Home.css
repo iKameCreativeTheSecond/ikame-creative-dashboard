@@ -1,6 +1,10 @@
 /* Removed global #root constraints that were shrinking all routes (including /admin).
    If you need page-specific layout for Home, scope it to a class instead. */
 
+.home-container {
+    padding: 80px 90px 20px 90px;
+}
+
 .logo {
     height: 6em;
     padding: 1.5em;

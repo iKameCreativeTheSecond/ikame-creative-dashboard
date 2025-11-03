@@ -215,7 +215,7 @@ export default function ColumnChart({ data, issues = [], title = 'Column Chart',
   }
 
   return (
-    <div className="chart-card" style={{ height }}>
+    <div className="chart-inner" style={{ height }}>
       <div className="chart-header">
         <div className="chart-header-left">
           <span className="chart-header-title">{title}</span>

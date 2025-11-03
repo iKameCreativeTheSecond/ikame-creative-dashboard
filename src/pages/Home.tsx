@@ -339,8 +339,8 @@ export default function Home()
     return (
         <>
             <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} />
-            <div style={{ padding: '80px 20px 20px 20px' }}>
-                <div style={ { marginTop: 780 } }>
+            <div className="home-container">
+                <div>
                         <Filter
                             onChange={handleFilterChange}
                             teamOptions={teamOptions}

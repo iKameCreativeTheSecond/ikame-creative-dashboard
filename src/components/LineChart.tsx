@@ -223,7 +223,7 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
   }
 
   return (
-    <div className="chart-card" style={{ height }}>
+    <div className="chart-inner" style={{ height }}>
       <div className="chart-header">
         <div className="chart-header-left">
           <span className="chart-header-title">{title}</span>
