@@ -235,7 +235,7 @@ const WeeklyOrderManagement: React.FC = () => {
         },
         body: JSON.stringify(newOrder)
       }).then(() => {
-        const data = [...orders, newOrder];
+        const data = [...(orders ?? []), newOrder];
         setOrders(data);
         AdminData.WeeklyOrders = data;
       }).catch((error) => {

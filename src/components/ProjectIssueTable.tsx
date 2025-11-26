@@ -15,6 +15,7 @@ export type ProjectIssue = {
 interface ProjectIssueTableProps {
     data: ProjectIssue[];
     title?: string;
+    dateRange?: { startDate: string | null; endDate: string | null } | null;
 }
 
 interface FilterState {
@@ -24,7 +25,7 @@ interface FilterState {
     status: string[];
 }
 
-export default function ProjectIssueTable({ data, title = "Project Issues" }: ProjectIssueTableProps) {
+export default function ProjectIssueTable({ data, title = "Project Issues", dateRange }: ProjectIssueTableProps) {
     // Filter states
     const [filters, setFilters] = useState<FilterState>({
         projectName: [],
@@ -50,6 +51,16 @@ export default function ProjectIssueTable({ data, title = "Project Issues" }: Pr
     // Filter data based on current filters
     const filteredData = useMemo(() => {
         return data.filter(item => {
+            // Date range filter
+            if (dateRange && dateRange.startDate && dateRange.endDate) {
+                const itemDate = new Date(item.StartWeek);
+                const startDate = new Date(dateRange.startDate);
+                const endDate = new Date(dateRange.endDate);
+                if (itemDate < startDate || itemDate > endDate) {
+                    return false;
+                }
+            }
+
             // Project name filter
             if (filters.projectName.length > 0 && !filters.projectName.includes(item.Project)) {
                 return false;
@@ -80,7 +91,7 @@ export default function ProjectIssueTable({ data, title = "Project Issues" }: Pr
 
             return true;
         });
-    }, [data, filters]);
+    }, [data, filters, dateRange]);
 
     // Handle filter changes for multi-select
     const handleFilterChange = useCallback((key: keyof FilterState, value: string) => {
@@ -139,7 +150,7 @@ export default function ProjectIssueTable({ data, title = "Project Issues" }: Pr
         <div className="project-issue-table-container">
             <div className="project-issue-header">
                 <h3>{title}</h3>
-                <span className="project-count">{filteredData.length} of {data.length} projects</span>
+                <span className="project-count">{filteredData.length} of {data.length}</span>
             </div>
             
             {/* Filter Controls */}

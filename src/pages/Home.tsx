@@ -362,6 +362,7 @@ export default function Home()
                     <ProjectIssueTable 
                         data={projectIssues} 
                         title="Current Project Issues"
+                        dateRange={range}
                     />
             </div>
         </>

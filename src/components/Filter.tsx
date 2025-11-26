@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Select } from 'antd';
 import 'antd/dist/reset.css';
 import './Filter.css';
@@ -43,12 +43,13 @@ function getMondayOfWeek(date: Date): Date {
 }
 
 const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
-  // Set default dates: startDate = 1 week before today, endDate = today
+  // Set default dates: startDate = 1 week before Monday, endDate = Monday of current week
   const today = new Date();
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(today.getDate() - 7);
+  const currentMonday = getMondayOfWeek(new Date(today));
+  const oneWeekAgo = new Date(currentMonday);
+  oneWeekAgo.setDate(currentMonday.getDate() - 7);
   const [startDate, setStartDate] = useState<string | null>(formatDate(oneWeekAgo));
-  const [endDate, setEndDate] = useState<string | null>(formatDate(today));
+  const [endDate, setEndDate] = useState<string | null>(formatDate(currentMonday));
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
 
@@ -91,6 +92,11 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
     setSelectedStaff(values);
     applyChange(startDate, endDate, selectedTeams, values);
   };
+
+  // Call onChange on mount with initial default values
+  useEffect(() => {
+    onChange?.({ startDate, endDate }, selectedTeams, selectedStaff);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="date-filter">
