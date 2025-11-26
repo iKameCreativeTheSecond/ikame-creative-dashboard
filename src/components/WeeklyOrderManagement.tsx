@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import "./AdminContent.css";
+import "./Filter.css";
 import "./WeeklyOrderManagement.grid.css";
 import type { WeeklyOrder } from "../common/AdministratorData";
 import AdminData from "../common/AdministratorData";
@@ -75,6 +76,8 @@ const WeeklyOrderManagement: React.FC = () => {
   const [filter, setFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WeeklyOrder | null>(null);
   const [formData, setFormData] = useState<WeeklyOrder>({
@@ -273,65 +276,142 @@ const WeeklyOrderManagement: React.FC = () => {
     return textMatch && dateMatch;
   });
 
+  // Reset to first page when filter changes
+  useEffect(() => { setCurrentPage(1); }, [filter, dateFrom, dateTo]);
+
+  // Ensure current page is valid when data size or rowsPerPage changes
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(filteredOrders.length / rowsPerPage));
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [filteredOrders.length, rowsPerPage, currentPage]);
+
+  const totalItems = filteredOrders.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const currentItems = filteredOrders.slice(startIndex, startIndex + rowsPerPage);
+
   return (
     <div className="team-management">
-      <h1 className="admin-title">Weekly Order Management</h1>
       <p className="admin-description">Add, edit, or remove weekly orders from the system.</p>
-
-      <div className="filter-container">
-        <input
-          type="text"
-          className="main-filter-input"
-          placeholder="🔍 Filter by project, goal, strategy, or start week..."
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-        />
-        
-        <div className="date-filter-section">
-          <div className="date-input-group">
-            <label className="date-label from-label">📅 From:</label>
-            <input
-              type="date"
-              className="date-input"
-              value={dateFrom}
-              onChange={e => setDateFrom(e.target.value)}
-            />
-          </div>
-          
-          <div className="date-input-group">
-            <label className="date-label to-label">📅 To:</label>
-            <input
-              type="date"
-              className="date-input"
-              value={dateTo}
-              onChange={e => setDateTo(e.target.value)}
-            />
-          </div>
-          
-          <button 
-            className="clear-dates-button"
-            onClick={clearDateFilters}
-          >
-            🗑️ Clear Dates
-          </button>
+      <div className="content-header">
+        <div className="header-left">
+          <input
+            type="text"
+            className="filter-input"
+            placeholder="Filter by project, goal, strategy, or start week..."
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+          />
         </div>
-        
-        <div className="quick-filter-section">
-          <span className="quick-filter-title">⚡ Quick filters:</span>
-          
-          {[1, 2, 4, 6].map(weeks => (
-            <button 
-              key={weeks}
-              className="quick-filter-button"
-              onClick={() => handleQuickFilter(weeks)}
-            >
-              {weeks} Week{weeks > 1 ? 's' : ''}
-            </button>
-          ))}
+        <div className="header-right">
+          <button className="btn-add-policy" onClick={handleAdd}>
+            + Add Weekly Order
+          </button>
         </div>
       </div>
 
-      <table className="team-table">
+      <div className="date-filter" style={{ marginBottom: '20px' }}>
+        <div className="filter-header">
+          <div className="filter-header-left">
+            <svg
+              className="filter-header-icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden
+            >
+              <path
+                d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"
+                fill="#5F6D7A"
+              />
+            </svg>
+            <span className="filter-header-title">Date Range Filter</span>
+          </div>
+        </div>
+        <div className="date-filter-row">
+          <label>
+            From
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+          </label>
+          <label>
+            To
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
+          </label>
+        </div>
+        <div className="date-filter-quick">
+          <span>Quick Options:</span>
+          <div className="quick-buttons">
+            <button type="button" onClick={() => handleQuickFilter(1)}>1 Week</button>
+            <button type="button" onClick={() => handleQuickFilter(2)}>2 Weeks</button>
+            <button type="button" onClick={() => handleQuickFilter(4)}>4 Weeks</button>
+            <button type="button" onClick={() => handleQuickFilter(6)}>6 Weeks</button>
+            <button
+              type="button"
+              className="clear"
+              onClick={clearDateFilters}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Table footer with pagination */}
+      <div className="table-footer">
+        <div className="rows-per-page">
+          <label>
+            Rows per page:
+            <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))}>
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </label>
+        </div>
+        <div className="pagination-info">
+          {totalItems === 0 ? 'No orders' : `${startIndex + 1}-${Math.min(startIndex + rowsPerPage, totalItems)} of ${totalItems}`}
+        </div>
+        <div className="pagination-controls">
+          <button
+            className="page-button"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(1)}
+            aria-label="First page"
+          >«</button>
+          <button
+            className="page-button"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            aria-label="Previous page"
+          >‹</button>
+          <span className="page-indicator">Page {currentPage} of {totalPages}</span>
+          <button
+            className="page-button"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            aria-label="Next page"
+          >›</button>
+          <button
+            className="page-button"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(totalPages)}
+            aria-label="Last page"
+          >»</button>
+        </div>
+      </div>
+
+      <div className="table-container">
+        <table className="team-table">
         <thead>
           <tr>
             <th>Start Week</th>
@@ -347,7 +427,7 @@ const WeeklyOrderManagement: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredOrders.map((order) => (
+          {currentItems.map((order) => (
             <tr key={order.ID}>
               <td>{formatDateToDDMMYYYY(order.StartWeek)}</td>
               <td>{order.Goal}</td>
@@ -359,21 +439,20 @@ const WeeklyOrderManagement: React.FC = () => {
               <td>{order.PLA}</td>
               <td>{order.Video}</td>
               <td>
-                <button className="icon-button edit-button" onClick={() => handleEdit(order.ID)}>
-                  <FaEdit />
-                </button>
-                <button className="icon-button delete-button" onClick={() => handleDelete(order.ID)}>
-                  <FaTrash />
-                </button>
+                <div className="action-buttons">
+                  <button className="icon-button edit-button" onClick={() => handleEdit(order.ID)} title="Edit">
+                    <FaEdit />
+                  </button>
+                  <button className="icon-button delete-button" onClick={() => handleDelete(order.ID)} title="Delete">
+                    <FaTrash />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
-      </table>
-
-      <button className="floating-button" onClick={handleAdd}>
-        <FaPlus />
-      </button>
+        </table>
+      </div>
 
       {showModal && (
         <div className="modal-overlay">
