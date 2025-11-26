@@ -300,9 +300,14 @@ export default function Home()
                         {
                             const performance = new PerformanceDataWithTime(d.StartDate, d.EndDate, d.TotalPerformancePoint.TotalPerformancePoint, d.TotalPerformancePoint.TotalBasePoint, d.TotalPerformancePoint.TotalCreativeProcessPoint, d.TotalPerformancePoint.TotalCreativeTaskPoint, d.TotalPerformancePoint.Identifier);
                             // console.log('Processing performance data for chart:', performance. StartDate, performance.getBase(), performance.getCreative(), performance.getTotal(), performance.TotalPerformancePoint.Identifier);
+                            
+                            // Push the date back one day
+                            const adjustedDate = new Date(performance.StartDate);
+                            adjustedDate.setDate(adjustedDate.getDate() - 1);
+                            
                             chartData.push({
                                 name: performance.TotalPerformancePoint.Identifier,
-                                time: performance.StartDate,
+                                time: adjustedDate.toISOString(),
                                 performacePoint: performance.getTotal(),
                                 basePoint: performance.getBase(),
                                 creativePoint: performance.getCreative()

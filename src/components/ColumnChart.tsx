@@ -36,10 +36,11 @@ const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: 
   // Tìm các issue tại mốc thời gian này
   let issuesAtTime: ProjectIssue[] = [];
   if (issues && currentItem.timeGroup) {
-    const currentDate = new Date(currentItem.timeGroup).toISOString().slice(0, 10);
     issuesAtTime = issues.filter((issue: ProjectIssue) => {
       if (!issue.StartWeek) return false;
-      const issueDate = new Date(issue.StartWeek).toISOString().slice(0, 10);
+      // Normalize both dates to compare just the date part
+      const currentDate = new Date(currentItem.timeGroup).toISOString().split('T')[0];
+      const issueDate = new Date(issue.StartWeek).toISOString().split('T')[0];
       return issueDate === currentDate;
     });
   }
@@ -160,14 +161,23 @@ export default function ColumnChart({ data, issues = [], title = 'Column Chart',
       if (!issue.StartWeek) return;
       let xValue = issue.StartWeek;
       const d = new Date(xValue);
-      xValue = d.toISOString().slice(0, 10);
+      // Normalize to ISO string
+      xValue = d.toISOString();
       
       // Tìm vị trí gần nhất trên trục thời gian
-      const matchedTime = timeGroups.find(t => t === xValue) ?? timeGroups.reduce((prev, curr) => {
-        const safeCurr = curr ?? '';
-        const safePrev = prev ?? '';
-        const safeXValue = xValue ?? '';
-        return Math.abs(new Date(safeCurr).getTime() - new Date(safeXValue).getTime()) < Math.abs(new Date(safePrev).getTime() - new Date(safeXValue).getTime()) ? curr : prev;
+      const matchedTime = timeGroups.find(t => {
+        // Compare both as ISO strings for exact match
+        if (t === xValue) return true;
+        // Also try comparing just the date part
+        const tDate = new Date(t).toISOString().split('T')[0];
+        const xDate = new Date(xValue).toISOString().split('T')[0];
+        return tDate === xDate;
+      }) ?? timeGroups.reduce((prev, curr) => {
+        // Nếu không khớp tuyệt đối, tìm mốc gần nhất
+        const currTime = new Date(curr).getTime();
+        const prevTime = new Date(prev).getTime();
+        const xTime = new Date(xValue).getTime();
+        return Math.abs(currTime - xTime) < Math.abs(prevTime - xTime) ? curr : prev;
       }, timeGroups[0]);
       
       if (!issuesByTime[matchedTime]) {

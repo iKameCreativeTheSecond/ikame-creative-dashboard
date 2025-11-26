@@ -58,11 +58,12 @@ const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: 
   // Tìm các issue tại mốc thời gian này
   let issuesAtTime: ProjectIssue[] = [];
   if (issues && label) {
-    const currentDate = new Date(label as string).toISOString().slice(0, 10);
     issuesAtTime = issues.filter((issue: ProjectIssue) => {
       if (!issue.StartWeek) return false;
-      const issueDate = new Date(issue.StartWeek).toISOString().slice(0, 10);
-      return issueDate === currentDate;
+      // Normalize both dates to compare just the date part
+      const labelDate = new Date(label as string).toISOString().split('T')[0];
+      const issueDate = new Date(issue.StartWeek).toISOString().split('T')[0];
+      return issueDate === labelDate;
     });
   }
 
@@ -176,21 +177,29 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
   // Hiển thị các issue như ReferenceDot trên trục thời gian
   const issueDots = useMemo(() => {
     if (!issues || issues.length === 0 || !chartData || chartData.length === 0) return [];
-    const timeList = chartData.map(d => d.time);
+    const timeList = chartData.map(d => d.time as string);
     return issues.map((issue, idx) => {
       // Chuẩn hóa thời gian của issue về cùng format với timeList
       let xValue = issue.StartWeek;
       if (xValue) {
         const d = new Date(xValue);
-        xValue = d.toISOString().slice(0, 10);
+        // Normalize to ISO string without time (YYYY-MM-DD format or full ISO)
+        xValue = d.toISOString();
       }
       // Tìm vị trí gần nhất trên trục thời gian
-      const matchedTime = timeList.find(t => t === xValue) ?? timeList.reduce((prev, curr) => {
+      const matchedTime = timeList.find(t => {
+        // Compare both as ISO strings for exact match
+        if (t === xValue) return true;
+        // Also try comparing just the date part
+        const tDate = new Date(t).toISOString().split('T')[0];
+        const xDate = new Date(xValue).toISOString().split('T')[0];
+        return tDate === xDate;
+      }) ?? timeList.reduce((prev, curr) => {
         // Nếu không khớp tuyệt đối, tìm mốc gần nhất
-        const safeCurr = curr ?? '';
-        const safePrev = prev ?? '';
-        const safeXValue = xValue ?? '';
-        return Math.abs(new Date(safeCurr).getTime() - new Date(safeXValue).getTime()) < Math.abs(new Date(safePrev).getTime() - new Date(safeXValue).getTime()) ? curr : prev;
+        const currTime = new Date(curr).getTime();
+        const prevTime = new Date(prev).getTime();
+        const xTime = new Date(xValue).getTime();
+        return Math.abs(currTime - xTime) < Math.abs(prevTime - xTime) ? curr : prev;
       }, timeList[0]);
       return {
         x: matchedTime,
