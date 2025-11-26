@@ -76,7 +76,7 @@ export default function CreativeToolManagement()
                 },
                 body: JSON.stringify({ ToolName: toolName, Team: team })
             }).then(() => {
-                console.log("Deleted creative tool with Name:", toolName);
+                // console.log("Deleted creative tool with Name:", toolName);
                 const data = creativeTools.filter(tool => tool.ToolName !== toolName);
                 AdminData.CretiveTools = data;
                 setCreativeTools(data);
@@ -131,7 +131,7 @@ export default function CreativeToolManagement()
             });
         } else 
         {
-            console.log("Adding new creative tool:", formData);
+            // console.log("Adding new creative tool:", formData);
             fetch(`${serverUrl}/post/add-new-creative-tool`, {
                 method: 'POST',
                 headers: {

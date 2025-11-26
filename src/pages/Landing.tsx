@@ -48,7 +48,7 @@ export default function Landing()
 
         } else
         {
-            console.log("No credential received");
+            console.warn("No credential received");
         }
     }
 
@@ -66,7 +66,7 @@ export default function Landing()
                 <div className="landing-google-btn">
                     <GoogleLogin
                         onSuccess={handleLoginSuccess}
-                        onError={() => console.log('Login Failed')}
+                        onError={() => console.warn('Login Failed')}
                         auto_select={ true }
                         size="medium"
                         type="standard"

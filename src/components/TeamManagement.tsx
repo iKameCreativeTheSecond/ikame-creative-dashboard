@@ -80,7 +80,7 @@ export default function TeamManagement()
                 },
                 body: JSON.stringify({ MemberID: id })
             }).then(() => {
-                console.log("Deleted team member with ID:", id);
+                // console.log("Deleted team member with ID:", id);
                 const data = teamMembers.filter(member => member.MemberID !== id);
                 AdminData.TeamMembers = data;
                 setTeamMembers(data);
@@ -138,7 +138,7 @@ export default function TeamManagement()
             });
         } else 
         {
-            console.log("Adding new team member:", formData);
+            // console.log("Adding new team member:", formData);
             fetch(`${serverUrl}/post/add-new-team-member`, {
                 method: 'POST',
                 headers: {

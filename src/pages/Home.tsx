@@ -299,7 +299,7 @@ export default function Home()
                         if (d)
                         {
                             const performance = new PerformanceDataWithTime(d.StartDate, d.EndDate, d.TotalPerformancePoint.TotalPerformancePoint, d.TotalPerformancePoint.TotalBasePoint, d.TotalPerformancePoint.TotalCreativeProcessPoint, d.TotalPerformancePoint.TotalCreativeTaskPoint, d.TotalPerformancePoint.Identifier);
-                            console.log('Processing performance data for chart:', performance. StartDate, performance.getBase(), performance.getCreative(), performance.getTotal(), performance.TotalPerformancePoint.Identifier);
+                            // console.log('Processing performance data for chart:', performance. StartDate, performance.getBase(), performance.getCreative(), performance.getTotal(), performance.TotalPerformancePoint.Identifier);
                             chartData.push({
                                 name: performance.TotalPerformancePoint.Identifier,
                                 time: performance.StartDate,
@@ -320,7 +320,7 @@ export default function Home()
 
         getProjectIssues(isoStartDate, isoEndDate).then(data =>
         {
-            console.log('Project issues data:', data);
+            // console.log('Project issues data:', data);
             if (data) setProjectIssues(data);
         }).catch(error =>
         {

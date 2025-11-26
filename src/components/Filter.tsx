@@ -33,6 +33,15 @@ function formatDate(d: Date) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+// Helper function to get Monday of current week
+function getMondayOfWeek(date: Date): Date {
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(date);
+  monday.setDate(diff);
+  return monday;
+}
+
 const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
   // Set default dates: startDate = 1 week before today, endDate = today
   const today = new Date();
@@ -60,15 +69,17 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
 
   const setQuickRange = (months: number, weeks = 0) => {
     const now = new Date();
-    const end = new Date(now);
-    const start = new Date(now);
+    const currentMonday = getMondayOfWeek(new Date(now));
+    const end = formatDate(currentMonday);
+    
+    const start = new Date(currentMonday);
     if (months) {
       start.setMonth(start.getMonth() - months);
     }
     if (weeks) {
-      start.setDate(start.getDate() - weeks * 7);
+      start.setDate(start.getDate() - (weeks * 7) + 7); // +7 to include current week
     }
-    applyChange(formatDate(start), formatDate(end), selectedTeams, selectedStaff);
+    applyChange(formatDate(start), end, selectedTeams, selectedStaff);
   };
 
   // Handlers for Ant Design Select

@@ -54,7 +54,7 @@ export default function Admin() {
                         </div>
                     ))}
                 </nav>
-                <div className="admin-sidebar-footer">
+                {/* <div className="admin-sidebar-footer">
                     <div className="nav-item">
                         <span className="nav-icon">⚙️</span>
                         <span className="nav-label">Setting</span>
@@ -70,7 +70,7 @@ export default function Admin() {
                             <div className="user-email">hello@workspace.agency</div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </aside>
 
             {/* Main Content */}

@@ -100,21 +100,21 @@ const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: 
               <p style={{ margin: '0 0 4px 0', fontWeight: '600', fontSize: '11px', color: '#4B5563' }}>
                 {team.name}:
               </p>
-              {/* Base Score */}
-              {team.score2 !== null && (
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: PALETTE[(teamIndex * 2 + 1) % PALETTE.length].stroke }}></span>
-                  <span style={{ color: '#374151' }}>
-                    Base: {team.score2}
-                  </span>
-                </div>
-              )}
               {/* Performance Score */}
               {team.score !== null && (
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
                   <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: PALETTE[(teamIndex * 2) % PALETTE.length].stroke }}></span>
                   <span style={{ color: '#374151' }}>
                     Performance: {team.score}
+                  </span>
+                </div>
+              )}
+              {/* Base Score */}
+              {team.score2 !== null && (
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: PALETTE[(teamIndex * 2 + 1) % PALETTE.length].stroke }}></span>
+                  <span style={{ color: '#374151' }}>
+                    Base: {team.score2}
                   </span>
                 </div>
               )}

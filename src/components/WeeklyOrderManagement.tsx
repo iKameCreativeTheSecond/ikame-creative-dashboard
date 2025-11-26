@@ -129,7 +129,7 @@ const WeeklyOrderManagement: React.FC = () => {
         },
         body: JSON.stringify({ ID: id })
       }).then(() => {
-        console.log("Deleted weekly order with ID:", id);
+        // console.log("Deleted weekly order with ID:", id);
         const data = orders.filter(order => order.ID !== id);
         AdminData.WeeklyOrders = data;
         setOrders(data);
@@ -208,7 +208,7 @@ const WeeklyOrderManagement: React.FC = () => {
       updatedOrder.StartWeek = new Date(formData.StartWeek).toISOString();
       // console.log("Updating weekly order:", JSON.stringify(updatedOrder));
       var bodyJs = JSON.stringify(updatedOrder);
-      console.log("Updating weekly order:", bodyJs);
+      // console.log("Updating weekly order:", bodyJs);
       fetch(`${serverUrl}/post/update-weekly-order`, {
         method: 'POST',
         headers: {
@@ -225,7 +225,7 @@ const WeeklyOrderManagement: React.FC = () => {
       });
     } else {
       // Add new order
-      console.log("Adding new weekly order:", formData);
+      // console.log("Adding new weekly order:", formData);
       const newOrder = { ...formData, ID: (Math.random() * 1000000).toFixed(0) };
       newOrder.StartWeek = new Date(formData.StartWeek).toISOString();
       fetch(`${serverUrl}/post/add-new-weekly-order`, {
