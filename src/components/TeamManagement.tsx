@@ -184,8 +184,8 @@ export default function TeamManagement()
 
     return (
         <div className="team-management">
+            <p className="admin-description">Add, edit, or remove team members from the system.</p>
             <div className="content-header">
-
             <div className="header-left">
                 <input
                     type="text"

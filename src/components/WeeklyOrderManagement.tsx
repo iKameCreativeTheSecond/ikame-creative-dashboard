@@ -91,7 +91,7 @@ const WeeklyOrderManagement: React.FC = () => {
   });
 
   useEffect(() => {
-    if (AdminData.WeeklyOrders.length > 0) {
+    if (AdminData.WeeklyOrders && AdminData.WeeklyOrders.length > 0) {
       setOrders(AdminData.WeeklyOrders);
     } else {
       fetchWeeklyOrders().then(data => {
@@ -244,7 +244,7 @@ const WeeklyOrderManagement: React.FC = () => {
   };
 
   // Filter weekly orders by project, goal, strategy, start week, and date range
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders = (orders ?? []).filter(order => {
     const filterLower = filter.toLowerCase();
     const textMatch = (
       order.Project.toLowerCase().includes(filterLower) ||

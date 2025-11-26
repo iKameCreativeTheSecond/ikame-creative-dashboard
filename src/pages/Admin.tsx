@@ -39,8 +39,8 @@ export default function Admin() {
             {/* Sidebar */}
             <aside className="admin-sidebar">
                 <div className="admin-logo">
-                    <div className="logo-icon">M</div>
-                    <span className="logo-text">MarcoHR</span>
+                    {/* <div className="logo-icon">C</div> */}
+                    <span className="logo-text">Creative Administration</span>
                 </div>
                 <nav className="admin-nav">
                     {sidebarItems.map(item => (

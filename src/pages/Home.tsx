@@ -340,7 +340,9 @@ export default function Home()
         <>
             <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} />
             <div className="home-container">
-                <div>
+                    <TeamTargetProgress teams={teamWeeklyPerformance} />
+
+                    <div>
                         <Filter
                             onChange={handleFilterChange}
                             teamOptions={teamOptions}
@@ -351,7 +353,6 @@ export default function Home()
                             {range ? `${range.startDate ?? '-'} → ${range.endDate ?? '-'}` : 'Chưa chọn'}
                         </div>
                     </div>
-                    <TeamTargetProgress teams={teamWeeklyPerformance} />
                     <Charts
                         data={chartsData}
                         issues={projectIssues}

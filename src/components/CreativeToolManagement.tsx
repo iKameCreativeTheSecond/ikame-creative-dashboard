@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import './AdminContent.css';
 import AdminData, { CreativeTool } from '../common/AdministratorData';
 
@@ -27,6 +27,8 @@ export default function CreativeToolManagement()
 
     const [ creativeTools, setCreativeTools ] = useState<CreativeTool[]>([]);
     const [ filter, setFilter ] = useState("");
+    const [ currentPage, setCurrentPage ] = useState(1);
+    const [ rowsPerPage, setRowsPerPage ] = useState(10);
     const [ showModal, setShowModal ] = useState(false);
     const [ editingTool, setEditingTool ] = useState<CreativeTool | null>(null);
     const [ formData, setFormData ] = useState<CreativeTool>({
@@ -170,23 +172,87 @@ export default function CreativeToolManagement()
         );
     });
 
+    // Reset to first page when filter changes
+    useEffect(() => { setCurrentPage(1); }, [filter]);
+
+    // Ensure current page is valid when data size or rowsPerPage changes
+    useEffect(() => {
+        const totalPages = Math.max(1, Math.ceil(filteredTools.length / rowsPerPage));
+        if (currentPage > totalPages) setCurrentPage(totalPages);
+    }, [filteredTools.length, rowsPerPage]);
+
+    const totalItems = filteredTools.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const currentItems = filteredTools.slice(startIndex, startIndex + rowsPerPage);
+
     return (
         <div className="team-management">
-            <h1 className="admin-title">Creative Tool Management</h1>
             <p className="admin-description">Add, edit, or remove creative tools from the system.</p>
-
-            <div style={{ marginBottom: '1rem' }}>
+            <div className="content-header">
+            <div className="header-left">
                 <input
                     type="text"
                     className="filter-input"
                     placeholder="Filter by tool name, team, or type..."
                     value={filter}
                     onChange={e => setFilter(e.target.value)}
-                    style={{ width: '500px' }}
                 />
             </div>
+                <div className="header-right">
+                    <button className="btn-add-policy" onClick={handleAdd}>
+                        + Add Creative Tool
+                    </button>
+                </div>
+            </div>
 
-            <table className="team-table">
+                        {/* Table footer with pagination */}
+            <div className="table-footer">
+                <div className="rows-per-page">
+                    <label>
+                        Rows per page:
+                        <select value={rowsPerPage} onChange={(e) => setRowsPerPage(Number(e.target.value))}>
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={50}>50</option>
+                        </select>
+                    </label>
+                </div>
+                <div className="pagination-info">
+                    {totalItems === 0 ? 'No tools' : `${startIndex + 1}-${Math.min(startIndex + rowsPerPage, totalItems)} of ${totalItems}`}
+                </div>
+                <div className="pagination-controls">
+                    <button
+                        className="page-button"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(1)}
+                        aria-label="First page"
+                    >«</button>
+                    <button
+                        className="page-button"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        aria-label="Previous page"
+                    >‹</button>
+                    <span className="page-indicator">Page {currentPage} of {totalPages}</span>
+                    <button
+                        className="page-button"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        aria-label="Next page"
+                    >›</button>
+                    <button
+                        className="page-button"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(totalPages)}
+                        aria-label="Last page"
+                    >»</button>
+                </div>
+            </div>
+
+            <div className="table-container">
+                <table className="team-table">
                 <thead>
                     <tr>
                         <th>Tool Name</th>
@@ -197,28 +263,31 @@ export default function CreativeToolManagement()
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredTools.map(tool => (
+                    {currentItems.map(tool => (
                         <tr key={tool.ToolName}>
                             <td>{tool.ToolName}</td>
                             <td>{tool.Team}</td>
-                            <td>{getTypeDisplayName(tool.Type)}</td>
+                            <td>
+                                <span className={`badge badge-${tool.Type === 't' ? 'task' : 'process'}`}>
+                                    {getTypeDisplayName(tool.Type)}
+                                </span>
+                            </td>
                             <td>{Array.isArray(tool.Point) ? tool.Point.join(', ') : tool.Point}</td>
                             <td>
-                                <button className="icon-button edit-button" onClick={() => handleEdit(tool.ToolName, tool.Team)}>
-                                    <FaEdit  />
-                                </button>
-                                <button className="icon-button delete-button" onClick={() => handleDelete(tool.Team, tool.ToolName)}>
-                                    <FaTrash />
-                                </button>
+                                <div className="action-buttons">
+                                    <button className="icon-button edit-button" onClick={() => handleEdit(tool.ToolName, tool.Team)} title="Edit">
+                                        <FaEdit  />
+                                    </button>
+                                    <button className="icon-button delete-button" onClick={() => handleDelete(tool.Team, tool.ToolName)} title="Delete">
+                                        <FaTrash />
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-
-            <button className="floating-button" onClick={handleAdd}>
-                <FaPlus />
-            </button>
+            </div>
 
             {showModal && (
                 <div className="modal-overlay">
