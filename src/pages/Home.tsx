@@ -58,11 +58,11 @@ class PerformanceDataWithTime {
     }
 
     public getBase(): number {
-        return this.TotalPerformancePoint.getCreative();
-    }
-    
-    public getCreative(): number {
         return this.TotalPerformancePoint.getBase();
+    }
+
+    public getCreative(): number {
+        return this.TotalPerformancePoint.getCreative();
     }
 }
 
