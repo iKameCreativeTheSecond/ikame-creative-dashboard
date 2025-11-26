@@ -135,14 +135,14 @@ export default function ProjectIssueTable({ data, title = "Project Issues", date
 
     // Get status based on difference
     const getStatusClass = (difference: number) => {
-        if (difference < 0) return 'status-positive';
-        if (difference > 0) return 'status-negative';
+        if (difference > 0) return 'status-positive';
+        if (difference < 0) return 'status-negative';
         return 'status-neutral';
     };
 
     const getStatusText = (difference: number) => {
-        if (difference > 0) return `-${difference}`;
-        if (difference < 0) return `+${difference}`;
+        if (difference > 0) return `+${difference}`;
+        if (difference < 0) return `${difference}`;
         return '0';
     };
 

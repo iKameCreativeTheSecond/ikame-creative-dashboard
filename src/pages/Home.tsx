@@ -234,7 +234,12 @@ export default function Home()
                 body: JSON.stringify({ StartDate : startDate, EndDate: endDate })
             });
             if (!response.ok) throw new Error('Network response was not ok');
-            return await response.json() as ProjectIssue[];
+            let res = await response.json() as ProjectIssue[];
+            for (const r of res)
+            {
+                r.Difference *= -1; // Invert difference for display
+            }
+            return res;
         }
         catch (error)
         {
