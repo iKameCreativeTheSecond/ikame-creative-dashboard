@@ -235,6 +235,7 @@ export default function Home()
             });
             if (!response.ok) throw new Error('Network response was not ok');
             let res = await response.json() as ProjectIssue[];
+            if (res == null) return [];
             for (const r of res)
             {
                 r.Difference *= -1; // Invert difference for display

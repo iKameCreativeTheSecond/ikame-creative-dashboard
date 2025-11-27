@@ -234,7 +234,13 @@ const WeeklyOrderManagement: React.FC = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(newOrder)
-      }).then(() => {
+      }).then(async (response) =>
+      {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const responseData = await response.json();
+        newOrder.ID = responseData.id;
         const data = [...(orders ?? []), newOrder];
         setOrders(data);
         AdminData.WeeklyOrders = data;
