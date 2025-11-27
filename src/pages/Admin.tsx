@@ -3,12 +3,14 @@ import { useState } from 'react';
 import TeamManagement from '../components/TeamManagement';
 import WeeklyOrderManagement from '../components/WeeklyOrderManagement';
 import CreativeToolManagement from '../components/CreativeToolManagement';
+import ProjectDetailsManagement from '../components/ProjectDetailsManagement';
 
 // Replace old sidebar with the four sections that used to be tabs
 const sidebarItems = [
     { key: 'team', label: 'Team Management', icon: '👥' },
     { key: 'creative-tool', label: 'Creative Tool', icon: '🎨' },
     { key: 'weekly-orders', label: 'Weekly Orders', icon: '🗓️' },
+    { key: 'project-details', label: 'Project Details', icon: '📋' },
     { key: 'contacts', label: 'Contacts', icon: '📇' }
 ];
 
@@ -24,6 +26,8 @@ export default function Admin() {
                 return <CreativeToolManagement />;
             case 'weekly-orders':
                 return <WeeklyOrderManagement />;
+            case 'project-details':
+                return <ProjectDetailsManagement />;
             case 'contacts':
                 return <div style={{ color: '#333', fontSize: '1.5rem', marginTop: '40px' }}>Contacts content goes here.</div>;
             default:
