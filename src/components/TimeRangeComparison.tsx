@@ -196,7 +196,7 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
                     {new Date(sortedData[range1.endIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
                   </span>
                   <span className="range-duration">
-                    ({range1.endIndex - range1.startIndex + 1} tuần)
+                    ({range1.endIndex - range1.startIndex} tuần)
                   </span>
                 </div>
               </div>
@@ -225,7 +225,7 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
                     {new Date(sortedData[range2.endIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
                   </span>
                   <span className="range-duration">
-                    ({range2.endIndex - range2.startIndex + 1} tuần)
+                    ({range2.endIndex - range2.startIndex} tuần)
                   </span>
                 </div>
               </div>
