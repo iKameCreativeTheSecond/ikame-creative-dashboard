@@ -80,6 +80,7 @@ export default function Home()
     const [ chartsData, setChartsData ] = useState<ChartObjectData[]>([]);
     const [ teamWeeklyPerformance, setTeamWeeklyPerformance ] = useState<WeeklyTeamPerformaceData[]>([]);
     const [ projectIssues, setProjectIssues ] = useState<ProjectIssue[]>([]);
+    const [ showTimeRangeComparison, setShowTimeRangeComparison ] = useState<boolean>(false);
 
     async function getTeamMembers(teams: string[])
     {
@@ -290,6 +291,11 @@ export default function Home()
         if (selectedTeams.length >= 2 || (selectedTeams.length === 1 && selectedStaff.length === 0))
             isTeam = true;
 
+        // Store filter state for TimeRangeComparison visibility check
+        const canShowComparison = (selectedTeams.length === 1 && selectedStaff.length === 0) || 
+                                  (selectedTeams.length === 1 && selectedStaff.length === 1);
+        setShowTimeRangeComparison(canShowComparison);
+
         getPerformanceData(
             isoStartDate,
             isoEndDate,
@@ -371,14 +377,16 @@ export default function Home()
                         title="Team Performance"
                         height={500}
                     />
-                    <TimeRangeComparison
-                        data={chartsData.map(d => ({
-                            time: d.time,
-                            value: d.performacePoint,
-                            baseValue: d.basePoint,
-                            creativeValue: d.creativePoint
-                        }))}
-                    />
+                    {showTimeRangeComparison && (
+                        <TimeRangeComparison
+                            data={chartsData.map(d => ({
+                                time: d.time,
+                                value: d.performacePoint,
+                                baseValue: d.basePoint,
+                                creativeValue: d.creativePoint
+                            }))}
+                        />
+                    )}
                     <ProjectIssueTable 
                         data={projectIssues} 
                         title="Current Project Issues"
