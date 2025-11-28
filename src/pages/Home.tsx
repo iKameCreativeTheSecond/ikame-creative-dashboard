@@ -2,6 +2,7 @@ import './Home.css'
 import Charts, { type ChartObjectData } from '../components/Charts'
 import TeamTargetProgress, { type WeeklyTeamPerformaceData } from '../components/TeamTargetProgress';
 import ProjectIssueTable, { type ProjectIssue } from '../components/ProjectIssueTable';
+import TimeRangeComparison from '../components/TimeRangeComparison';
 import { useState, useEffect } from 'react'
 import Filter from '../components/Filter';
 import TopBar from '../components/TopBar';
@@ -367,8 +368,16 @@ export default function Home()
                     <Charts
                         data={chartsData}
                         issues={projectIssues}
-                        title="Team Performance Dashboard"
+                        title="Team Performance"
                         height={500}
+                    />
+                    <TimeRangeComparison
+                        data={chartsData.map(d => ({
+                            time: d.time,
+                            value: d.performacePoint,
+                            baseValue: d.basePoint,
+                            creativeValue: d.creativePoint
+                        }))}
                     />
                     <ProjectIssueTable 
                         data={projectIssues} 

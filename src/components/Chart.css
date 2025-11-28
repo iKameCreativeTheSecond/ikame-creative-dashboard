@@ -155,3 +155,27 @@
 .custom-tooltip > div:last-child::-webkit-scrollbar-thumb:hover {
   background: #A0AEC0;
 }
+
+/* Brush (slider/range selector) styles */
+.recharts-brush {
+  cursor: pointer;
+}
+
+.recharts-brush-slide {
+  fill-opacity: 0.3;
+}
+
+.recharts-brush-traveller {
+  fill: #4A90E2;
+  stroke: #2E6BA7;
+  cursor: ew-resize;
+}
+
+.recharts-brush-traveller:hover {
+  fill: #5AA0F2;
+}
+
+.recharts-brush .recharts-brush-texts text {
+  fill: #667085;
+  font-size: 11px;
+}
