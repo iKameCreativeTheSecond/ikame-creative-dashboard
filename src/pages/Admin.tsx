@@ -1,10 +1,11 @@
 import './Admin.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TeamManagement from '../components/TeamManagement';
 import WeeklyOrderManagement from '../components/WeeklyOrderManagement';
 import CreativeToolManagement from '../components/CreativeToolManagement';
 import ProjectDetailsManagement from '../components/ProjectDetailsManagement';
 import TaskLevelManagement from '../components/TaskLevelManagement';
+import { GlobalData } from '../common/GlobalData';
 
 // Replace old sidebar with the four sections that used to be tabs
 const sidebarItems = [
@@ -16,9 +17,48 @@ const sidebarItems = [
     { key: 'contacts', label: 'Contacts', icon: '📇' }
 ];
 
+const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
+
+
+async function IsAdminCheckAsync() {
+    const response = await fetch(`${serverUrl}/get/admin-role`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': GlobalData.getUserToken() || ''
+        }
+    });
+    if (response.ok)
+    {
+        console.log("Admin check passed.");
+        return true;
+    }
+    return false;
+}
+
 export default function Admin() {
     const [activeTab, setActiveTab] = useState('team');
-    const [activeSidebarItem, setActiveSidebarItem] = useState('team');
+    const [ activeSidebarItem, setActiveSidebarItem ] = useState('team');
+    const [ isAdmin, setIsAdmin ] = useState<boolean | null>(null);
+    
+    console.log(`Admin status: ${isAdmin}`);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        (async () => {
+            try {
+                const ok = await IsAdminCheckAsync();
+                if (isMounted) setIsAdmin(ok);
+            } catch {
+                if (isMounted) setIsAdmin(false);
+            }
+        })();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const renderContent = () => {
         switch (activeTab) {
@@ -41,6 +81,10 @@ export default function Admin() {
 
     // Derive a page title from the active section
     const pageTitle = sidebarItems.find(i => i.key === activeTab)?.label ?? 'Admin';
+
+    if (isAdmin === null || isAdmin === false) {
+        return <div className="admin-loading">NO Admin Privileges...</div>;
+    }
 
     return (
         <div className="admin-layout">

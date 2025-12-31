@@ -317,20 +317,20 @@ export default function TeamManagement()
                                 Role:
                                 <select name="Role" value={formData.Role} onChange={handleFormChange} required>
                                     <option value="">Select Role</option>
-                                    <option value="Member">Member</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Manager">Manager</option>
+                                    <option value="Member">member</option>
+                                    <option value="Admin">admin</option>
+                                    <option value="Manager">manager</option>
                                 </select>
                             </label>
                             <label>
                                 Team:
                                 <select name="Team" value={formData.Team} onChange={handleFormChange} required>
                                     <option value="">Select Team</option>
-                                    <option value="PLA Creative">PLA Creative</option>
-                                    <option value="Art Creative">Art Creative</option>
-                                    <option value="Video Creative">Video Creative</option>
-                                    <option value="Research Creative">Research Creative</option>
-                                    <option value="Concept Creative">Concept Creative</option>
+                                    <option value="PLA Creative">PLA</option>
+                                    <option value="Art Creative">Art</option>
+                                    <option value="Video Creative">Video</option>
+                                    <option value="Research Creative">Research</option>
+                                    <option value="Concept Creative">Concept</option>
                                 </select>
                             </label>
                             <div className="modal-actions">
