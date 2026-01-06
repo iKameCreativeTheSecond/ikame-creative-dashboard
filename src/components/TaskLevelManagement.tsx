@@ -32,10 +32,13 @@ const TaskLevelManagement: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [editingLevel, setEditingLevel] = useState<Level | null>(null);
+  const [levelPointsPage, setLevelPointsPage] = useState(1);
   const [formData, setFormData] = useState<Level>({
     Team: "",
     LevelPoint: [0, 0, 0, 0, 0],
   });
+
+  const levelPointsPerPage = 8;
 
   useEffect(() => {
     if (AdminData.Levels && AdminData.Levels.length > 0) {
@@ -55,6 +58,7 @@ const TaskLevelManagement: React.FC = () => {
     if (level) {
       setEditingLevel(level);
       setFormData(level);
+      setLevelPointsPage(1);
       setShowModal(true);
     }
   };
@@ -84,26 +88,45 @@ const TaskLevelManagement: React.FC = () => {
       Team: "",
       LevelPoint: [],
     });
+    setLevelPointsPage(1);
     setShowModal(true);
   };
 
   const handleAddLevelPoint = () => {
-    setFormData((prev) => ({
-      ...prev,
-      LevelPoint: [...prev.LevelPoint, 0],
-    }));
+    setFormData((prev) => {
+      const nextLevelPoints = [...prev.LevelPoint, 0];
+      const nextTotalPages = Math.max(1, Math.ceil(nextLevelPoints.length / levelPointsPerPage));
+      setLevelPointsPage(nextTotalPages);
+      return {
+        ...prev,
+        LevelPoint: nextLevelPoints,
+      };
+    });
   };
 
   const handleRemoveLevelPoint = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      LevelPoint: prev.LevelPoint.filter((_, i) => i !== index),
-    }));
+    setFormData((prev) => {
+      const nextLevelPoints = prev.LevelPoint.filter((_, i) => i !== index);
+      const nextTotalPages = Math.max(1, Math.ceil(nextLevelPoints.length / levelPointsPerPage));
+      setLevelPointsPage((p) => Math.min(p, nextTotalPages));
+      return {
+        ...prev,
+        LevelPoint: nextLevelPoints,
+      };
+    });
   };
 
   const handleModalClose = () => {
     setShowModal(false);
   };
+
+  // Keep level-points page in range while the modal is open
+  useEffect(() => {
+    if (!showModal) return;
+    const totalPages = Math.max(1, Math.ceil(formData.LevelPoint.length / levelPointsPerPage));
+    if (levelPointsPage > totalPages) setLevelPointsPage(totalPages);
+    if (levelPointsPage < 1) setLevelPointsPage(1);
+  }, [showModal, formData.LevelPoint.length, levelPointsPage]);
 
   const handleFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -195,6 +218,14 @@ const TaskLevelManagement: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(totalItems / rowsPerPage));
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentItems = filteredLevels.slice(startIndex, startIndex + rowsPerPage);
+
+  const levelPointsTotalItems = formData.LevelPoint.length;
+  const levelPointsTotalPages = Math.max(1, Math.ceil(levelPointsTotalItems / levelPointsPerPage));
+  const levelPointsStartIndex = (levelPointsPage - 1) * levelPointsPerPage;
+  const levelPointsCurrentItems = formData.LevelPoint.slice(
+    levelPointsStartIndex,
+    levelPointsStartIndex + levelPointsPerPage
+  );
 
   return (
     <div className="team-management">
@@ -302,7 +333,7 @@ const TaskLevelManagement: React.FC = () => {
 
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal task-level-modal">
             <h2>{editingLevel ? "Edit Level" : "Add Level"}</h2>
             <form onSubmit={handleFormSubmit} className="modal-form task-level-form">
               <div className="form-group">
@@ -334,26 +365,70 @@ const TaskLevelManagement: React.FC = () => {
                     No levels added yet. Click "+ Add Level" to add level points.
                   </p>
                 ) : (
-                  formData.LevelPoint.map((point, index) => (
-                    <div key={index} className="level-point-item">
-                      <label>Level {index + 1}:</label>
-                      <input 
-                        type="number"
-                        value={point} 
-                        onChange={(e) => handleLevelPointChange(index, e.target.value)} 
-                        required
-                        min="0"
-                        placeholder="Enter point value"
-                      />
-                      <button 
-                        type="button" 
-                        className="remove-level-button"
-                        onClick={() => handleRemoveLevelPoint(index)}
-                      >
-                        Remove
-                      </button>
+                  <div className="level-points-list">
+                    {levelPointsCurrentItems.map((point, index) => {
+                      const absoluteIndex = levelPointsStartIndex + index;
+                      return (
+                      <div key={absoluteIndex} className="level-point-item">
+                        <label>Level {absoluteIndex + 1}:</label>
+                        <input 
+                          type="number"
+                          value={point} 
+                          onChange={(e) => handleLevelPointChange(absoluteIndex, e.target.value)} 
+                          required
+                          min="0"
+                          placeholder="Enter point value"
+                        />
+                        <button 
+                          type="button" 
+                          className="remove-level-button"
+                          onClick={() => handleRemoveLevelPoint(absoluteIndex)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {formData.LevelPoint.length > levelPointsPerPage && (
+                  <div className="level-points-pagination">
+                    <div className="pagination-info">
+                      {`${levelPointsStartIndex + 1}-${Math.min(levelPointsStartIndex + levelPointsPerPage, levelPointsTotalItems)} of ${levelPointsTotalItems}`}
                     </div>
-                  ))
+                    <div className="pagination-controls">
+                      <button
+                        type="button"
+                        className="page-button"
+                        disabled={levelPointsPage === 1}
+                        onClick={() => setLevelPointsPage(1)}
+                        aria-label="First level points page"
+                      >«</button>
+                      <button
+                        type="button"
+                        className="page-button"
+                        disabled={levelPointsPage === 1}
+                        onClick={() => setLevelPointsPage((p) => Math.max(1, p - 1))}
+                        aria-label="Previous level points page"
+                      >‹</button>
+                      <span className="page-indicator">Page {levelPointsPage} of {levelPointsTotalPages}</span>
+                      <button
+                        type="button"
+                        className="page-button"
+                        disabled={levelPointsPage === levelPointsTotalPages}
+                        onClick={() => setLevelPointsPage((p) => Math.min(levelPointsTotalPages, p + 1))}
+                        aria-label="Next level points page"
+                      >›</button>
+                      <button
+                        type="button"
+                        className="page-button"
+                        disabled={levelPointsPage === levelPointsTotalPages}
+                        onClick={() => setLevelPointsPage(levelPointsTotalPages)}
+                        aria-label="Last level points page"
+                      >»</button>
+                    </div>
+                  </div>
                 )}
               </div>
 

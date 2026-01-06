@@ -80,6 +80,7 @@ const WeeklyOrderManagement: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [editingOrder, setEditingOrder] = useState<WeeklyOrder | null>(null);
+  const [projectOptions, setProjectOptions] = useState<string[]>(() => AdminData.getListProjects());
   const [formData, setFormData] = useState<WeeklyOrder>({
     ID: "",
     StartWeek: "",
@@ -110,6 +111,7 @@ const WeeklyOrderManagement: React.FC = () => {
     const order = orders.find((o) => o.ID === id);
     if (order) {
       setEditingOrder(order);
+      setProjectOptions(AdminData.getListProjects());
       // Format StartWeek properly for date input
       const formattedOrder = {
         ...order,
@@ -142,6 +144,7 @@ const WeeklyOrderManagement: React.FC = () => {
 
   const handleAdd = () => {
     setEditingOrder(null);
+    setProjectOptions(AdminData.getListProjects());
     // Set default StartWeek to current Monday
     const today = new Date();
     const currentMonday = getMondayOfWeek(new Date(today));
@@ -482,7 +485,22 @@ const WeeklyOrderManagement: React.FC = () => {
               <div className="form-side-fields">
                 <div className="form-group">
                   <label htmlFor="Project">Project:</label>
-                  <input id="Project" name="Project" value={formData.Project} onChange={handleFormChange} required style={{ width: '120px' }} />
+                  <input
+                    id="Project"
+                    name="Project"
+                    list="weekly-order-project-options"
+                    value={formData.Project}
+                    onChange={handleFormChange}
+                    required
+                    style={{ width: '120px' }}
+                  />
+                  <datalist id="weekly-order-project-options">
+                    {projectOptions
+                      .filter((p): p is string => typeof p === 'string' && p.trim().length > 0)
+                      .map((p) => (
+                        <option key={p} value={p} />
+                      ))}
+                  </datalist>
                 </div>
                 <div className="form-group">
                   <label htmlFor="CPP">CPP:</label>

@@ -6,6 +6,15 @@
   max-width: 600px;
 }
 
+/* Make this specific modal scroll-safe when many levels exist */
+.task-level-modal {
+  width: min(720px, 92vw);
+  min-width: 0;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .task-level-form .form-group {
   display: flex;
   flex-direction: column;
@@ -39,16 +48,28 @@
   gap: 10px;
 }
 
+.level-points-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 900px) {
+  .level-points-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .level-points-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .level-points-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   color: #333;
 }
@@ -57,10 +78,10 @@
   background-color: #6366f1;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   transition: background-color 0.2s;
 }
@@ -71,27 +92,32 @@
 
 .level-point-item {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  padding: 10px;
+  padding: 8px;
   background-color: #f9fafb;
   border-radius: 4px;
   border: 1px solid #e5e7eb;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .level-point-item label {
-  min-width: 80px;
+  min-width: 56px;
   font-weight: 500;
   color: #333;
   margin: 0;
+  font-size: 12px;
 }
 
 .level-point-item input {
   flex: 1;
-  padding: 8px;
+  min-width: 0;
+  padding: 6px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
+  height: 32px;
 }
 
 .level-point-item input:focus {
@@ -104,13 +130,27 @@
   background-color: #ef4444;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
   transition: background-color 0.2s;
-  min-width: 70px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.level-points-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.level-points-pagination .pagination-info {
+  font-size: 13px;
+  color: #6b7280;
 }
 
 .remove-level-button:hover {
