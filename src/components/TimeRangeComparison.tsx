@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import './TimeRangeComparison.css'
 
 export type TimeRangeComparisonProps = {
@@ -44,21 +44,60 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
   const [isDragging, setIsDragging] = useState<{ range: 1 | 2; type: 'start' | 'end' | 'move'; initialX: number } | null>(null)
   const timelineRef = useRef<HTMLDivElement>(null)
 
-  // Update ranges when data changes
-  useMemo(() => {
-    if (sortedData.length > 0 && (!range1 || !range2)) {
-      const defaults = getDefaultRanges()
-      if (!range1) setRange1(defaults.range1)
-      if (!range2) setRange2(defaults.range2)
+  const clampRange = (rangeSelection: RangeSelection | null, length: number): RangeSelection | null => {
+    if (!rangeSelection || length <= 0) return null
+
+    const maxIndex = length - 1
+    const clampedStart = Math.max(0, Math.min(maxIndex, rangeSelection.startIndex))
+    const clampedEnd = Math.max(0, Math.min(maxIndex, rangeSelection.endIndex))
+
+    let startIndex = Math.min(clampedStart, clampedEnd)
+    let endIndex = Math.max(clampedStart, clampedEnd)
+
+    // Ensure at least 2 points when possible
+    if (length > 1 && startIndex === endIndex) {
+      endIndex = Math.min(maxIndex, startIndex + 1)
+      startIndex = Math.max(0, endIndex - 1)
     }
-  }, [sortedData, range1, range2])
+
+    return { startIndex, endIndex }
+  }
+
+  const rangesEqual = (a: RangeSelection | null, b: RangeSelection | null) => {
+    if (!a && !b) return true
+    if (!a || !b) return false
+    return a.startIndex === b.startIndex && a.endIndex === b.endIndex
+  }
+
+  // Update/clamp ranges when data changes (avoid out-of-bounds indices)
+  useEffect(() => {
+    if (sortedData.length === 0) {
+      if (range1 !== null) setRange1(null)
+      if (range2 !== null) setRange2(null)
+      return
+    }
+
+    const defaults = getDefaultRanges()
+
+    const nextRange1 = clampRange(range1, sortedData.length) ?? defaults.range1
+    const nextRange2 = clampRange(range2, sortedData.length) ?? defaults.range2
+
+    if (!rangesEqual(range1, nextRange1)) setRange1(nextRange1)
+    if (!rangesEqual(range2, nextRange2)) setRange2(nextRange2)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortedData.length])
 
   // Calculate statistics for a range
   const calculateStats = (rangeSelection: RangeSelection | null) => {
     if (!rangeSelection || sortedData.length === 0) return null
 
-    const { startIndex, endIndex } = rangeSelection
+    const clamped = clampRange(rangeSelection, sortedData.length)
+    if (!clamped) return null
+
+    const { startIndex, endIndex } = clamped
     const rangeData = sortedData.slice(startIndex, endIndex + 1)
+
+    if (rangeData.length === 0) return null
     
     const totalValue = rangeData.reduce((sum, d) => sum + d.value, 0)
     const totalBase = rangeData.reduce((sum, d) => sum + d.baseValue, 0)
@@ -144,9 +183,10 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
   }
 
   const getPositionStyle = (rangeSelection: RangeSelection | null) => {
-    if (!rangeSelection || sortedData.length === 0) return { left: '0%', width: '0%' }
+    const clamped = clampRange(rangeSelection, sortedData.length)
+    if (!clamped || sortedData.length === 0) return { left: '0%', width: '0%' }
     
-    const { startIndex, endIndex } = rangeSelection
+    const { startIndex, endIndex } = clamped
     const left = (startIndex / (sortedData.length - 1)) * 100
     const width = ((endIndex - startIndex) / (sortedData.length - 1)) * 100
     
@@ -156,6 +196,9 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
   if (sortedData.length === 0) {
     return null
   }
+
+  const range1Safe = clampRange(range1, sortedData.length)
+  const range2Safe = clampRange(range2, sortedData.length)
 
   return (
     <div className="time-range-comparison">
@@ -179,8 +222,8 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
           ref={timelineRef}
         >
           {/* Range 1 - Blue */}
-          {range1 && (
-            <div className="timeline-range timeline-range-1" style={getPositionStyle(range1)}>
+          {range1Safe && (
+            <div className="timeline-range timeline-range-1" style={getPositionStyle(range1Safe)}>
               <div 
                 className="range-handle range-handle-start"
                 onMouseDown={(e) => handleMouseDown(1, 'start', e)}
@@ -191,12 +234,12 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
               >
                 <div className="range-info">
                   <span className="range-date-label">
-                    {new Date(sortedData[range1.startIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                    {new Date(sortedData[range1Safe.startIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
                     {' → '}
-                    {new Date(sortedData[range1.endIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                    {new Date(sortedData[range1Safe.endIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
                   </span>
                   <span className="range-duration">
-                    ({range1.endIndex - range1.startIndex} tuần)
+                    ({range1Safe.endIndex - range1Safe.startIndex} tuần)
                   </span>
                 </div>
               </div>
@@ -208,8 +251,8 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
           )}
           
           {/* Range 2 - Purple */}
-          {range2 && (
-            <div className="timeline-range timeline-range-2" style={getPositionStyle(range2)}>
+          {range2Safe && (
+            <div className="timeline-range timeline-range-2" style={getPositionStyle(range2Safe)}>
               <div 
                 className="range-handle range-handle-start"
                 onMouseDown={(e) => handleMouseDown(2, 'start', e)}
@@ -220,12 +263,12 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
               >
                 <div className="range-info">
                   <span className="range-date-label">
-                    {new Date(sortedData[range2.startIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                    {new Date(sortedData[range2Safe.startIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
                     {' → '}
-                    {new Date(sortedData[range2.endIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                    {new Date(sortedData[range2Safe.endIndex].time).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
                   </span>
                   <span className="range-duration">
-                    ({range2.endIndex - range2.startIndex} tuần)
+                    ({range2Safe.endIndex - range2Safe.startIndex} tuần)
                   </span>
                 </div>
               </div>
