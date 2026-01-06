@@ -75,6 +75,8 @@ type TeamWeeklyTarget = {
 export default function Home()
 {
     const [ range, setRange ] = useState<{ startDate: string | null; endDate: string | null } | null>(null)
+    const [ selectedTeams, setSelectedTeams ] = useState<string[]>([]);
+    const [ selectedStaff, setSelectedStaff ] = useState<string[]>([]);
     const [ teamOptions, setTeamOptions ] = useState<{ value: string; label: string }[]>([]);
     const [ staffOptions, setStaffOptions ] = useState<{ value: string; label: string; team: string }[]>([]);
     const [ chartsData, setChartsData ] = useState<ChartObjectData[]>([]);
@@ -284,6 +286,8 @@ export default function Home()
     ) =>
     {
         setRange(range);
+        setSelectedTeams(selectedTeams);
+        setSelectedStaff(selectedStaff);
         const isoStartDate = range.startDate ? new Date(range.startDate).toISOString() : null;
         const isoEndDate = range.endDate ? new Date(range.endDate).toISOString() : null;
 
@@ -391,6 +395,8 @@ export default function Home()
                         data={projectIssues} 
                         title="Current Project Issues"
                         dateRange={range}
+                        selectedTeams={selectedTeams}
+                        selectedStaff={selectedStaff}
                     />
             </div>
         </>

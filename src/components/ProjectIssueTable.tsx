@@ -16,36 +16,31 @@ interface ProjectIssueTableProps {
     data: ProjectIssue[];
     title?: string;
     dateRange?: { startDate: string | null; endDate: string | null } | null;
+    selectedTeams?: string[];
+    selectedStaff?: string[];
 }
 
 interface FilterState {
     projectName: string[];
-    assignee: string[];
-    team: string[];
     status: string[];
 }
 
-export default function ProjectIssueTable({ data, title = "Project Issues", dateRange }: ProjectIssueTableProps) {
+export default function ProjectIssueTable({
+    data,
+    title = "Project Issues",
+    dateRange,
+    selectedTeams = [],
+    selectedStaff = [],
+}: ProjectIssueTableProps) {
     // Filter states
     const [filters, setFilters] = useState<FilterState>({
         projectName: [],
-        assignee: [],
-        team: [],
         status: []
     });
 
     // Get unique values for filter options
     const uniqueProjects = useMemo(() => {
         return Array.from(new Set(data.map(item => item.Project).filter(Boolean))).sort();
-    }, [data]);
-
-    const uniqueTeams = useMemo(() => {
-        return Array.from(new Set(data.map(item => item.Team).filter(Boolean))).sort();
-    }, [data]);
-
-    const uniqueAssignees = useMemo(() => {
-        const allAssignees = data.flatMap(item => item.Assignees);
-        return Array.from(new Set(allAssignees.filter(Boolean))).sort();
     }, [data]);
 
     // Filter data based on current filters
@@ -61,20 +56,18 @@ export default function ProjectIssueTable({ data, title = "Project Issues", date
                 }
             }
 
+            // Team filter (from main Filter component)
+            if (selectedTeams.length > 0 && !selectedTeams.includes(item.Team)) {
+                return false;
+            }
+
+            // Staff/Assignee filter (from main Filter component)
+            if (selectedStaff.length > 0 && !item.Assignees.some(assignee => selectedStaff.includes(assignee))) {
+                return false;
+            }
+
             // Project name filter
             if (filters.projectName.length > 0 && !filters.projectName.includes(item.Project)) {
-                return false;
-            }
-
-            // Team filter
-            if (filters.team.length > 0 && !filters.team.includes(item.Team)) {
-                return false;
-            }
-
-            // Assignee filter
-            if (filters.assignee.length > 0 && !item.Assignees.some(assignee => 
-                filters.assignee.includes(assignee)
-            )) {
                 return false;
             }
 
@@ -91,7 +84,7 @@ export default function ProjectIssueTable({ data, title = "Project Issues", date
 
             return true;
         });
-    }, [data, filters, dateRange]);
+    }, [data, dateRange, filters.projectName, filters.status, selectedStaff, selectedTeams]);
 
     // Handle filter changes for multi-select
     const handleFilterChange = useCallback((key: keyof FilterState, value: string) => {
@@ -108,14 +101,12 @@ export default function ProjectIssueTable({ data, title = "Project Issues", date
     const clearFilters = useCallback(() => {
         setFilters({
             projectName: [],
-            assignee: [],
-            team: [],
             status: []
         });
     }, []);
 
     // Check if any filters are active
-    const hasActiveFilters = filters.projectName.length > 0 || filters.assignee.length > 0 || filters.team.length > 0 || filters.status.length > 0;
+    const hasActiveFilters = filters.projectName.length > 0 || filters.status.length > 0;
 
     // Format date for display
     const formatDate = (dateString: string) => {
@@ -171,48 +162,6 @@ export default function ProjectIssueTable({ data, title = "Project Issues", date
                                             onChange={() => handleFilterChange('projectName', project)}
                                         />
                                         <span>{project}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="filter-group">
-                        <label>Team:</label>
-                        <div className="multi-select-container">
-                            <div className="multi-select-display">
-                                {filters.team.length === 0 ? 'All Teams' : `${filters.team.length} selected`}
-                            </div>
-                            <div className="multi-select-options">
-                                {uniqueTeams.map(team => (
-                                    <label key={team} className="multi-select-option">
-                                        <input
-                                            type="checkbox"
-                                            checked={filters.team.includes(team)}
-                                            onChange={() => handleFilterChange('team', team)}
-                                        />
-                                        <span>{team}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="filter-group">
-                        <label>Assignee:</label>
-                        <div className="multi-select-container">
-                            <div className="multi-select-display">
-                                {filters.assignee.length === 0 ? 'All Assignees' : `${filters.assignee.length} selected`}
-                            </div>
-                            <div className="multi-select-options">
-                                {uniqueAssignees.map(assignee => (
-                                    <label key={assignee} className="multi-select-option">
-                                        <input
-                                            type="checkbox"
-                                            checked={filters.assignee.includes(assignee)}
-                                            onChange={() => handleFilterChange('assignee', assignee)}
-                                        />
-                                        <span>{assignee}</span>
                                     </label>
                                 ))}
                             </div>
