@@ -173,43 +173,56 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
     })
   }, [datasets])
 
-  // ReferenceDot at the middle of the time axis
-  // Hiển thị các issue như ReferenceDot trên trục thời gian
+  // Hiển thị các issue như ReferenceDot trên trục thời gian (group theo time, hiển thị count giống ColumnChart)
   const issueDots = useMemo(() => {
-    if (!issues || issues.length === 0 || !chartData || chartData.length === 0) return [];
-    const timeList = chartData.map(d => d.time as string);
-    return issues.map((issue, idx) => {
-      // Chuẩn hóa thời gian của issue về cùng format với timeList
-      let xValue = issue.StartWeek;
-      if (xValue) {
-        const d = new Date(xValue);
-        // Normalize to ISO string without time (YYYY-MM-DD format or full ISO)
-        xValue = d.toISOString();
+    if (!issues || issues.length === 0 || !chartData || chartData.length === 0) return []
+
+    const timeList = chartData.map((d) => d.time as string)
+
+    const issuesByTime: Record<string, ProjectIssue[]> = {}
+
+    issues.forEach((issue) => {
+      if (!issue.StartWeek) return
+
+      let xValue = issue.StartWeek
+      const parsed = new Date(xValue)
+      if (!Number.isNaN(parsed.getTime())) {
+        xValue = parsed.toISOString()
       }
-      // Tìm vị trí gần nhất trên trục thời gian
-      const matchedTime = timeList.find(t => {
-        // Compare both as ISO strings for exact match
-        if (t === xValue) return true;
-        // Also try comparing just the date part
-        const tDate = new Date(t).toISOString().split('T')[0];
-        const xDate = new Date(xValue).toISOString().split('T')[0];
-        return tDate === xDate;
-      }) ?? timeList.reduce((prev, curr) => {
-        // Nếu không khớp tuyệt đối, tìm mốc gần nhất
-        const currTime = new Date(curr).getTime();
-        const prevTime = new Date(prev).getTime();
-        const xTime = new Date(xValue).getTime();
-        return Math.abs(currTime - xTime) < Math.abs(prevTime - xTime) ? curr : prev;
-      }, timeList[0]);
+
+      const matchedTime =
+        timeList.find((t) => {
+          if (t === xValue) return true
+          const tDate = new Date(t).toISOString().split('T')[0]
+          const xDate = new Date(xValue).toISOString().split('T')[0]
+          return tDate === xDate
+        }) ??
+        timeList.reduce((prev, curr) => {
+          const currTime = new Date(curr).getTime()
+          const prevTime = new Date(prev).getTime()
+          const xTime = new Date(xValue).getTime()
+          return Math.abs(currTime - xTime) < Math.abs(prevTime - xTime) ? curr : prev
+        }, timeList[0])
+
+      if (!issuesByTime[matchedTime]) {
+        issuesByTime[matchedTime] = []
+      }
+      issuesByTime[matchedTime].push(issue)
+    })
+
+    return Object.entries(issuesByTime).map(([time, timeIssues]) => {
+      const issueCount = timeIssues.length
       return {
-        x: matchedTime,
+        x: time,
         y: 0,
-        key: `issue-dot-${idx}-${issue.Id || issue.Project}`,
+        key: `issue-dot-group-${time}`,
         fill: '#E53E3E',
-        r: 8
-      };
-    });
-  }, [issues, chartData]);
+        r: Math.min(6 + (issueCount - 1) * 2, 12),
+        issueCount,
+        issues: timeIssues,
+      }
+    })
+  }, [issues, chartData])
 
   const overlayTitle = `Performance Points (2 Scores) - ${datasets.length} ${datasets.length > 1 ? 'teams' : 'team'}`
 
@@ -314,6 +327,30 @@ export default function LineChart({ datasets, issues = [], title = 'Performance 
                   fill={dot.fill}
                   stroke="#ed0000ff"
                   strokeWidth={2}
+                  {...(dot.issueCount > 1 && {
+                    shape: (props: any) => (
+                      <g>
+                        <circle
+                          cx={props.cx}
+                          cy={props.cy}
+                          r={props.r}
+                          fill={props.fill}
+                          stroke={props.stroke}
+                          strokeWidth={props.strokeWidth}
+                        />
+                        <text
+                          x={props.cx}
+                          y={props.cy + 1}
+                          textAnchor="middle"
+                          fontSize="10"
+                          fill="white"
+                          fontWeight="bold"
+                        >
+                          {dot.issueCount}
+                        </text>
+                      </g>
+                    ),
+                  })}
                 />
               ))}
           </AreaChart>
