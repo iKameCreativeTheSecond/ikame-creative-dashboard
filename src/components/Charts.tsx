@@ -14,14 +14,17 @@ export type ChartObjectData = {
 export type ChartsProps = {
     data: ChartObjectData[]
     issues?: import('./ProjectIssueTable').ProjectIssue[]
+    assigneeNameByEmail?: Record<string, string>
     title?: string
     height?: number
 }
 
 type ChartType = 'line' | 'column'
 
-export default function Charts({ data, issues = [], title = 'Performance Dashboard', height = 440 }: ChartsProps) {
+export default function Charts({ data, issues = [], assigneeNameByEmail, title = 'Performance Dashboard', height = 440 }: ChartsProps) {
     const [chartType, setChartType] = useState<ChartType>('line')
+
+    const assigneeLookup = assigneeNameByEmail ?? {}
 
     // Chuyển đổi dữ liệu cho LineChart
     const lineChartData: MultiObjectData[] = (() => {
@@ -120,6 +123,7 @@ export default function Charts({ data, issues = [], title = 'Performance Dashboa
                         <LineChart 
                             datasets={lineChartData} 
                             issues={issues}
+                            assigneeNameByEmail={assigneeLookup}
                             title=""  // Bỏ title vì đã có ở header chung
                             height={height - 60} // Trừ đi chiều cao của header
                         />
@@ -129,6 +133,7 @@ export default function Charts({ data, issues = [], title = 'Performance Dashboa
                         <ColumnChart 
                             data={ columnChartData } 
                             issues={issues}    
+                            assigneeNameByEmail={assigneeLookup}
                             title=""  // Bỏ title vì đã có ở header chung
                             height={height - 60} // Trừ đi chiều cao của header
                         />

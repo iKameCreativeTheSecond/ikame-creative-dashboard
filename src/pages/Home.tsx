@@ -3,7 +3,7 @@ import Charts, { type ChartObjectData } from '../components/Charts'
 import TeamTargetProgress, { type WeeklyTeamPerformaceData } from '../components/TeamTargetProgress';
 import ProjectIssueTable, { type ProjectIssue } from '../components/ProjectIssueTable';
 import TimeRangeComparison from '../components/TimeRangeComparison';
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Filter from '../components/Filter';
 import TopBar from '../components/TopBar';
 import { GlobalData } from '../common/GlobalData';
@@ -82,7 +82,17 @@ export default function Home()
     const [ chartsData, setChartsData ] = useState<ChartObjectData[]>([]);
     const [ teamWeeklyPerformance, setTeamWeeklyPerformance ] = useState<WeeklyTeamPerformaceData[]>([]);
     const [ projectIssues, setProjectIssues ] = useState<ProjectIssue[]>([]);
+    const [ filteredProjectIssues, setFilteredProjectIssues ] = useState<ProjectIssue[]>([]);
     const [ showTimeRangeComparison, setShowTimeRangeComparison ] = useState<boolean>(false);
+
+    const assigneeNameByEmail = useMemo(() => {
+        const map: Record<string, string> = {};
+        for (const s of staffOptions) {
+            if (!s?.value) continue;
+            map[String(s.value).toLowerCase()] = s.label;
+        }
+        return map;
+    }, [staffOptions]);
 
     async function getTeamMembers(teams: string[])
     {
@@ -377,7 +387,8 @@ export default function Home()
                     </div>
                     <Charts
                         data={chartsData}
-                        issues={projectIssues}
+                        issues={filteredProjectIssues}
+                        assigneeNameByEmail={assigneeNameByEmail}
                         title="Team Performance"
                         height={500}
                     />
@@ -397,6 +408,8 @@ export default function Home()
                         dateRange={range}
                         selectedTeams={selectedTeams}
                         selectedStaff={selectedStaff}
+                        onFilteredDataChange={setFilteredProjectIssues}
+                        assigneeNameByEmail={assigneeNameByEmail}
                     />
             </div>
         </>

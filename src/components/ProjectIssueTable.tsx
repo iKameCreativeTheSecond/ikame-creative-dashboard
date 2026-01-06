@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import './ProjectIssueTable.css';
 
 export type ProjectIssue = {
@@ -18,6 +18,8 @@ interface ProjectIssueTableProps {
     dateRange?: { startDate: string | null; endDate: string | null } | null;
     selectedTeams?: string[];
     selectedStaff?: string[];
+    onFilteredDataChange?: (filtered: ProjectIssue[]) => void;
+    assigneeNameByEmail?: Record<string, string>;
 }
 
 interface FilterState {
@@ -31,6 +33,8 @@ export default function ProjectIssueTable({
     dateRange,
     selectedTeams = [],
     selectedStaff = [],
+    onFilteredDataChange,
+    assigneeNameByEmail = {},
 }: ProjectIssueTableProps) {
     // Filter states
     const [filters, setFilters] = useState<FilterState>({
@@ -45,6 +49,14 @@ export default function ProjectIssueTable({
 
     // Filter data based on current filters
     const filteredData = useMemo(() => {
+        const selectedStaffNormalized = new Set(selectedStaff.map(s => String(s ?? '').trim().toLowerCase()).filter(Boolean));
+        const selectedStaffNamesNormalized = new Set(
+            selectedStaff
+                .map(s => assigneeNameByEmail[String(s ?? '').trim().toLowerCase()])
+                .filter(Boolean)
+                .map(n => String(n).trim().toLowerCase())
+        );
+
         return data.filter(item => {
             // Date range filter
             if (dateRange && dateRange.startDate && dateRange.endDate) {
@@ -62,8 +74,13 @@ export default function ProjectIssueTable({
             }
 
             // Staff/Assignee filter (from main Filter component)
-            if (selectedStaff.length > 0 && !item.Assignees.some(assignee => selectedStaff.includes(assignee))) {
-                return false;
+            if (selectedStaff.length > 0) {
+                const matchesStaff = item.Assignees.some(assignee => {
+                    const normalized = String(assignee ?? '').trim().toLowerCase();
+                    if (!normalized) return false;
+                    return selectedStaffNormalized.has(normalized) || selectedStaffNamesNormalized.has(normalized);
+                });
+                if (!matchesStaff) return false;
             }
 
             // Project name filter
@@ -84,7 +101,11 @@ export default function ProjectIssueTable({
 
             return true;
         });
-    }, [data, dateRange, filters.projectName, filters.status, selectedStaff, selectedTeams]);
+    }, [data, dateRange, filters.projectName, filters.status, selectedStaff, selectedTeams, assigneeNameByEmail]);
+
+    useEffect(() => {
+        onFilteredDataChange?.(filteredData);
+    }, [filteredData, onFilteredDataChange]);
 
     // Handle filter changes for multi-select
     const handleFilterChange = useCallback((key: keyof FilterState, value: string) => {
@@ -120,8 +141,12 @@ export default function ProjectIssueTable({
     // Format assignees list for display
     const formatAssignees = (assignees: string[]) => {
         if (assignees.length === 0) return 'No assignees';
-        if (assignees.length <= 2) return assignees.join(', ');
-        return `${assignees.slice(0, 2).join(', ')} +${assignees.length - 2} more`;
+        const displayAssignees = assignees.map(a => {
+            const key = String(a ?? '').trim().toLowerCase();
+            return assigneeNameByEmail[key] ?? a;
+        });
+        if (displayAssignees.length <= 2) return displayAssignees.join(', ');
+        return `${displayAssignees.slice(0, 2).join(', ')} +${displayAssignees.length - 2} more`;
     };
 
     // Get status based on difference
@@ -245,7 +270,15 @@ export default function ProjectIssueTable({
                                     <td className={`difference ${getStatusClass(issue.Difference)}`}>
                                         {getStatusText(issue.Difference)}
                                     </td>
-                                    <td className="assignees" title={issue.Assignees.join(', ')}>
+                                    <td
+                                        className="assignees"
+                                        title={issue.Assignees
+                                            .map(a => {
+                                                const key = String(a ?? '').trim().toLowerCase();
+                                                return assigneeNameByEmail[key] ?? a;
+                                            })
+                                            .join(', ')}
+                                    >
                                         {formatAssignees(issue.Assignees)}
                                     </td>
                                 </tr>

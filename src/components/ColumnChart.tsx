@@ -24,7 +24,13 @@ const PALETTE = [
 ]
 
 // Custom tooltip component that shows all data points and issues for a specific time
-const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: ProjectIssue[] }) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+  issues = [],
+  assigneeNameByEmail = {},
+}: any & { issues: ProjectIssue[]; assigneeNameByEmail: Record<string, string> }) => {
   if (!active || !payload || !label) {
     return null;
   }
@@ -92,6 +98,17 @@ const CustomTooltip = ({ active, payload, label, issues = [] }: any & { issues: 
               <div key={idx} style={{ marginBottom: '4px', padding: '6px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', fontSize: '11px', display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '120px', wordBreak: 'break-word' }}>
                 <span style={{ fontWeight: '600', color: '#DC2626', fontSize: '12px' }}>{issue.Project}</span>
                 <span style={{ color: '#7F1D1D', fontSize: '10px' }}>Team: {issue.Team}</span>
+                <span style={{ color: '#7F1D1D', fontSize: '10px' }}>
+                  Assignees:{' '}
+                  {(issue.Assignees && issue.Assignees.length > 0)
+                    ? issue.Assignees
+                        .map(a => {
+                          const key = String(a ?? '').toLowerCase();
+                          return assigneeNameByEmail[key] ?? a;
+                        })
+                        .join(', ')
+                    : '—'}
+                </span>
                 <span style={{ color: issue.Difference > 0 ? '#059669' : '#DC2626', fontSize: '10px', fontWeight: '600' }}>
                   Difference: {issue.Difference > 0 ? '+' : ''}{issue.Difference}
                 </span>
@@ -115,11 +132,18 @@ export type ColumnObjectData = {
 export type ColumnChartProps = {
   data: ColumnObjectData[] // Array of data for column chart
   issues?: ProjectIssue[] // Project issues to show as ReferenceDot
+  assigneeNameByEmail?: Record<string, string>
   title?: string
   height?: number
 }
 
-export default function ColumnChart({ data, issues = [], title = 'Column Chart', height = 440 }: ColumnChartProps) {
+export default function ColumnChart({
+  data,
+  issues = [],
+  assigneeNameByEmail = {},
+  title = 'Column Chart',
+  height = 440,
+}: ColumnChartProps) {
   const chartRef = useRef<HTMLDivElement>(null)
 
   const chartData = useMemo(() => {
@@ -260,7 +284,7 @@ export default function ColumnChart({ data, issues = [], title = 'Column Chart',
               label={{ value: 'Điểm số', angle: -90, position: 'insideLeft', offset: 10 }} 
             />
             <Tooltip 
-              content={<CustomTooltip issues={issues} />}
+              content={<CustomTooltip issues={issues} assigneeNameByEmail={assigneeNameByEmail} />}
               allowEscapeViewBox={{ x: false, y: true }}
               position={{ x: undefined, y: undefined }}
             />
