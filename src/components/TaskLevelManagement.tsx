@@ -38,7 +38,7 @@ const TaskLevelManagement: React.FC = () => {
     LevelPoint: [0, 0, 0, 0, 0],
   });
 
-  const levelPointsPerPage = 8;
+  const levelPointsPerPage = 12;
 
   useEffect(() => {
     if (AdminData.Levels && AdminData.Levels.length > 0) {
