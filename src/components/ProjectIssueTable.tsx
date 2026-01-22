@@ -10,6 +10,7 @@ export type ProjectIssue = {
     Difference: number;
     Team: string;
     OrderCount: number;
+    TaskType : string;
 }
 
 interface ProjectIssueTableProps {

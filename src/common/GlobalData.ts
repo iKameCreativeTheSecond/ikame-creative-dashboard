@@ -61,4 +61,22 @@ export class GlobalData
     }
 }
 
+export function GetTeamFromTaskType(taskType: string): string
+{
+    switch (taskType)
+    {
+        case 'art_cpp':
+            return 'Art'
+        case 'art_icon':
+            return 'Art'
+        case 'art_banner':
+            return 'Art'
+        case 'playable':
+            return 'PLA'
+        case 'video':
+            return 'Video'
+        default:
+            return 'Concept'
+    }
+}
 //endregion

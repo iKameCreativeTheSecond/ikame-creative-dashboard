@@ -6,7 +6,7 @@ import TimeRangeComparison from '../components/TimeRangeComparison';
 import { useState, useEffect, useMemo } from 'react'
 import Filter from '../components/Filter';
 import TopBar from '../components/TopBar';
-import { GlobalData } from '../common/GlobalData';
+import { GetTeamFromTaskType, GlobalData } from '../common/GlobalData';
 
 
 const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
@@ -250,10 +250,6 @@ export default function Home()
             if (!response.ok) throw new Error('Network response was not ok');
             let res = await response.json() as ProjectIssue[];
             if (res == null) return [];
-            for (const r of res)
-            {
-                r.Difference *= -1; // Invert difference for display
-            }
             return res;
         }
         catch (error)
