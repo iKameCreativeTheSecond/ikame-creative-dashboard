@@ -207,15 +207,11 @@
 }
 
 /* Column widths */
-.col-timeline {
-  width: 120px;
-  min-width: 120px;
-}
-
-.col-stt {
-  width: 60px;
-  min-width: 60px;
-  text-align: center;
+.col-start-date,
+.col-end-date {
+  width: 110px;
+  min-width: 110px;
+  white-space: nowrap;
 }
 
 .col-project {

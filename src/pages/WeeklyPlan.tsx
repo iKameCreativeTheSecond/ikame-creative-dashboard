@@ -4,8 +4,7 @@ import './WeeklyPlan.css';
 
 interface WeeklyPlanItem {
   id: number;
-  timeline: string;
-  stt: number;
+  timeline: Date; // start date of the timeline (end date is computed as start + 7 days)
   project: string;
   status: 'success' | 'warning' | 'danger' | 'info' | 'neutral';
   objectives: string;
@@ -35,17 +34,48 @@ export default function WeeklyPlan() {
     return date.toISOString().split('T')[0];
   };
 
-  // Parse timeline string "08/12 - 14/12" to get start date
-  const parseTimelineToDate = (timeline: string): Date | null => {
-    try {
-      const [startPart] = timeline.split(' - ');
-      const [day, month] = startPart.split('/').map(num => parseInt(num, 10));
-      // Assume current year if not specified
-      const year = new Date().getFullYear();
-      return new Date(year, month - 1, day);
-    } catch {
-      return null;
-    }
+  const parseIsoDateInputToLocalDate = (value: string): Date | null => {
+    if (!value) return null;
+    const [yearStr, monthStr, dayStr] = value.split('-');
+    const year = Number(yearStr);
+    const month = Number(monthStr);
+    const day = Number(dayStr);
+    if (!year || !month || !day) return null;
+    const date = new Date(year, month - 1, day);
+    if (isNaN(date.getTime())) return null;
+    return date;
+  };
+
+  const normalizeToLocalDate = (date: Date): Date => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
+  const addDays = (date: Date, days: number): Date => {
+    const next = new Date(date);
+    next.setDate(next.getDate() + days);
+    return next;
+  };
+
+  const formatDateDdMm = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const getTimelineStartDate = (startDate: Date): Date => {
+    return normalizeToLocalDate(startDate);
+  };
+
+  const getTimelineEndDate = (startDate: Date): Date => {
+    const start = getTimelineStartDate(startDate);
+    return addDays(start, 7);
+  };
+
+  const formatTimelineLabel = (startDate: Date): string => {
+    const start = getTimelineStartDate(startDate);
+    const end = getTimelineEndDate(startDate);
+    return `${formatDateDdMm(start)} - ${formatDateDdMm(end)}`;
   };
 
   // Quick filter options - filter from current time backwards
@@ -74,8 +104,8 @@ export default function WeeklyPlan() {
   const getEffectiveRange = (): { from: Date; to: Date } => {
     const currentMonday = getMondayOfWeek(new Date());
 
-    const fromBase = dateFrom ? new Date(dateFrom) : null;
-    const toBase = dateTo ? new Date(dateTo) : null;
+    const fromBase = dateFrom ? parseIsoDateInputToLocalDate(dateFrom) : null;
+    const toBase = dateTo ? parseIsoDateInputToLocalDate(dateTo) : null;
 
     let from = fromBase;
     let to = toBase;
@@ -125,11 +155,12 @@ export default function WeeklyPlan() {
 
   useEffect(() => {
     // Sample data based on the image
+    // Using 2025 for demo data to match typical filter ranges
+    const year = 2025;
     const sampleData: WeeklyPlanItem[] = [
       {
         id: 1,
-        timeline: '01/12 - 14/12',
-        stt: 5,
+        timeline: new Date(year, 11, 1),
         project: 'Goods Jam',
         status: 'warning',
         objectives: `Scale biến vòng
@@ -148,8 +179,7 @@ meta: ok`,
       },
       {
         id: 2,
-        timeline: '08/12 - 14/12',
-        stt: 6,
+        timeline: new Date(year, 11, 8),
         project: 'Skewer Jam',
         status: 'danger',
         objectives: `Keep đề tối ưu sản phẩm
@@ -163,8 +193,7 @@ Meta: 15-20`,
       },
       {
         id: 3,
-        timeline: '08/12 - 14/12',
-        stt: 7,
+        timeline: new Date(year, 11, 8),
         project: 'Water Flow',
         status: 'info',
         objectives: `Testing chỉ số sản phẩm, 1-2K daily install
@@ -179,8 +208,7 @@ store ok`,
       },
       {
         id: 4,
-        timeline: '08/12 - 14/12',
-        stt: 8,
+        timeline: new Date(year, 11, 8),
         project: 'Screwdom 3D',
         status: 'neutral',
         objectives: `- Deadline: W3/Dec
@@ -200,8 +228,7 @@ meta 20`,
       },
       {
         id: 5,
-        timeline: '08/12 - 14/12',
-        stt: 9,
+        timeline: new Date(year, 11, 8),
         project: 'Scrawdom 2',
         status: 'info',
         objectives: `- Deadline: Hết tháng 11
@@ -216,8 +243,7 @@ video 5`,
       },
       {
         id: 6,
-        timeline: '08/12 - 14/12',
-        stt: 10,
+        timeline: new Date(year, 11, 8),
         project: 'Block Flow',
         status: 'info',
         objectives: `Launching + Testing:
@@ -234,8 +260,7 @@ store: đã có`,
       },
       {
         id: 7,
-        timeline: '08/12 - 14/12',
-        stt: 11,
+        timeline: new Date(year, 11, 8),
         project: 'Scrawzle 3D',
         status: 'danger',
         objectives: `Tính hiện spend từ từ để theo dõi thêm chỉ số ok thì x2 spend`,
@@ -251,8 +276,7 @@ ok`,
       },
       {
         id: 8,
-        timeline: '08/12 - 14/12',
-        stt: 12,
+        timeline: new Date(year, 11, 8),
         project: 'Dreamroom',
         status: 'neutral',
         objectives: `Testing chỉ số sản phẩm, 1-2K daily install
@@ -268,8 +292,7 @@ Theme Christmas (đồi tóc sẽ update)`,
       },
       {
         id: 9,
-        timeline: '08/12 - 14/12',
-        stt: 13,
+        timeline: new Date(year, 11, 8),
         project: 'Holiday Escape',
         status: 'warning',
         objectives: `Test bản big update
@@ -285,8 +308,7 @@ pla: 1 (chu thuộc assets)`,
       },
       {
         id: 10,
-        timeline: '08/12 - 14/12',
-        stt: 14,
+        timeline: new Date(year, 11, 8),
         project: 'Water Escape',
         status: 'success',
         objectives: `Test bản iOS, scale x2 bản Android
@@ -313,22 +335,24 @@ Thời gian: 8/12-14/12`,
       filtered = filtered.filter(item => item.project === selectedProject);
     }
     
-    // Filter by date range
+    // Filter by date range (checks by start date only)
     if (dateFrom || dateTo) {
       filtered = filtered.filter(item => {
-        const itemDate = parseTimelineToDate(item.timeline);
-        if (!itemDate) return true; // Keep items with unparseable dates
+        const itemStartDate = normalizeToLocalDate(item.timeline);
         
         if (dateFrom && dateTo) {
-          const fromDate = new Date(dateFrom);
-          const toDate = new Date(dateTo);
-          return itemDate >= fromDate && itemDate <= toDate;
+          const fromDate = parseIsoDateInputToLocalDate(dateFrom);
+          const toDate = parseIsoDateInputToLocalDate(dateTo);
+          if (!fromDate || !toDate) return true;
+          return itemStartDate >= fromDate && itemStartDate <= toDate;
         } else if (dateFrom) {
-          const fromDate = new Date(dateFrom);
-          return itemDate >= fromDate;
+          const fromDate = parseIsoDateInputToLocalDate(dateFrom);
+          if (!fromDate) return true;
+          return itemStartDate >= fromDate;
         } else if (dateTo) {
-          const toDate = new Date(dateTo);
-          return itemDate <= toDate;
+          const toDate = parseIsoDateInputToLocalDate(dateTo);
+          if (!toDate) return true;
+          return itemStartDate <= toDate;
         }
         return true;
       });
@@ -344,22 +368,21 @@ Thời gian: 8/12-14/12`,
 
   // Group filtered data by timeline (each timeline is a page)
   const timelinePages = useMemo(() => {
-    const map = new Map<string, WeeklyPlanItem[]>();
+    const map = new Map<string, { startDate: Date; items: WeeklyPlanItem[] }>();
     for (const item of filteredData) {
-      const key = item.timeline || 'Unknown';
-      const list = map.get(key);
-      if (list) list.push(item);
-      else map.set(key, [item]);
+      const startDate = normalizeToLocalDate(item.timeline);
+      const key = formatDateForInput(startDate);
+      const group = map.get(key);
+      if (group) group.items.push(item);
+      else map.set(key, { startDate, items: [item] });
     }
 
     const entries = Array.from(map.entries());
     entries.sort((a, b) => {
-      const aDate = parseTimelineToDate(a[0])?.getTime() ?? 0;
-      const bDate = parseTimelineToDate(b[0])?.getTime() ?? 0;
-      return aDate - bDate;
+      return a[1].startDate.getTime() - b[1].startDate.getTime();
     });
 
-    return entries.map(([timeline, items]) => ({ timeline, items }));
+    return entries.map(([key, group]) => ({ key, startDate: group.startDate, items: group.items }));
   }, [filteredData]);
 
   const totalPages = Math.max(1, timelinePages.length);
@@ -376,7 +399,8 @@ Thời gian: 8/12-14/12`,
 
   const currentTimelinePage = timelinePages.length > 0 ? timelinePages[currentPage - 1] : null;
   const pageItems = currentTimelinePage?.items ?? [];
-  const currentTimelineLabel = currentTimelinePage?.timeline ?? '';
+  const currentTimelineStartDate = currentTimelinePage ? getTimelineStartDate(currentTimelinePage.startDate) : null;
+  const currentTimelineEndDate = currentTimelinePage ? getTimelineEndDate(currentTimelinePage.startDate) : null;
 
   const getStatusClass = (status: string) => {
     switch (status) {
@@ -473,7 +497,9 @@ Thời gian: 8/12-14/12`,
         {timelinePages.length > 1 && (
           <div className="weekly-plan-table-footer table-footer">
             <div className="pagination-info">
-              {currentTimelineLabel ? `Timeline: ${currentTimelineLabel} (${pageItems.length} dòng)` : 'Timeline: -'}
+              {currentTimelineStartDate && currentTimelineEndDate
+                ? `Timeline: ${formatDateDdMm(currentTimelineStartDate)} - ${formatDateDdMm(currentTimelineEndDate)} (${pageItems.length} dòng)`
+                : 'Timeline: -'}
             </div>
             <div className="pagination-controls">
               <button
@@ -509,8 +535,8 @@ Thời gian: 8/12-14/12`,
           <table className="plan-table">
             <thead>
               <tr>
-                <th className="col-timeline">Timeline</th>
-                <th className="col-stt">STT</th>
+                <th className="col-start-date">Start Date</th>
+                <th className="col-end-date">End Date</th>
                 <th className="col-project">Dự án</th>
                 <th className="col-objectives">Mục tiêu</th>
                 <th className="col-strategy">Chiến lược</th>
@@ -522,8 +548,8 @@ Thời gian: 8/12-14/12`,
             <tbody>
               {pageItems.map((item) => (
                 <tr key={item.id}>
-                  <td className="col-timeline">{item.timeline}</td>
-                  <td className="col-stt">{item.stt}</td>
+                  <td className="col-start-date">{formatDateDdMm(getTimelineStartDate(item.timeline))}</td>
+                  <td className="col-end-date">{formatDateDdMm(getTimelineEndDate(item.timeline))}</td>
                   <td className="col-project">
                     <span className={`project-badge ${getStatusClass(item.status)}`}>
                       {item.project}
