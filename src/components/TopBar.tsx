@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import './TopBar.css';
-import { FaUserCircle, FaChevronDown, FaCog, FaSignOutAlt, FaEdit } from 'react-icons/fa';
+import { FaUserCircle, FaChevronDown, FaCog, FaSignOutAlt, FaEdit, FaCalendarAlt } from 'react-icons/fa';
 
 interface TopBarProps {
     userName: string;
     imageUrl?: string;
+    siteName?: string;
+    showHomeButton?: boolean;
 }
 
 
-const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl }) => {
+const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Performance Dashboard', showHomeButton = false }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -34,6 +36,16 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl }) => {
       navigate('/admin');
     };
 
+    const handleWeeklyPlan = () => {
+      navigate('/weekly-plan');
+      setOpen(false);
+    };
+
+    const handleHome = () => {
+      navigate('/home');
+      setOpen(false);
+    };
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -49,9 +61,20 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl }) => {
   return (
     <div className="topbar">
       <div className="topbar-left">
-        <span className="site-name">Performance Dashboard</span>
+        <span className="site-name">{siteName}</span>
       </div>
       <div className="topbar-right" ref={dropdownRef}>
+        {showHomeButton ? (
+          <button className="weekly-plan-button" onClick={handleHome} title="Back to Home">
+            <FaCalendarAlt />
+            <span>Home</span>
+          </button>
+        ) : (
+          <button className="weekly-plan-button" onClick={handleWeeklyPlan} title="Weekly Plan">
+            <FaCalendarAlt />
+            <span>Weekly Plan</span>
+          </button>
+        )}
         <button className="edit-button" onClick={handleEdit} title="Edit (Admin)">
           <FaEdit />
         </button>

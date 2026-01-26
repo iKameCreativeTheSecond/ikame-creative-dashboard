@@ -79,6 +79,34 @@
   justify-content: center;
 }
 
+.weekly-plan-button {
+  margin-right: 12px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.weekly-plan-button:hover {
+  background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+  transform: translateY(-1px);
+}
+
+.weekly-plan-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
 .edit-button {
   margin-right: 8px;
   padding: 6px 14px;

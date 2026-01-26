@@ -1,0 +1,347 @@
+.weekly-plan-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  /* TopBar is fixed (60px height) */
+  padding-top: 60px;
+}
+
+.weekly-plan-container {
+  padding: 2rem;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.weekly-plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.weekly-plan-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #2c3e50;
+}
+
+/* Filter (match ProjectIssueTable style) */
+.weekly-plan-page .filter-controls.weekly-plan-filter-controls {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.weekly-plan-page .filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.weekly-plan-page .filter-row + .filter-row {
+  margin-top: 0.75rem;
+}
+
+.weekly-plan-page .filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 180px;
+  flex: 1;
+}
+
+.weekly-plan-page .weekly-plan-filter-group-project {
+  flex: 0 0 210px;
+  min-width: 180px;
+}
+
+.weekly-plan-page .weekly-plan-filter-group-date {
+  flex: 0 0 170px;
+  min-width: 160px;
+}
+
+.weekly-plan-page .weekly-plan-filter-group-date input[type="date"].filter-input {
+  width: 170px;
+}
+
+.weekly-plan-page .filter-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+
+.weekly-plan-page .filter-input,
+.weekly-plan-page .filter-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  background: white;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.weekly-plan-page .filter-input:focus,
+.weekly-plan-page .filter-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Quick buttons (fit the same filter theme) */
+.weekly-plan-page .weekly-plan-quick-row {
+  align-items: flex-start;
+}
+
+.weekly-plan-page .weekly-plan-quick-group {
+  flex: 1;
+}
+
+.weekly-plan-page .weekly-plan-quick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.weekly-plan-page .quick-filter-btn {
+  padding: 0.5rem 0.75rem;
+  background: white;
+  color: #495057;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out;
+}
+
+.weekly-plan-page .quick-filter-btn:hover {
+  border-color: #007bff;
+}
+
+.weekly-plan-page .quick-filter-btn:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+@media (max-width: 768px) {
+  .weekly-plan-page .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .weekly-plan-page .weekly-plan-filter-group-project {
+    flex: none;
+    min-width: unset;
+  }
+}
+
+.plan-table-wrapper {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.plan-table thead {
+  background: linear-gradient(135deg, #2d5f2e 0%, #4a8f4c 100%);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.plan-table th {
+  padding: 1rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.2);
+  white-space: nowrap;
+}
+
+.plan-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s;
+}
+
+.plan-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.plan-table td {
+  padding: 1rem 0.75rem;
+  border: 1px solid #e0e0e0;
+  vertical-align: top;
+}
+
+/* Column widths */
+.col-timeline {
+  width: 120px;
+  min-width: 120px;
+}
+
+.col-stt {
+  width: 60px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.col-project {
+  width: 150px;
+  min-width: 150px;
+}
+
+.col-objectives {
+  width: 300px;
+  min-width: 250px;
+}
+
+.col-strategy {
+  width: 300px;
+  min-width: 250px;
+}
+
+.col-quantity {
+  width: 200px;
+  min-width: 180px;
+}
+
+.col-status {
+  width: 120px;
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Project status badges */
+.project-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.status-success {
+  background-color: #4dd0e1;
+  color: #006064;
+}
+
+.status-warning {
+  background-color: #fff59d;
+  color: #f57f17;
+}
+
+.status-danger {
+  background-color: #ef5350;
+  color: white;
+}
+
+.status-info {
+  background-color: #64b5f6;
+  color: #0d47a1;
+}
+
+.status-neutral {
+  background-color: #ffb3ba;
+  color: #6d1b1d;
+}
+
+/* Confirmation status badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.confirm-sufficient {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.confirm-lacking {
+  background-color: #f44336;
+  color: white;
+}
+
+.confirm-pending {
+  background-color: #ff9800;
+  color: white;
+}
+
+/* Text content */
+.text-content {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* No data message */
+.no-data {
+  padding: 3rem;
+  text-align: center;
+  color: #999;
+  font-size: 1.1rem;
+}
+
+.no-data p {
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 1400px) {
+  .weekly-plan-container {
+    padding: 1rem;
+  }
+  
+  .plan-table {
+    font-size: 0.85rem;
+  }
+  
+  .col-objectives,
+  .col-strategy {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .weekly-plan-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .weekly-plan-header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .timeline-filter {
+    width: 100%;
+  }
+  
+  .plan-table {
+    font-size: 0.8rem;
+  }
+  
+  .plan-table th,
+  .plan-table td {
+    padding: 0.5rem;
+  }
+}
