@@ -44,6 +44,9 @@ export default function WeeklyPlan() {
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
+  const [addError, setAddError] = useState<string>('');
+  const [newItem, setNewItem] = useState<WeeklyPlanItem | null>(null);
 
   // Helper function to get Monday of current week
   const getMondayOfWeek = (date: Date): Date => {
@@ -63,6 +66,13 @@ export default function WeeklyPlan() {
     const daysToAdd = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
     selectedDate.setDate(selectedDate.getDate() + daysToAdd);
     return selectedDate;
+  };
+
+  const getNextMonday = (): Date => {
+    const currentMonday = getMondayOfWeek(new Date());
+    const nextMonday = new Date(currentMonday);
+    nextMonday.setDate(nextMonday.getDate() + 7);
+    return nextMonday;
   };
 
   // Helper function to format date for input (YYYY-MM-DD)
@@ -218,6 +228,82 @@ export default function WeeklyPlan() {
 
     setDateFrom(formatDateForInput(newFrom));
     setDateTo(formatDateForInput(newTo));
+  };
+
+  const openAddForm = () => {
+    const nextMonday = getNextMonday();
+    const defaultItem: WeeklyPlanItem = {
+      id: 0,
+      timeline: nextMonday,
+      project: '',
+      status: 'neutral',
+      objectives: '',
+      strategy: '',
+      proposedCPP: 0,
+      proposedIcon: 0,
+      proposedBanner: 0,
+      proposedPLA: 0,
+      proposedVideo: 0,
+      confirmedCPP: 0,
+      confirmedIcon: 0,
+      confirmedBanner: 0,
+      confirmedPLA: 0,
+      confirmedVideo: 0,
+      confirmationStatus: 'pending'
+    };
+    setNewItem(defaultItem);
+    setAddError('');
+    setIsAddFormOpen(true);
+  };
+
+  const cancelAddForm = () => {
+    setIsAddFormOpen(false);
+    setNewItem(null);
+    setAddError('');
+  };
+
+  const updateNewItemQuantity = (field: QuantityField, value: number) => {
+    setNewItem(prev => {
+      if (!prev) return prev;
+      const nextValue = Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+      return { ...prev, [field]: nextValue } as WeeklyPlanItem;
+    });
+  };
+
+  const updateNewItemText = (field: TextField, value: string) => {
+    setNewItem(prev => (prev ? { ...prev, [field]: value } : prev));
+  };
+
+  const handleNewItemTimelineChange = (value: string) => {
+    setNewItem(prev => {
+      if (!prev) return prev;
+      const selectedDate = parseIsoDateInputToLocalDate(value);
+      if (!selectedDate) return prev;
+      const monday = getMondayOfWeek(new Date(selectedDate));
+      return { ...prev, timeline: monday };
+    });
+  };
+
+  const handleAddSubmit = (e?: any) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!newItem) return;
+    const normalizedNewTimeline = normalizeToLocalDate(newItem.timeline).getTime();
+    const newProjectKey = newItem.project.trim().toLowerCase();
+    const isDuplicate = planData.some(item => {
+      const itemTimeline = normalizeToLocalDate(item.timeline).getTime();
+      const itemProjectKey = item.project.trim().toLowerCase();
+      return itemTimeline === normalizedNewTimeline && itemProjectKey === newProjectKey;
+    });
+    if (isDuplicate) {
+      setAddError('Timeline và tên dự án trùng với mục đã có. Vui lòng sửa lại.');
+      return;
+    }
+    const nextId = planData.reduce((m, i) => Math.max(m, i.id), 0) + 1;
+    const toAdd: WeeklyPlanItem = { ...newItem, id: nextId };
+    setPlanData(prev => [...prev, toAdd]);
+    setIsAddFormOpen(false);
+    setNewItem(null);
+    setAddError('');
   };
 
   useEffect(() => {
@@ -613,6 +699,13 @@ Thời gian: 8/12-14/12`,
                 <button type="button" className="clear-filters-btn active" onClick={clearDateFilters}>Xóa</button>
               </div>
             </div>
+
+            <div className="filter-group">
+              <label>Thêm mục</label>
+              <div>
+                <button type="button" className="quick-filter-btn" onClick={openAddForm}>+ Thêm mục mới</button>
+              </div>
+            </div>
           </div>
 
           {filteredData.length > 0 && (
@@ -628,6 +721,119 @@ Thời gian: 8/12-14/12`,
             </div>
           )}
         </div>
+
+        {isAddFormOpen && newItem && (
+          <div className="plan-table-wrapper">
+            <form onSubmit={(e) => { e.preventDefault(); handleAddSubmit(e); }} className="plan-table add-item-form">
+              <div className="filter-row">
+                <div className="filter-group weekly-plan-filter-group-date">
+                  <label>Timeline (Thứ 2)</label>
+                  <input
+                    type="date"
+                    value={formatDateForInput(newItem.timeline)}
+                    onChange={(e) => handleNewItemTimelineChange(e.target.value)}
+                    className="filter-input"
+                  />
+                </div>
+                <div className="filter-group weekly-plan-filter-group-project">
+                  <label>Dự án</label>
+                  <input
+                    type="text"
+                    value={newItem.project}
+                    onChange={(e) => setNewItem(prev => (prev ? { ...prev, project: e.target.value } : prev))}
+                    className="filter-input"
+                    placeholder="Nhập tên dự án"
+                  />
+                </div>
+                <div className="filter-group">
+                  <label>Trạng thái</label>
+                  <select
+                    value={newItem.status}
+                    onChange={(e) => setNewItem(prev => (prev ? { ...prev, status: e.target.value as WeeklyPlanItem['status'] } : prev))}
+                    className="filter-select"
+                  >
+                    <option value="neutral">Neutral</option>
+                    <option value="success">Success</option>
+                    <option value="warning">Warning</option>
+                    <option value="danger">Danger</option>
+                    <option value="info">Info</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Confirm</label>
+                  <select
+                    value={newItem.confirmationStatus}
+                    onChange={(e) => setNewItem(prev => (prev ? { ...prev, confirmationStatus: e.target.value as WeeklyPlanItem['confirmationStatus'] } : prev))}
+                    className="filter-select"
+                  >
+                    <option value="pending">Đang chờ</option>
+                    <option value="sufficient">Đủ</option>
+                    <option value="lacking">Thiếu</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="filter-row">
+                <div className="col-objectives" style={{ width: '100%' }}>
+                  <div className="table-textarea-wrap">
+                    <textarea
+                      className="table-textarea"
+                      rows={6}
+                      placeholder="Mục tiêu"
+                      value={newItem.objectives}
+                      onChange={(e) => updateNewItemText('objectives', e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="col-strategy" style={{ width: '100%' }}>
+                  <div className="table-textarea-wrap">
+                    <textarea
+                      className="table-textarea"
+                      rows={6}
+                      placeholder="Chiến lược"
+                      value={newItem.strategy}
+                      onChange={(e) => updateNewItemText('strategy', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="filter-row">
+                <div className="col-quantity" style={{ width: '100%' }}>
+                  <div className="quantity-list">
+                    <div className="quantity-item"><span className="qty-label">CPP:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedCPP} onChange={(e) => updateNewItemQuantity('proposedCPP', Number(e.target.value))} /></div>
+                    <div className="quantity-item"><span className="qty-label">Icon:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedIcon} onChange={(e) => updateNewItemQuantity('proposedIcon', Number(e.target.value))} /></div>
+                    <div className="quantity-item"><span className="qty-label">Banner:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedBanner} onChange={(e) => updateNewItemQuantity('proposedBanner', Number(e.target.value))} /></div>
+                    <div className="quantity-item"><span className="qty-label">PLA:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedPLA} onChange={(e) => updateNewItemQuantity('proposedPLA', Number(e.target.value))} /></div>
+                    <div className="quantity-item"><span className="qty-label">Video:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedVideo} onChange={(e) => updateNewItemQuantity('proposedVideo', Number(e.target.value))} /></div>
+                  </div>
+                </div>
+                <div className="col-quantity" style={{ width: '100%' }}>
+                  <div className="quantity-list">
+                    <div className="quantity-item"><span className="qty-label">CPP:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.confirmedCPP} onChange={(e) => updateNewItemQuantity('confirmedCPP', Number(e.target.value))} /></div>
+                    <div className="quantity-item"><span className="qty-label">Icon:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.confirmedIcon} onChange={(e) => updateNewItemQuantity('confirmedIcon', Number(e.target.value))} /></div>
+                    <div className="quantity-item"><span className="qty-label">Banner:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.confirmedBanner} onChange={(e) => updateNewItemQuantity('confirmedBanner', Number(e.target.value))} /></div>
+                    <div className="quantity-item"><span className="qty-label">PLA:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.confirmedPLA} onChange={(e) => updateNewItemQuantity('confirmedPLA', Number(e.target.value))} /></div>
+                    <div className="quantity-item"><span className="qty-label">Video:</span> <input className="quantity-input" type="number" min={0} step={1} value={newItem.confirmedVideo} onChange={(e) => updateNewItemQuantity('confirmedVideo', Number(e.target.value))} /></div>
+                  </div>
+                </div>
+              </div>
+
+              {addError && (
+                <div className="filter-row">
+                  <div className="filter-group" style={{ color: 'red' }}>{addError}</div>
+                </div>
+              )}
+
+              <div className="filter-row">
+                <div className="filter-group">
+                  <button type="submit" className="quick-filter-btn">Thêm</button>
+                  <button type="button" className="clear-filters-btn active" onClick={cancelAddForm}>Hủy</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
 
         <div className="plan-table-wrapper">
           <table className="plan-table">
