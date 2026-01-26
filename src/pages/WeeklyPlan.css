@@ -176,6 +176,40 @@
   }
 }
 
+.timeline-display {
+  margin-top: 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.timeline-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #495057;
+  white-space: nowrap;
+}
+
+.timeline-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.timeline-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: linear-gradient(135deg, #2d5f2e 0%, #4a8f4c 100%);
+  color: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .plan-table-wrapper {
   background: white;
   border-radius: 8px;
@@ -229,14 +263,13 @@
   vertical-align: top;
 }
 
-/* Column widths */
-.col-start-date,
-.col-end-date {
-  width: 110px;
-  min-width: 110px;
-  white-space: nowrap;
+/* Make editable textareas flush with cell borders */
+.plan-table td.col-objectives,
+.plan-table td.col-strategy {
+  padding: 0;
 }
 
+/* Column widths */
 .col-project {
   width: 150px;
   min-width: 150px;
@@ -382,6 +415,33 @@
   white-space: pre-wrap;
   line-height: 1.5;
   color: #333;
+}
+
+.table-textarea-wrap {
+  height: 100%;
+  display: flex;
+}
+
+.table-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-height: 135px;
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  border-radius: 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: #333;
+  background: #fff;
+  resize: vertical;
+  white-space: pre-wrap;
+  display: block;
+}
+
+.table-textarea:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.35);
 }
 
 /* No data message */

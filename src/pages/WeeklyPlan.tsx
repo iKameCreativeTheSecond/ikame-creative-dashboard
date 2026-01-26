@@ -36,6 +36,8 @@ type QuantityField =
   | 'confirmedPLA'
   | 'confirmedVideo';
 
+type TextField = 'objectives' | 'strategy';
+
 export default function WeeklyPlan() {
   const [planData, setPlanData] = useState<WeeklyPlanItem[]>([]);
   const [filteredData, setFilteredData] = useState<WeeklyPlanItem[]>([]);
@@ -45,9 +47,22 @@ export default function WeeklyPlan() {
 
   // Helper function to get Monday of current week
   const getMondayOfWeek = (date: Date): Date => {
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(date.setDate(diff));
+    const selectedDate = new Date(date);
+    const dayOfWeek = selectedDate.getDay();
+    // Calculate how many days to subtract to get to Monday
+    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    selectedDate.setDate(selectedDate.getDate() - daysToSubtract);
+    return selectedDate;
+  };
+
+  // Helper function to get Sunday of the week containing the given date
+  const getSundayOfWeek = (date: Date): Date => {
+    const selectedDate = new Date(date);
+    const dayOfWeek = selectedDate.getDay();
+    // Calculate how many days to add to get to Sunday
+    const daysToAdd = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+    selectedDate.setDate(selectedDate.getDate() + daysToAdd);
+    return selectedDate;
   };
 
   // Helper function to format date for input (YYYY-MM-DD)
@@ -112,6 +127,32 @@ export default function WeeklyPlan() {
   const clearDateFilters = () => {
     setDateFrom("");
     setDateTo("");
+  };
+
+  // Handle from date change - snap to Monday
+  const handleDateFromChange = (value: string) => {
+    if (!value) {
+      setDateFrom("");
+      return;
+    }
+    const selectedDate = parseIsoDateInputToLocalDate(value);
+    if (selectedDate) {
+      const monday = getMondayOfWeek(new Date(selectedDate));
+      setDateFrom(formatDateForInput(monday));
+    }
+  };
+
+  // Handle to date change - snap to Sunday
+  const handleDateToChange = (value: string) => {
+    if (!value) {
+      setDateTo("");
+      return;
+    }
+    const selectedDate = parseIsoDateInputToLocalDate(value);
+    if (selectedDate) {
+      const sunday = getSundayOfWeek(new Date(selectedDate));
+      setDateTo(formatDateForInput(sunday));
+    }
   };
 
   // Shift the current date range by whole weeks (7 days)
@@ -472,6 +513,12 @@ Thời gian: 8/12-14/12`,
     );
   };
 
+  const updateTextField = (id: number, field: TextField, value: string) => {
+    setPlanData(prev =>
+      prev.map(item => (item.id === id ? { ...item, [field]: value } : item))
+    );
+  };
+
   const renderQuantityInput = (item: WeeklyPlanItem, field: QuantityField) => {
     return (
       <input
@@ -483,6 +530,19 @@ Thời gian: 8/12-14/12`,
         onChange={(e) => updateQuantity(item.id, field, Number(e.target.value))}
         inputMode="numeric"
       />
+    );
+  };
+
+  const renderTextArea = (item: WeeklyPlanItem, field: TextField) => {
+    return (
+      <div className="table-textarea-wrap">
+        <textarea
+          className="table-textarea"
+          value={item[field]}
+          onChange={(e) => updateTextField(item.id, field, e.target.value)}
+          rows={9}
+        />
+      </div>
     );
   };
 
@@ -510,7 +570,7 @@ Thời gian: 8/12-14/12`,
               <input
                 type="date"
                 value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
+                onChange={(e) => handleDateFromChange(e.target.value)}
                 className="filter-input"
               />
             </div>
@@ -519,7 +579,7 @@ Thời gian: 8/12-14/12`,
               <input
                 type="date"
                 value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
+                onChange={(e) => handleDateToChange(e.target.value)}
                 className="filter-input"
               />
             </div>
@@ -554,14 +614,25 @@ Thời gian: 8/12-14/12`,
               </div>
             </div>
           </div>
+
+          {filteredData.length > 0 && (
+            <div className="timeline-display">
+              <div className="timeline-label">Timeline hiển thị:</div>
+              <div className="timeline-items">
+                {Array.from(new Set(filteredData.map(item => 
+                  `${formatDateDdMm(getTimelineStartDate(item.timeline))} - ${formatDateDdMm(getTimelineEndDate(item.timeline))}`
+                ))).map((timeline, idx) => (
+                  <span key={idx} className="timeline-badge">{timeline}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="plan-table-wrapper">
           <table className="plan-table">
             <thead>
               <tr>
-                <th className="col-start-date">Start Date</th>
-                <th className="col-end-date">End Date</th>
                 <th className="col-project">Dự án</th>
                 <th className="col-objectives">Mục tiêu</th>
                 <th className="col-strategy">Chiến lược</th>
@@ -573,18 +644,16 @@ Thời gian: 8/12-14/12`,
             <tbody>
               {sortedItems.map((item) => (
                 <tr key={item.id}>
-                  <td className="col-start-date">{formatDateDdMm(getTimelineStartDate(item.timeline))}</td>
-                  <td className="col-end-date">{formatDateDdMm(getTimelineEndDate(item.timeline))}</td>
                   <td className="col-project">
                     <span className={`project-badge ${getStatusClass(item.status)}`}>
                       {item.project}
                     </span>
                   </td>
                   <td className="col-objectives">
-                    <div className="text-content">{item.objectives}</div>
+                    {renderTextArea(item, 'objectives')}
                   </td>
                   <td className="col-strategy">
-                    <div className="text-content">{item.strategy}</div>
+                    {renderTextArea(item, 'strategy')}
                   </td>
                   <td className="col-quantity">
                     <div className="quantity-list">
