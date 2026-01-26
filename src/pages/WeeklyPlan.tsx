@@ -9,10 +9,32 @@ interface WeeklyPlanItem {
   status: 'success' | 'warning' | 'danger' | 'info' | 'neutral';
   objectives: string;
   strategy: string;
-  proposedQuantity: string;
-  confirmedQuantity: string;
+  // Proposed quantities
+  proposedCPP: number;
+  proposedIcon: number;
+  proposedBanner: number;
+  proposedPLA: number;
+  proposedVideo: number;
+  // Confirmed quantities
+  confirmedCPP: number;
+  confirmedIcon: number;
+  confirmedBanner: number;
+  confirmedPLA: number;
+  confirmedVideo: number;
   confirmationStatus: 'sufficient' | 'lacking' | 'pending';
 }
+
+type QuantityField =
+  | 'proposedCPP'
+  | 'proposedIcon'
+  | 'proposedBanner'
+  | 'proposedPLA'
+  | 'proposedVideo'
+  | 'confirmedCPP'
+  | 'confirmedIcon'
+  | 'confirmedBanner'
+  | 'confirmedPLA'
+  | 'confirmedVideo';
 
 export default function WeeklyPlan() {
   const [planData, setPlanData] = useState<WeeklyPlanItem[]>([]);
@@ -20,7 +42,6 @@ export default function WeeklyPlan() {
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Helper function to get Monday of current week
   const getMondayOfWeek = (date: Date): Date => {
@@ -70,12 +91,6 @@ export default function WeeklyPlan() {
   const getTimelineEndDate = (startDate: Date): Date => {
     const start = getTimelineStartDate(startDate);
     return addDays(start, 7);
-  };
-
-  const formatTimelineLabel = (startDate: Date): string => {
-    const start = getTimelineStartDate(startDate);
-    const end = getTimelineEndDate(startDate);
-    return `${formatDateDdMm(start)} - ${formatDateDdMm(end)}`;
   };
 
   // Quick filter options - filter from current time backwards
@@ -146,11 +161,22 @@ export default function WeeklyPlan() {
     const deltaDays = direction * 7;
     const { from, to } = getEffectiveRange();
 
-    from.setDate(from.getDate() + deltaDays);
-    to.setDate(to.getDate() + deltaDays);
+    const newFrom = new Date(from);
+    newFrom.setDate(newFrom.getDate() + deltaDays);
+    
+    // Only shift 'to' if it's different from 'from' (i.e., there's a range)
+    let newTo: Date;
+    if (from.getTime() === to.getTime()) {
+      // If from == to, keep 'to' fixed and only shift 'from'
+      newTo = new Date(to);
+    } else {
+      // If there's a range, shift both
+      newTo = new Date(to);
+      newTo.setDate(newTo.getDate() + deltaDays);
+    }
 
-    setDateFrom(formatDateForInput(from));
-    setDateTo(formatDateForInput(to));
+    setDateFrom(formatDateForInput(newFrom));
+    setDateTo(formatDateForInput(newTo));
   };
 
   useEffect(() => {
@@ -171,10 +197,16 @@ Timeline: 14/12`,
 Test feel
 Tối ưu các creative có đã win
 Winner: Christmas`,
-        proposedQuantity: `AXON + GG: Theo plan đã bàn
-Meta: 12-20`,
-        confirmedQuantity: `PLA + vid: 6
-meta: ok`,
+        proposedCPP: 0,
+        proposedIcon: 0,
+        proposedBanner: 0,
+        proposedPLA: 0,
+        proposedVideo: 16,
+        confirmedCPP: 0,
+        confirmedIcon: 0,
+        confirmedBanner: 0,
+        confirmedPLA: 3,
+        confirmedVideo: 3,
         confirmationStatus: 'lacking'
       },
       {
@@ -185,10 +217,16 @@ meta: ok`,
         objectives: `Keep đề tối ưu sản phẩm
 Deadline: 21/12`,
         strategy: `Test nhờ trên feel mới`,
-        proposedQuantity: `Video: 3
-PLA: 2
-Meta: 15-20`,
-        confirmedQuantity: 'ok',
+        proposedCPP: 0,
+        proposedIcon: 0,
+        proposedBanner: 0,
+        proposedPLA: 2,
+        proposedVideo: 18,
+        confirmedCPP: 0,
+        confirmedIcon: 0,
+        confirmedBanner: 0,
+        confirmedPLA: 2,
+        confirmedVideo: 18,
         confirmationStatus: 'sufficient'
       },
       {
@@ -199,11 +237,16 @@ Meta: 15-20`,
         objectives: `Testing chỉ số sản phẩm, 1-2K daily install
 Timeline: 2 tuần`,
         strategy: '',
-        proposedQuantity: `- Video: 3
-- PLA: 3
-- Store: 1 icon + 1 SS`,
-        confirmedQuantity: `vid 5
-store ok`,
+        proposedCPP: 0,
+        proposedIcon: 1,
+        proposedBanner: 1,
+        proposedPLA: 3,
+        proposedVideo: 3,
+        confirmedCPP: 0,
+        confirmedIcon: 1,
+        confirmedBanner: 1,
+        confirmedPLA: 0,
+        confirmedVideo: 5,
         confirmationStatus: 'lacking'
       },
       {
@@ -217,13 +260,16 @@ store ok`,
 - Test số lượng massive
 - Triển khai thêm các concept tốt (nhờ rõng, nhờ nổi thật bền trong)
 - Đánh thêm các hình tuồng`,
-        proposedQuantity: `- PLA: 8
-- CPP: 1 SS + 5 banner chạy Facebook
-- Video cho Meta: 50`,
-        confirmedQuantity: `vid 10
-pla 5
-cpp ok
-meta 20`,
+        proposedCPP: 6,
+        proposedIcon: 0,
+        proposedBanner: 0,
+        proposedPLA: 8,
+        proposedVideo: 50,
+        confirmedCPP: 6,
+        confirmedIcon: 0,
+        confirmedBanner: 0,
+        confirmedPLA: 5,
+        confirmedVideo: 10,
         confirmationStatus: 'lacking'
       },
       {
@@ -235,10 +281,16 @@ meta 20`,
 - x2 spend`,
         strategy: `- Seasonal
 - Piggy + money`,
-        proposedQuantity: `- SS: 2 SS (Christmas + Winter) - Nhờ hồng
-`,
-        confirmedQuantity: `banner 3
-video 5`,
+        proposedCPP: 2,
+        proposedIcon: 0,
+        proposedBanner: 0,
+        proposedPLA: 0,
+        proposedVideo: 0,
+        confirmedCPP: 0,
+        confirmedIcon: 0,
+        confirmedBanner: 3,
+        confirmedPLA: 0,
+        confirmedVideo: 5,
         confirmationStatus: 'lacking'
       },
       {
@@ -250,12 +302,16 @@ video 5`,
 - Dạm bảo đủ user cho testing sản phẩm
 - 500 - 1k users`,
         strategy: 'Applovin',
-        proposedQuantity: `- Video: 2
-- PLA: 2
-- Store: 1 icon + 1 screenshot`,
-        confirmedQuantity: `vid 2
-pla 1
-store: đã có`,
+        proposedCPP: 0,
+        proposedIcon: 1,
+        proposedBanner: 1,
+        proposedPLA: 2,
+        proposedVideo: 2,
+        confirmedCPP: 0,
+        confirmedIcon: 1,
+        confirmedBanner: 1,
+        confirmedPLA: 1,
+        confirmedVideo: 2,
         confirmationStatus: 'sufficient'
       },
       {
@@ -265,13 +321,16 @@ store: đã có`,
         status: 'danger',
         objectives: `Tính hiện spend từ từ để theo dõi thêm chỉ số ok thì x2 spend`,
         strategy: 'Top trung scale applovin',
-        proposedQuantity: `- Video: 3 (1 video nhờ xanh lẻ & đồ gỗi ref & oder ED á)
-- PLA: 2
-- CPP icon: 3
-- Concept CPP house/room...`,
-        confirmedQuantity: `vid 3
-pla 2
-ok`,
+        proposedCPP: 3,
+        proposedIcon: 0,
+        proposedBanner: 0,
+        proposedPLA: 2,
+        proposedVideo: 3,
+        confirmedCPP: 3,
+        confirmedIcon: 0,
+        confirmedBanner: 0,
+        confirmedPLA: 2,
+        confirmedVideo: 3,
         confirmationStatus: 'sufficient'
       },
       {
@@ -284,10 +343,16 @@ Chỉnh lại level curve
 Timeline: 8/12 - 14/12`,
         strategy: `Network: Focus Applovin
 Theme Christmas (đồi tóc sẽ update)`,
-        proposedQuantity: `- Video: 3 (theme Christmas + concept quay ipad)
-- PLA: 1 (theme Christmas)
-- Store: 1 icon + 1 theme Christmas (theo hướng dẫn người chơi, có gesture)`,
-        confirmedQuantity: 'bàn lại',
+        proposedCPP: 0,
+        proposedIcon: 1,
+        proposedBanner: 1,
+        proposedPLA: 1,
+        proposedVideo: 3,
+        confirmedCPP: 0,
+        confirmedIcon: 0,
+        confirmedBanner: 0,
+        confirmedPLA: 0,
+        confirmedVideo: 0,
         confirmationStatus: 'sufficient'
       },
       {
@@ -300,10 +365,16 @@ Thời gian: 8/12 - 14/12`,
         strategy: `Campaign: ROAS
 Network: Applovin
 Geo targeting: Tier 125 (trừ US)`,
-        proposedQuantity: `- Video: 3
-- PLA: 1`,
-        confirmedQuantity: `vid: ok
-pla: 1 (chu thuộc assets)`,
+        proposedCPP: 0,
+        proposedIcon: 0,
+        proposedBanner: 0,
+        proposedPLA: 1,
+        proposedVideo: 3,
+        confirmedCPP: 0,
+        confirmedIcon: 0,
+        confirmedBanner: 0,
+        confirmedPLA: 1,
+        confirmedVideo: 3,
         confirmationStatus: 'lacking'
       },
       {
@@ -315,10 +386,16 @@ pla: 1 (chu thuộc assets)`,
 Thời gian: 8/12-14/12`,
         strategy: `Camp BLD D28 Applovin
 - Test theme Christmas (localize Christmas từ các creative tốt cả)`,
-        proposedQuantity: `- Video: 3
-- PLA: 2
-- CPP Christmas: 1`,
-        confirmedQuantity: '0',
+        proposedCPP: 1,
+        proposedIcon: 0,
+        proposedBanner: 0,
+        proposedPLA: 2,
+        proposedVideo: 3,
+        confirmedCPP: 0,
+        confirmedIcon: 0,
+        confirmedBanner: 0,
+        confirmedPLA: 0,
+        confirmedVideo: 0,
         confirmationStatus: 'sufficient'
       }
     ];
@@ -361,46 +438,12 @@ Thời gian: 8/12-14/12`,
     setFilteredData(filtered);
   }, [selectedProject, planData, dateFrom, dateTo]);
 
-  // Reset page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedProject, dateFrom, dateTo]);
-
-  // Group filtered data by timeline (each timeline is a page)
-  const timelinePages = useMemo(() => {
-    const map = new Map<string, { startDate: Date; items: WeeklyPlanItem[] }>();
-    for (const item of filteredData) {
-      const startDate = normalizeToLocalDate(item.timeline);
-      const key = formatDateForInput(startDate);
-      const group = map.get(key);
-      if (group) group.items.push(item);
-      else map.set(key, { startDate, items: [item] });
-    }
-
-    const entries = Array.from(map.entries());
-    entries.sort((a, b) => {
-      return a[1].startDate.getTime() - b[1].startDate.getTime();
-    });
-
-    return entries.map(([key, group]) => ({ key, startDate: group.startDate, items: group.items }));
+  // Sort filtered data by timeline
+  const sortedItems = useMemo(() => {
+    const sorted = [...filteredData];
+    sorted.sort((a, b) => a.timeline.getTime() - b.timeline.getTime());
+    return sorted;
   }, [filteredData]);
-
-  const totalPages = Math.max(1, timelinePages.length);
-
-  // Clamp current page when data changes
-  useEffect(() => {
-    if (timelinePages.length === 0) {
-      if (currentPage !== 1) setCurrentPage(1);
-      return;
-    }
-    const maxPage = timelinePages.length;
-    if (currentPage > maxPage) setCurrentPage(maxPage);
-  }, [timelinePages.length, currentPage]);
-
-  const currentTimelinePage = timelinePages.length > 0 ? timelinePages[currentPage - 1] : null;
-  const pageItems = currentTimelinePage?.items ?? [];
-  const currentTimelineStartDate = currentTimelinePage ? getTimelineStartDate(currentTimelinePage.startDate) : null;
-  const currentTimelineEndDate = currentTimelinePage ? getTimelineEndDate(currentTimelinePage.startDate) : null;
 
   const getStatusClass = (status: string) => {
     switch (status) {
@@ -421,6 +464,27 @@ Thời gian: 8/12-14/12`,
   };
 
   const uniqueProjects = Array.from(new Set(planData.map(item => item.project)));
+
+  const updateQuantity = (id: number, field: QuantityField, value: number) => {
+    const nextValue = Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+    setPlanData(prev =>
+      prev.map(item => (item.id === id ? { ...item, [field]: nextValue } : item))
+    );
+  };
+
+  const renderQuantityInput = (item: WeeklyPlanItem, field: QuantityField) => {
+    return (
+      <input
+        className="quantity-input"
+        type="number"
+        min={0}
+        step={1}
+        value={item[field]}
+        onChange={(e) => updateQuantity(item.id, field, Number(e.target.value))}
+        inputMode="numeric"
+      />
+    );
+  };
 
   return (
     <div className="weekly-plan-page">
@@ -459,9 +523,7 @@ Thời gian: 8/12-14/12`,
                 className="filter-input"
               />
             </div>
-          </div>
 
-          <div className="filter-row weekly-plan-quick-row">
             <div className="filter-group weekly-plan-quick-group">
               <label>Tùy chọn nhanh</label>
               <div className="weekly-plan-quick-buttons">
@@ -494,43 +556,6 @@ Thời gian: 8/12-14/12`,
           </div>
         </div>
 
-        {timelinePages.length > 1 && (
-          <div className="weekly-plan-table-footer table-footer">
-            <div className="pagination-info">
-              {currentTimelineStartDate && currentTimelineEndDate
-                ? `Timeline: ${formatDateDdMm(currentTimelineStartDate)} - ${formatDateDdMm(currentTimelineEndDate)} (${pageItems.length} dòng)`
-                : 'Timeline: -'}
-            </div>
-            <div className="pagination-controls">
-              <button
-                className="page-button"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(1)}
-                aria-label="Trang đầu"
-              >«</button>
-              <button
-                className="page-button"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                aria-label="Trang trước"
-              >‹</button>
-              <span className="page-indicator">Trang {currentPage} / {totalPages}</span>
-              <button
-                className="page-button"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                aria-label="Trang sau"
-              >›</button>
-              <button
-                className="page-button"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(totalPages)}
-                aria-label="Trang cuối"
-              >»</button>
-            </div>
-          </div>
-        )}
-
         <div className="plan-table-wrapper">
           <table className="plan-table">
             <thead>
@@ -546,7 +571,7 @@ Thời gian: 8/12-14/12`,
               </tr>
             </thead>
             <tbody>
-              {pageItems.map((item) => (
+              {sortedItems.map((item) => (
                 <tr key={item.id}>
                   <td className="col-start-date">{formatDateDdMm(getTimelineStartDate(item.timeline))}</td>
                   <td className="col-end-date">{formatDateDdMm(getTimelineEndDate(item.timeline))}</td>
@@ -562,10 +587,22 @@ Thời gian: 8/12-14/12`,
                     <div className="text-content">{item.strategy}</div>
                   </td>
                   <td className="col-quantity">
-                    <div className="text-content">{item.proposedQuantity}</div>
+                    <div className="quantity-list">
+                      <div className="quantity-item"><span className="qty-label">CPP:</span> {renderQuantityInput(item, 'proposedCPP')}</div>
+                      <div className="quantity-item"><span className="qty-label">Icon:</span> {renderQuantityInput(item, 'proposedIcon')}</div>
+                      <div className="quantity-item"><span className="qty-label">Banner:</span> {renderQuantityInput(item, 'proposedBanner')}</div>
+                      <div className="quantity-item"><span className="qty-label">PLA:</span> {renderQuantityInput(item, 'proposedPLA')}</div>
+                      <div className="quantity-item"><span className="qty-label">Video:</span> {renderQuantityInput(item, 'proposedVideo')}</div>
+                    </div>
                   </td>
                   <td className="col-quantity">
-                    <div className="text-content">{item.confirmedQuantity}</div>
+                    <div className="quantity-list">
+                      <div className="quantity-item"><span className="qty-label">CPP:</span> {renderQuantityInput(item, 'confirmedCPP')}</div>
+                      <div className="quantity-item"><span className="qty-label">Icon:</span> {renderQuantityInput(item, 'confirmedIcon')}</div>
+                      <div className="quantity-item"><span className="qty-label">Banner:</span> {renderQuantityInput(item, 'confirmedBanner')}</div>
+                      <div className="quantity-item"><span className="qty-label">PLA:</span> {renderQuantityInput(item, 'confirmedPLA')}</div>
+                      <div className="quantity-item"><span className="qty-label">Video:</span> {renderQuantityInput(item, 'confirmedVideo')}</div>
+                    </div>
                   </td>
                   <td className="col-status">
                     <span className={`status-badge ${getConfirmationClass(item.confirmationStatus)}`}>
@@ -579,9 +616,9 @@ Thời gian: 8/12-14/12`,
           </table>
         </div>
 
-        {timelinePages.length === 0 && (
+        {sortedItems.length === 0 && (
           <div className="no-data">
-            <p>Không có dữ liệu cho timeline này</p>
+            <p>Không có dữ liệu</p>
           </div>
         )}
       </div>

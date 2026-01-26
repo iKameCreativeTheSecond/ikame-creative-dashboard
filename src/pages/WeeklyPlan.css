@@ -35,6 +35,9 @@
   background: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #e9ecef;
+  position: sticky;
+  top: 60px;
+  z-index: 100;
 }
 
 .weekly-plan-page .filter-row {
@@ -95,18 +98,23 @@
 }
 
 /* Quick buttons (fit the same filter theme) */
-.weekly-plan-page .weekly-plan-quick-row {
-  align-items: flex-start;
+.weekly-plan-page .weekly-plan-quick-group {
+  flex: 1 1 auto;
+  min-width: 520px;
+  margin-left: auto;
+  align-items: flex-end;
 }
 
-.weekly-plan-page .weekly-plan-quick-group {
-  flex: 1;
+.weekly-plan-page .weekly-plan-quick-group label {
+  text-align: right;
+  width: 100%;
 }
 
 .weekly-plan-page .weekly-plan-quick-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: flex-end;
 }
 
 .weekly-plan-page .quick-filter-btn {
@@ -153,6 +161,19 @@
     flex: none;
     min-width: unset;
   }
+
+  .weekly-plan-page .weekly-plan-quick-group {
+    min-width: unset;
+    align-items: flex-start;
+  }
+
+  .weekly-plan-page .weekly-plan-quick-group label {
+    text-align: left;
+  }
+
+  .weekly-plan-page .weekly-plan-quick-buttons {
+    justify-content: flex-start;
+  }
 }
 
 .plan-table-wrapper {
@@ -160,6 +181,8 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   overflow-x: auto;
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
 }
 
 /* Pagination (timeline pages) */
@@ -180,7 +203,7 @@
   color: white;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 50;
 }
 
 .plan-table th {
@@ -230,14 +253,67 @@
 }
 
 .col-quantity {
-  width: 200px;
-  min-width: 180px;
+  width: 150px;
+  min-width: 140px;
 }
 
 .col-status {
   width: 120px;
   min-width: 120px;
   text-align: center;
+}
+
+/* Quantity list styling */
+.quantity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.quantity-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.quantity-item .qty-label {
+  font-weight: 600;
+  color: #495057;
+  min-width: 55px;
+  flex: 0 0 auto;
+}
+
+.quantity-input {
+  width: 64px;
+  height: 26px;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1;
+  text-align: right;
+  background: #fff;
+}
+
+.quantity-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.18);
+}
+
+/* Hide number input spinners (match compact text field look) */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantity-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* Project status badges */
