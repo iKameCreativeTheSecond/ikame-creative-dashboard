@@ -42,12 +42,26 @@ function TeamCard({ team }: { team: WeeklyTeamPerformaceData }) {
 }
 
 const TeamTargetProgress: React.FC<{ teams: WeeklyTeamPerformaceData[] }> = ({ teams }) => {
+  // Calculate Monday of the previous week
+  const getPreviousMonday = () => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days, else go back to Monday
+    const lastMonday = new Date(today);
+    lastMonday.setDate(today.getDate() - daysToSubtract - 7); // Go back to previous week's Monday
+    
+    const day = lastMonday.getDate();
+    const month = lastMonday.getMonth() + 1;
+    const year = lastMonday.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <div className="team-target-progress-container">
       <div className="team-target-header">
         <span className="team-target-icon">🎯</span>
         <span className="team-target-title">Team's Target Progress</span>
-        <span className="team-target-date">(Tuần gần nhất: 21/9/2025)</span>
+        <span className="team-target-date">(Tuần gần nhất: {getPreviousMonday()})</span>
       </div>
       <div className="team-cards-row">
         {teams.map((team) => (
