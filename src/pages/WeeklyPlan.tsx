@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import TopBar from '../components/TopBar';
 import './WeeklyPlan.css';
 
@@ -21,6 +21,7 @@ export default function WeeklyPlan() {
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Helper function to get Monday of current week
   const getMondayOfWeek = (date: Date): Date => {
@@ -68,12 +69,66 @@ export default function WeeklyPlan() {
     setDateTo("");
   };
 
+  // Shift the current date range by whole weeks (7 days)
+  // direction: -1 = previous week, +1 = next week
+  const getEffectiveRange = (): { from: Date; to: Date } => {
+    const currentMonday = getMondayOfWeek(new Date());
+
+    const fromBase = dateFrom ? new Date(dateFrom) : null;
+    const toBase = dateTo ? new Date(dateTo) : null;
+
+    let from = fromBase;
+    let to = toBase;
+
+    if (!from && !to) {
+      from = new Date(currentMonday);
+      to = new Date(currentMonday);
+    } else if (from && !to) {
+      to = new Date(from);
+    } else if (!from && to) {
+      from = new Date(to);
+    }
+
+    if (!from || !to || isNaN(from.getTime()) || isNaN(to.getTime())) {
+      from = new Date(currentMonday);
+      to = new Date(currentMonday);
+    }
+
+    return { from, to };
+  };
+
+  const canShiftWeekRange = (direction: -1 | 1) => {
+    if (direction === -1) return true;
+
+    const { from, to } = getEffectiveRange();
+    const nextFrom = new Date(from);
+    const nextTo = new Date(to);
+    nextFrom.setDate(nextFrom.getDate() + 7);
+    nextTo.setDate(nextTo.getDate() + 7);
+
+    const currentMonday = getMondayOfWeek(new Date());
+    return nextTo.getTime() <= currentMonday.getTime();
+  };
+
+  const shiftWeekRange = (direction: -1 | 1) => {
+    if (!canShiftWeekRange(direction)) return;
+
+    const deltaDays = direction * 7;
+    const { from, to } = getEffectiveRange();
+
+    from.setDate(from.getDate() + deltaDays);
+    to.setDate(to.getDate() + deltaDays);
+
+    setDateFrom(formatDateForInput(from));
+    setDateTo(formatDateForInput(to));
+  };
+
   useEffect(() => {
     // Sample data based on the image
     const sampleData: WeeklyPlanItem[] = [
       {
         id: 1,
-        timeline: '08/12 - 14/12',
+        timeline: '01/12 - 14/12',
         stt: 5,
         project: 'Goods Jam',
         status: 'warning',
@@ -282,6 +337,47 @@ Thời gian: 8/12-14/12`,
     setFilteredData(filtered);
   }, [selectedProject, planData, dateFrom, dateTo]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedProject, dateFrom, dateTo]);
+
+  // Group filtered data by timeline (each timeline is a page)
+  const timelinePages = useMemo(() => {
+    const map = new Map<string, WeeklyPlanItem[]>();
+    for (const item of filteredData) {
+      const key = item.timeline || 'Unknown';
+      const list = map.get(key);
+      if (list) list.push(item);
+      else map.set(key, [item]);
+    }
+
+    const entries = Array.from(map.entries());
+    entries.sort((a, b) => {
+      const aDate = parseTimelineToDate(a[0])?.getTime() ?? 0;
+      const bDate = parseTimelineToDate(b[0])?.getTime() ?? 0;
+      return aDate - bDate;
+    });
+
+    return entries.map(([timeline, items]) => ({ timeline, items }));
+  }, [filteredData]);
+
+  const totalPages = Math.max(1, timelinePages.length);
+
+  // Clamp current page when data changes
+  useEffect(() => {
+    if (timelinePages.length === 0) {
+      if (currentPage !== 1) setCurrentPage(1);
+      return;
+    }
+    const maxPage = timelinePages.length;
+    if (currentPage > maxPage) setCurrentPage(maxPage);
+  }, [timelinePages.length, currentPage]);
+
+  const currentTimelinePage = timelinePages.length > 0 ? timelinePages[currentPage - 1] : null;
+  const pageItems = currentTimelinePage?.items ?? [];
+  const currentTimelineLabel = currentTimelinePage?.timeline ?? '';
+
   const getStatusClass = (status: string) => {
     switch (status) {
       case 'success': return 'status-success';
@@ -345,15 +441,69 @@ Thời gian: 8/12-14/12`,
             <div className="filter-group weekly-plan-quick-group">
               <label>Tùy chọn nhanh</label>
               <div className="weekly-plan-quick-buttons">
+                <button
+                  type="button"
+                  className="quick-filter-btn"
+                  onClick={() => shiftWeekRange(-1)}
+                  aria-label="Lùi 1 tuần"
+                  title="Lùi 1 tuần"
+                >
+                  ← Tuần trước
+                </button>
                 <button type="button" className="quick-filter-btn" onClick={() => handleQuickFilter(1)}>1 Tuần</button>
                 <button type="button" className="quick-filter-btn" onClick={() => handleQuickFilter(2)}>2 Tuần</button>
                 <button type="button" className="quick-filter-btn" onClick={() => handleQuickFilter(4)}>4 Tuần</button>
                 <button type="button" className="quick-filter-btn" onClick={() => handleQuickFilter(6)}>6 Tuần</button>
+                <button
+                  type="button"
+                  className="quick-filter-btn"
+                  onClick={() => shiftWeekRange(1)}
+                  disabled={!canShiftWeekRange(1)}
+                  aria-label="Tiến 1 tuần"
+                  title="Tiến 1 tuần"
+                >
+                  Tuần sau →
+                </button>
                 <button type="button" className="clear-filters-btn active" onClick={clearDateFilters}>Xóa</button>
               </div>
             </div>
           </div>
         </div>
+
+        {timelinePages.length > 1 && (
+          <div className="weekly-plan-table-footer table-footer">
+            <div className="pagination-info">
+              {currentTimelineLabel ? `Timeline: ${currentTimelineLabel} (${pageItems.length} dòng)` : 'Timeline: -'}
+            </div>
+            <div className="pagination-controls">
+              <button
+                className="page-button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(1)}
+                aria-label="Trang đầu"
+              >«</button>
+              <button
+                className="page-button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                aria-label="Trang trước"
+              >‹</button>
+              <span className="page-indicator">Trang {currentPage} / {totalPages}</span>
+              <button
+                className="page-button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                aria-label="Trang sau"
+              >›</button>
+              <button
+                className="page-button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(totalPages)}
+                aria-label="Trang cuối"
+              >»</button>
+            </div>
+          </div>
+        )}
 
         <div className="plan-table-wrapper">
           <table className="plan-table">
@@ -370,7 +520,7 @@ Thời gian: 8/12-14/12`,
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((item) => (
+              {pageItems.map((item) => (
                 <tr key={item.id}>
                   <td className="col-timeline">{item.timeline}</td>
                   <td className="col-stt">{item.stt}</td>
@@ -403,7 +553,7 @@ Thời gian: 8/12-14/12`,
           </table>
         </div>
 
-        {filteredData.length === 0 && (
+        {timelinePages.length === 0 && (
           <div className="no-data">
             <p>Không có dữ liệu cho timeline này</p>
           </div>

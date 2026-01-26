@@ -125,6 +125,18 @@
   border-color: #007bff;
 }
 
+.weekly-plan-page .quick-filter-btn:disabled {
+  opacity: 0.6;
+  color: #868e96;
+  background: #f1f3f5;
+  border-color: #dee2e6;
+  cursor: not-allowed;
+}
+
+.weekly-plan-page .quick-filter-btn:disabled:hover {
+  border-color: #dee2e6;
+}
+
 .weekly-plan-page .quick-filter-btn:focus {
   outline: none;
   border-color: #007bff;
@@ -148,6 +160,13 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   overflow-x: auto;
+}
+
+/* Pagination (timeline pages) */
+.weekly-plan-table-footer {
+  margin-bottom: 12px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
 }
 
 .plan-table {
