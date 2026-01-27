@@ -246,6 +246,7 @@ export default function ProjectIssueTable({
                         <tr>
                             <th>Project</th>
                             <th>Team</th>
+                            <th>Task Type</th>
                             <th>Start Week</th>
                             <th>Completed</th>
                             <th>Total Orders</th>
@@ -256,7 +257,7 @@ export default function ProjectIssueTable({
                     <tbody>
                         {filteredData.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="no-data">
+                                <td colSpan={8} className="no-data">
                                     {data.length === 0 ? 'No project issues found' : 'No projects match the current filters'}
                                 </td>
                             </tr>
@@ -265,6 +266,7 @@ export default function ProjectIssueTable({
                                 <tr key={issue.Id || index}>
                                     <td className="project-name">{issue.Project}</td>
                                     <td className="team-name">{issue.Team}</td>
+                                    <td className="task-type">{issue.TaskType || 'N/A'}</td>
                                     <td>{formatDate(issue.StartWeek)}</td>
                                     <td className="completed-count">{issue.CompletedCount}</td>
                                     <td className="order-count">{issue.OrderCount}</td>
