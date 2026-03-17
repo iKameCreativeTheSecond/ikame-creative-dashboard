@@ -250,6 +250,7 @@ export default function WeeklyPlan() {
 
   const apiUpdateWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
     const payload = serializeConfirmedPlan(item);
+    console.log('Updating weekly plan with payload:', payload);
     const response = await fetch(serverUrl + '/post/update-weekly-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1060,7 +1061,12 @@ export default function WeeklyPlan() {
                       className="qty-copy-all-btn qty-save-btn"
                       title="Save"
                       onClick={() => {
-                        setAddSuccessMsg(`Đã lưu kế hoạch "${item.project}" thành công!`);
+                        apiUpdateWeeklyPlan(item)
+                          .then(() => setAddSuccessMsg(`Đã lưu kế hoạch "${item.project}" thành công!`))
+                          .catch(err => {
+                            console.error('Lỗi confirm:', err);
+                            setAddSuccessMsg(`Lỗi khi lưu kế hoạch "${item.project}"!`);
+                          });
                       }}
                     >
                       Confirm
