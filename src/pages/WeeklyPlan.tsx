@@ -101,6 +101,157 @@ export default function WeeklyPlan() {
 
   const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? 'http://localhost:8888';
 
+  // Serialize WeeklyPlanItem proposed fields → temp-weekly-order payload (same structure as WeeklyOrder)
+  const serializeTempOrder = (item: WeeklyPlanItem) => ({
+    ID: String(item.id),
+    StartWeek: item.timeline.toISOString(),
+    Project: item.project,
+    Status: item.status,
+    Goal: item.objectives,
+    Strategy: item.strategy,
+    CPP: item.proposedCPP,
+    Icon: item.proposedIcon,
+    Banner: item.proposedBanner,
+    PLA: item.proposedPLA,
+    Video: item.proposedVideo,
+  });
+
+  // Serialize WeeklyPlanItem confirmed fields → weekly-plan payload
+  const serializeConfirmedPlan = (item: WeeklyPlanItem) => ({
+    ID: String(item.id),
+    StartWeek: item.timeline.toISOString(),
+    Project: item.project,
+    CPP: item.confirmedCPP,
+    Icon: item.confirmedIcon,
+    Banner: item.confirmedBanner,
+    PLA: item.confirmedPLA,
+    Video: item.confirmedVideo,
+  });
+
+  // Deserialize temp-weekly-order response → full WeeklyPlanItem (proposed side, confirmed = 0)
+  const deserializeTempOrder = (data: any): WeeklyPlanItem => ({
+    id: Number(data.ID),
+    timeline: new Date(data.StartWeek),
+    project: data.Project ?? '',
+    status: data.Status ?? 'neutral',
+    objectives: data.Goal ?? '',
+    strategy: data.Strategy ?? '',
+    confirmationStatus: 'pending',
+    proposedCPP: data.CPP ?? 0,
+    proposedIcon: data.Icon ?? 0,
+    proposedBanner: data.Banner ?? 0,
+    proposedPLA: data.PLA ?? 0,
+    proposedVideo: data.Video ?? 0,
+    confirmedCPP: 0,
+    confirmedIcon: 0,
+    confirmedBanner: 0,
+    confirmedPLA: 0,
+    confirmedVideo: 0,
+    completedCPP: 0,
+    completedIcon: 0,
+    completedBanner: 0,
+    completedPLA: 0,
+    completedVideo: 0,
+  });
+
+  // Deserialize weekly-plan response → confirmed quantities only (for merging)
+  const deserializeConfirmedPlan = (data: any) => {
+    const d = new Date(data.StartWeek);
+    const dow = d.getDay();
+    d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+    return {
+      project: (data.Project ?? '') as string,
+      mondayMs: new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(),
+      confirmedCPP: (data.CPP ?? 0) as number,
+      confirmedIcon: (data.Icon ?? 0) as number,
+      confirmedBanner: (data.Banner ?? 0) as number,
+      confirmedPLA: (data.PLA ?? 0) as number,
+      confirmedVideo: (data.Video ?? 0) as number,
+    };
+  };
+
+  const fetchTempWeeklyPlans = async (): Promise<WeeklyPlanItem[]> => {
+    const response = await fetch(serverUrl + '/get/temp-weekly-order', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.map(deserializeTempOrder);
+  };
+
+  const fetchWeeklyPlans = async () => {
+    const response = await fetch(serverUrl + '/get/weekly-order', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data.map(deserializeConfirmedPlan);
+  };
+
+  const apiAddWeeklyPlan = async (item: WeeklyPlanItem): Promise<WeeklyPlanItem> => {
+    const payload = serializeConfirmedPlan(item);
+    const response = await fetch(serverUrl + '/post/add-new-weekly-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const responseData = await response.json();
+    return { ...item, id: Number(responseData.id) ?? item.id };
+  };
+
+  const apiUpdateWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
+    const payload = serializeConfirmedPlan(item);
+    const response = await fetch(serverUrl + '/post/update-weekly-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  };
+
+  const apiDeleteWeeklyPlan = async (id: number): Promise<void> => {
+    const response = await fetch(serverUrl + '/post/delete-weekly-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ID: String(id) }),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  };
+
+  const apiAddTempWeeklyPlan = async (item: WeeklyPlanItem): Promise<WeeklyPlanItem> => {
+    const payload = serializeTempOrder(item);
+    const response = await fetch(serverUrl + '/post/add-new-temp-weekly-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const responseData = await response.json();
+    return { ...item, id: Number(responseData.id) ?? item.id };
+  };
+
+  const apiUpdateTempWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
+    const payload = serializeTempOrder(item);
+    const response = await fetch(serverUrl + '/post/temp-update-weekly-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  };
+
+  const apiDeleteTempWeeklyPlan = async (id: number): Promise<void> => {
+    const response = await fetch(serverUrl + '/post/delete-temp-weekly-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ID: String(id) }),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  };
+
   useEffect(() => {
     if (AdminData.ProjectDetails && AdminData.ProjectDetails.length > 0) {
       setProjectOptions(AdminData.getListProjects());
@@ -388,282 +539,36 @@ export default function WeeklyPlan() {
   };
 
   useEffect(() => {
-    // Sample data based on the image
-    // Using 2025 for demo data to match typical filter ranges
-    const year = 2025;
-    const sampleData: WeeklyPlanItem[] = [
-      {
-        id: 1,
-        timeline: new Date(year, 11, 1),
-        project: 'Goods Jam',
-      status: 'warning',
-        objectives: `Scale biến vòng
-Android: Keep spend, pROAS ≥50%
-iOS: Keep spend, pROAS ≥50%
-Timeline: 14/12`,
-        strategy: `Test core mới
-Test feel
-Tối ưu các creative có đã win
-Winner: Christmas`,
-      proposedCPP: 0,
-      proposedIcon: 0,
-      proposedBanner: 0,
-      proposedPLA: 0,
-      proposedVideo: 16,
-      confirmedCPP: 0,
-      confirmedIcon: 0,
-      confirmedBanner: 0,
-      confirmedPLA: 3,
-      confirmedVideo: 3,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'lacking'
-      },
-      {
-        id: 2,
-        timeline: new Date(year, 11, 8),
-        project: 'Skewer Jam',
-      status: 'danger',
-        objectives: `Keep đề tối ưu sản phẩm
-Deadline: 21/12`,
-        strategy: `Test nhờ trên feel mới`,
-      proposedCPP: 0,
-      proposedIcon: 0,
-      proposedBanner: 0,
-      proposedPLA: 2,
-      proposedVideo: 18,
-      confirmedCPP: 0,
-      confirmedIcon: 0,
-      confirmedBanner: 0,
-      confirmedPLA: 2,
-      confirmedVideo: 18,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'sufficient'
-      },
-      {
-        id: 3,
-        timeline: new Date(year, 11, 8),
-        project: 'Water Flow',
-      status: 'info',
-        objectives: `Testing chỉ số sản phẩm, 1-2K daily install
-Timeline: 2 tuần`,
-        strategy: '',
-      proposedCPP: 0,
-      proposedIcon: 1,
-      proposedBanner: 1,
-      proposedPLA: 3,
-      proposedVideo: 3,
-      confirmedCPP: 0,
-      confirmedIcon: 1,
-      confirmedBanner: 1,
-      confirmedPLA: 0,
-      confirmedVideo: 5,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'lacking'
-      },
-      {
-        id: 4,
-        timeline: new Date(year, 11, 8),
-        project: 'Screwdom 3D',
-      status: 'neutral',
-        objectives: `- Deadline: W3/Dec
-- X2 spend, tích DAU cho Christmas`,
-        strategy: `- Thời gian: từ nay đến tháng Christmas
-- Test số lượng massive
-- Triển khai thêm các concept tốt (nhờ rõng, nhờ nổi thật bền trong)
-- Đánh thêm các hình tuồng`,
-      proposedCPP: 6,
-      proposedIcon: 0,
-      proposedBanner: 0,
-      proposedPLA: 8,
-      proposedVideo: 50,
-      confirmedCPP: 6,
-      confirmedIcon: 0,
-      confirmedBanner: 0,
-      confirmedPLA: 5,
-      confirmedVideo: 10,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'lacking'
-      },
-      {
-        id: 5,
-        timeline: new Date(year, 11, 8),
-        project: 'Scrawdom 2',
-      status: 'info',
-        objectives: `- Deadline: Hết tháng 11
-- x2 spend`,
-        strategy: `- Seasonal
-- Piggy + money`,
-      proposedCPP: 2,
-      proposedIcon: 0,
-      proposedBanner: 0,
-      proposedPLA: 0,
-      proposedVideo: 0,
-      confirmedCPP: 0,
-      confirmedIcon: 0,
-      confirmedBanner: 3,
-      confirmedPLA: 0,
-      confirmedVideo: 5,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'lacking'
-      },
-      {
-        id: 6,
-        timeline: new Date(year, 11, 8),
-        project: 'Block Flow',
-      status: 'info',
-        objectives: `Launching + Testing:
-- Dạm bảo đủ user cho testing sản phẩm
-- 500 - 1k users`,
-        strategy: 'Applovin',
-      proposedCPP: 0,
-      proposedIcon: 1,
-      proposedBanner: 1,
-      proposedPLA: 2,
-      proposedVideo: 2,
-      confirmedCPP: 0,
-      confirmedIcon: 1,
-      confirmedBanner: 1,
-      confirmedPLA: 1,
-      confirmedVideo: 2,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'sufficient'
-      },
-      {
-        id: 7,
-        timeline: new Date(year, 11, 8),
-        project: 'Scrawzle 3D',
-      status: 'danger',
-        objectives: `Tính hiện spend từ từ để theo dõi thêm chỉ số ok thì x2 spend`,
-        strategy: 'Top trung scale applovin',
-      proposedCPP: 3,
-      proposedIcon: 0,
-      proposedBanner: 0,
-      proposedPLA: 2,
-      proposedVideo: 3,
-      confirmedCPP: 3,
-      confirmedIcon: 0,
-      confirmedBanner: 0,
-      confirmedPLA: 2,
-      confirmedVideo: 3,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'sufficient'
-      },
-      {
-        id: 8,
-        timeline: new Date(year, 11, 8),
-        project: 'Dreamroom',
-      status: 'neutral',
-        objectives: `Testing chỉ số sản phẩm, 1-2K daily install
-Chỉnh lại level curve
-Timeline: 8/12 - 14/12`,
-        strategy: `Network: Focus Applovin
-Theme Christmas (đồi tóc sẽ update)`,
-      proposedCPP: 0,
-      proposedIcon: 1,
-      proposedBanner: 1,
-      proposedPLA: 1,
-      proposedVideo: 3,
-      confirmedCPP: 0,
-      confirmedIcon: 0,
-      confirmedBanner: 0,
-      confirmedPLA: 0,
-      confirmedVideo: 0,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'sufficient'
-      },
-      {
-        id: 9,
-        timeline: new Date(year, 11, 8),
-        project: 'Holiday Escape',
-      status: 'warning',
-        objectives: `Test bản big update
-Thời gian: 8/12 - 14/12`,
-        strategy: `Campaign: ROAS
-Network: Applovin
-Geo targeting: Tier 125 (trừ US)`,
-      proposedCPP: 0,
-      proposedIcon: 0,
-      proposedBanner: 0,
-      proposedPLA: 1,
-      proposedVideo: 3,
-      confirmedCPP: 0,
-      confirmedIcon: 0,
-      confirmedBanner: 0,
-      confirmedPLA: 1,
-      confirmedVideo: 3,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'lacking'
-      },
-      {
-        id: 10,
-        timeline: new Date(year, 11, 8),
-        project: 'Water Escape',
-      status: 'success',
-        objectives: `Test bản iOS, scale x2 bản Android
-Thời gian: 8/12-14/12`,
-        strategy: `Camp BLD D28 Applovin
-- Test theme Christmas (localize Christmas từ các creative tốt cả)`,
-      proposedCPP: 1,
-      proposedIcon: 0,
-      proposedBanner: 0,
-      proposedPLA: 2,
-      proposedVideo: 3,
-      confirmedCPP: 0,
-      confirmedIcon: 0,
-      confirmedBanner: 0,
-      confirmedPLA: 0,
-      confirmedVideo: 0,
-      completedCPP: 0,
-      completedIcon: 0,
-      completedBanner: 0,
-      completedPLA: 0,
-      completedVideo: 0,
-      confirmationStatus: 'sufficient'
-      }
-    ];
-
-    setPlanData(sampleData);
-    setFilteredData(sampleData);
-    setProjectOptions(prev => {
-      if (prev.length > 0) return prev;
-      return [...new Set(sampleData.map(item => item.project))];
-    });
+    Promise.all([fetchTempWeeklyPlans(), fetchWeeklyPlans()])
+      .then(([tempItems, confirmedItems]) => {
+        // Merge confirmed quantities into temp items by matching project + Monday of week
+        const merged = tempItems.map(temp => {
+          const d = new Date(temp.timeline);
+          const dow = d.getDay();
+          d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+          const tempMondayMs = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+          const match = confirmedItems.find((c: ReturnType<typeof deserializeConfirmedPlan>) =>
+            c.project.trim().toLowerCase() === temp.project.trim().toLowerCase() &&
+            c.mondayMs === tempMondayMs
+          );
+          if (!match) return temp;
+          return {
+            ...temp,
+            confirmedCPP: match.confirmedCPP,
+            confirmedIcon: match.confirmedIcon,
+            confirmedBanner: match.confirmedBanner,
+            confirmedPLA: match.confirmedPLA,
+            confirmedVideo: match.confirmedVideo,
+          };
+        });
+        setPlanData(merged);
+        setFilteredData(merged);
+        setProjectOptions(prev => {
+          if (prev.length > 0) return prev;
+          return [...new Set(merged.map(item => item.project))];
+        });
+      })
+      .catch(err => console.error('Error fetching weekly plans:', err));
   }, []);
 
   useEffect(() => {
