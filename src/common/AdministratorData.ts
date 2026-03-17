@@ -194,7 +194,13 @@ export class AdministratorData
     {
         if (this.projectList.length > 0) return this.projectList;
 
-        this.ProjectDetails.forEach((p) => this.projectList.push(p.Project));
+        const seen = new Set<string>();
+        this.ProjectDetails.forEach((p) => {
+            if (!seen.has(p.Project)) {
+                seen.add(p.Project);
+                this.projectList.push(p.Project);
+            }
+        });
         return this.projectList;
     }
 
