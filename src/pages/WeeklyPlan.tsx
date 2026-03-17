@@ -7,6 +7,7 @@ import './WeeklyPlan.css';
 
 interface WeeklyPlanItem {
   id: number;
+  backendId?: string; // raw id from backend (ID/id). Can be missing.
   timeline: Date; // start date of the timeline (end date is computed as start + 7 days)
   project: string;
   status: 'success' | 'warning' | 'danger' | 'info' | 'neutral';
@@ -98,12 +99,38 @@ export default function WeeklyPlan() {
   const addFormRef = useRef<HTMLDivElement>(null);
   const rowRefsMap = useRef<Map<number, HTMLTableRowElement>>(new Map());
   const tableWrapperRef = useRef<HTMLDivElement>(null);
+  const didInitialLoadRef = useRef(false);
 
   const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? 'http://localhost:8888';
 
+  const stableHash32 = (input: string): number => {
+    let hash = 5381;
+    for (let i = 0; i < input.length; i++) {
+      hash = (hash * 33) ^ input.charCodeAt(i);
+    }
+    return hash >>> 0;
+  };
+
+  const ensureUniqueIds = (items: WeeklyPlanItem[]): WeeklyPlanItem[] => {
+    const used = new Set<number>();
+    return items.map((item) => {
+      let nextId = item.id;
+      if (!Number.isFinite(nextId)) {
+        nextId = -1 * (stableHash32(`${(item.project ?? '').trim().toLowerCase()}|${item.timeline?.toISOString?.() ?? ''}`) + 1);
+      }
+
+      while (used.has(nextId)) {
+        nextId -= 1;
+      }
+
+      used.add(nextId);
+      return nextId === item.id ? item : { ...item, id: nextId };
+    });
+  };
+
   // Serialize WeeklyPlanItem proposed fields → temp-weekly-order payload (same structure as WeeklyOrder)
   const serializeTempOrder = (item: WeeklyPlanItem) => ({
-    ID: String(item.id),
+    ID: item.backendId ?? String(item.id),
     StartWeek: item.timeline.toISOString(),
     Project: item.project,
     Status: item.status,
@@ -118,7 +145,7 @@ export default function WeeklyPlan() {
 
   // Serialize WeeklyPlanItem confirmed fields → weekly-plan payload
   const serializeConfirmedPlan = (item: WeeklyPlanItem) => ({
-    ID: String(item.id),
+    ID: item.backendId ?? String(item.id),
     StartWeek: item.timeline.toISOString(),
     Project: item.project,
     CPP: item.confirmedCPP,
@@ -129,30 +156,48 @@ export default function WeeklyPlan() {
   });
 
   // Deserialize temp-weekly-order response → full WeeklyPlanItem (proposed side, confirmed = 0)
-  const deserializeTempOrder = (data: any): WeeklyPlanItem => ({
-    id: Number(data.ID),
-    timeline: new Date(data.StartWeek),
-    project: data.Project ?? '',
-    status: data.Status ?? 'neutral',
-    objectives: data.Goal ?? '',
-    strategy: data.Strategy ?? '',
-    confirmationStatus: 'pending',
-    proposedCPP: data.CPP ?? 0,
-    proposedIcon: data.Icon ?? 0,
-    proposedBanner: data.Banner ?? 0,
-    proposedPLA: data.PLA ?? 0,
-    proposedVideo: data.Video ?? 0,
-    confirmedCPP: 0,
-    confirmedIcon: 0,
-    confirmedBanner: 0,
-    confirmedPLA: 0,
-    confirmedVideo: 0,
-    completedCPP: 0,
-    completedIcon: 0,
-    completedBanner: 0,
-    completedPLA: 0,
-    completedVideo: 0,
-  });
+  const deserializeTempOrder = (data: any): WeeklyPlanItem => {
+    const timeline = new Date(data.StartWeek);
+    const project = (data.Project ?? '') as string;
+    const backendIdRaw = data.ID ?? data.id;
+    const backendId = backendIdRaw === undefined || backendIdRaw === null || backendIdRaw === '' ? undefined : String(backendIdRaw);
+    const parsedBackendId = backendId ? Number(backendId) : NaN;
+
+    // If backend doesn't provide a usable ID, derive a stable client id from (project + monday)
+    const d = new Date(timeline);
+    const dow = d.getDay();
+    d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+    const mondayMs = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const derivedId = -1 * (stableHash32(`${project.trim().toLowerCase()}|${mondayMs}`) + 1);
+
+    const id = Number.isFinite(parsedBackendId) ? parsedBackendId : derivedId;
+
+    return {
+      id,
+      backendId,
+      timeline,
+      project,
+      status: data.Status ?? 'neutral',
+      objectives: data.Goal ?? '',
+      strategy: data.Strategy ?? '',
+      confirmationStatus: 'pending',
+      proposedCPP: data.CPP ?? 0,
+      proposedIcon: data.Icon ?? 0,
+      proposedBanner: data.Banner ?? 0,
+      proposedPLA: data.PLA ?? 0,
+      proposedVideo: data.Video ?? 0,
+      confirmedCPP: 0,
+      confirmedIcon: 0,
+      confirmedBanner: 0,
+      confirmedPLA: 0,
+      confirmedVideo: 0,
+      completedCPP: 0,
+      completedIcon: 0,
+      completedBanner: 0,
+      completedPLA: 0,
+      completedVideo: 0,
+    };
+  };
 
   // Deserialize weekly-plan response → confirmed quantities only (for merging)
   const deserializeConfirmedPlan = (data: any) => {
@@ -177,7 +222,7 @@ export default function WeeklyPlan() {
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
-    return data.map(deserializeTempOrder);
+    return ensureUniqueIds(data.map(deserializeTempOrder));
   };
 
   const fetchWeeklyPlans = async () => {
@@ -199,7 +244,8 @@ export default function WeeklyPlan() {
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const responseData = await response.json();
-    return { ...item, id: Number(responseData.id) ?? item.id };
+    const nextId = Number(responseData.ID ?? responseData.id);
+    return { ...item, id: Number.isFinite(nextId) ? nextId : item.id };
   };
 
   const apiUpdateWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
@@ -230,7 +276,8 @@ export default function WeeklyPlan() {
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const responseData = await response.json();
-    return { ...item, id: Number(responseData.id) ?? item.id };
+    const nextId = Number(responseData.ID ?? responseData.id);
+    return { ...item, id: Number.isFinite(nextId) ? nextId : item.id };
   };
 
   const apiUpdateTempWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
@@ -539,6 +586,10 @@ export default function WeeklyPlan() {
   };
 
   useEffect(() => {
+    // React 18 StrictMode runs effects twice in dev; avoid double-fetch overwriting user edits.
+    if (didInitialLoadRef.current) return;
+    didInitialLoadRef.current = true;
+
     Promise.all([fetchTempWeeklyPlans(), fetchWeeklyPlans()])
       .then(([tempItems, confirmedItems]) => {
         // Merge confirmed quantities into temp items by matching project + Monday of week
@@ -561,11 +612,12 @@ export default function WeeklyPlan() {
             confirmedVideo: match.confirmedVideo,
           };
         });
-        setPlanData(merged);
-        setFilteredData(merged);
+        const uniqueMerged = ensureUniqueIds(merged);
+        setPlanData(uniqueMerged);
+        setFilteredData(uniqueMerged);
         setProjectOptions(prev => {
           if (prev.length > 0) return prev;
-          return [...new Set(merged.map(item => item.project))];
+          return [...new Set(uniqueMerged.map(item => item.project))];
         });
       })
       .catch(err => console.error('Error fetching weekly plans:', err));
@@ -664,28 +716,26 @@ export default function WeeklyPlan() {
 
   const updateQuantity = (id: number, field: QuantityField, value: number) => {
     const nextValue = Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
-    setPlanData(prev =>
-      prev.map(item => (item.id === id ? { ...item, [field]: nextValue } : item))
-    );
+    setPlanData(prev => prev.map(item => (item.id === id ? { ...item, [field]: nextValue } : item)));
+    // Keep `filteredData` in sync so controlled inputs update immediately while the filter effect catches up.
+    setFilteredData(prev => prev.map(item => (item.id === id ? { ...item, [field]: nextValue } : item)));
   };
 
   const updateTextField = (id: number, field: TextField, value: string) => {
-    setPlanData(prev =>
-      prev.map(item => (item.id === id ? { ...item, [field]: value } : item))
-    );
+    setPlanData(prev => prev.map(item => (item.id === id ? { ...item, [field]: value } : item)));
+    // Keep `filteredData` in sync so textareas are editable immediately.
+    setFilteredData(prev => prev.map(item => (item.id === id ? { ...item, [field]: value } : item)));
   };
 
   const copyToConfirmed = (id: number, proposedField: QuantityField) => {
     const confirmedField = proposedField.replace('proposed', 'confirmed') as QuantityField;
-    setPlanData(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, [confirmedField]: item[proposedField] } : item
-      )
-    );
+    setPlanData(prev => prev.map(item => (item.id === id ? { ...item, [confirmedField]: item[proposedField] } : item)));
+    setFilteredData(prev => prev.map(item => (item.id === id ? { ...item, [confirmedField]: item[proposedField] } : item)));
   };
 
   const deleteItem = (id: number) => {
     setPlanData(prev => prev.filter(item => item.id !== id));
+    setFilteredData(prev => prev.filter(item => item.id !== id));
   };
 
   const requestDeleteItem = (item: WeeklyPlanItem) =>
@@ -706,20 +756,20 @@ export default function WeeklyPlan() {
   };
 
   const copyAllToConfirmed = (id: number) => {
-    setPlanData(prev =>
-      prev.map(item =>
-        item.id === id
-          ? {
-              ...item,
-              confirmedCPP: item.proposedCPP,
-              confirmedIcon: item.proposedIcon,
-              confirmedBanner: item.proposedBanner,
-              confirmedPLA: item.proposedPLA,
-              confirmedVideo: item.proposedVideo,
-            }
-          : item
-      )
-    );
+    const applyCopy = (item: WeeklyPlanItem) =>
+      item.id === id
+        ? {
+            ...item,
+            confirmedCPP: item.proposedCPP,
+            confirmedIcon: item.proposedIcon,
+            confirmedBanner: item.proposedBanner,
+            confirmedPLA: item.proposedPLA,
+            confirmedVideo: item.proposedVideo,
+          }
+        : item;
+
+    setPlanData(prev => prev.map(applyCopy));
+    setFilteredData(prev => prev.map(applyCopy));
   };
 
   const renderQuantityInput = (item: WeeklyPlanItem, field: QuantityField) => {
@@ -987,8 +1037,12 @@ export default function WeeklyPlan() {
                       <button
                         type="button"
                         className="qty-copy-all-btn qty-save-btn"
-                        title="Lưu"
-                        onClick={() => setAddSuccessMsg(`Đã lưu kế hoạch "${item.project}" thành công!`)}
+                        title="Save"
+                        onClick={() => {
+                          apiUpdateTempWeeklyPlan(item)
+                            .then(() => setAddSuccessMsg(`Đã lưu kế hoạch "${item.project}" thành công!`))
+                            .catch(err => { console.error('Lỗi lưu:', err); setAddSuccessMsg(`Lỗi khi lưu kế hoạch "${item.project}"!`); });
+                        }}
                       >Save</button>
                       <button type="button" className="qty-copy-all-btn" title="Copy tất cả sang Confirm" onClick={() => copyAllToConfirmed(item.id)}>Copy all →</button>
                     </div>
