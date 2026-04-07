@@ -129,8 +129,9 @@ export default function WeeklyPlan() {
   };
 
   // Serialize WeeklyPlanItem proposed fields → temp-weekly-order payload (same structure as WeeklyOrder)
+  // For new items (no backendId yet), omit ID so backend can generate it.
   const serializeTempOrder = (item: WeeklyPlanItem) => ({
-    ID: item.backendId ?? String(item.id),
+    ID: item.backendId ?? undefined,
     StartWeek: item.timeline.toISOString(),
     Project: item.project,
     Status: item.status,
@@ -143,11 +144,15 @@ export default function WeeklyPlan() {
     Video: item.proposedVideo,
   });
 
-  // Serialize WeeklyPlanItem confirmed fields → weekly-plan payload
+  // Serialize WeeklyPlanItem confirmed fields → weekly-order update payload.
+  // Keep the same payload shape as temp-weekly-order update (Status/Goal/Strategy + CPP/Icon/Banner/PLA/Video).
   const serializeConfirmedPlan = (item: WeeklyPlanItem) => ({
     ID: item.backendId ?? String(item.id),
     StartWeek: item.timeline.toISOString(),
     Project: item.project,
+    Status: item.status,
+    Goal: item.objectives,
+    Strategy: item.strategy,
     CPP: item.confirmedCPP,
     Icon: item.confirmedIcon,
     Banner: item.confirmedBanner,
@@ -250,7 +255,6 @@ export default function WeeklyPlan() {
 
   const apiUpdateWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
     const payload = serializeConfirmedPlan(item);
-    console.log('Updating weekly plan with payload:', payload);
     const response = await fetch(serverUrl + '/post/update-weekly-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -277,8 +281,15 @@ export default function WeeklyPlan() {
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const responseData = await response.json();
-    const nextId = Number(responseData.ID ?? responseData.id);
-    return { ...item, id: Number.isFinite(nextId) ? nextId : item.id };
+    const backendIdRaw = responseData.ID ?? responseData.id;
+    const backendId = backendIdRaw === undefined || backendIdRaw === null || backendIdRaw === '' ? undefined : String(backendIdRaw);
+    const nextId = backendId ? Number(backendId) : NaN;
+
+    return {
+      ...item,
+      backendId,
+      id: Number.isFinite(nextId) ? nextId : item.id,
+    };
   };
 
   const apiUpdateTempWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
@@ -534,13 +545,14 @@ export default function WeeklyPlan() {
     });
   };
 
-  const handleAddSubmit = (e?: any) => {
+  const handleAddSubmit = async (e?: any) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!newItem) return;
     if (!newItem.project.trim()) {
       setAddError('Vui lòng chọn dự án.');
       return;
     }
+
     const normalizedNewTimeline = normalizeToLocalDate(newItem.timeline).getTime();
     const newProjectKey = newItem.project.trim().toLowerCase();
     const duplicateItem = planData.find(item => {
@@ -548,6 +560,7 @@ export default function WeeklyPlan() {
       const itemProjectKey = item.project.trim().toLowerCase();
       return itemTimeline === normalizedNewTimeline && itemProjectKey === newProjectKey;
     });
+
     if (duplicateItem) {
       const snapshot = { ...newItem };
       modal.confirm({
@@ -556,12 +569,17 @@ export default function WeeklyPlan() {
         okText: 'Cập nhật',
         cancelText: 'Hủy',
         centered: true,
-        onOk: () => {
-          setPlanData(prev =>
-            prev.map(item =>
-              item.id === duplicateItem.id ? { ...snapshot, id: duplicateItem.id } : item
-            )
-          );
+        onOk: async () => {
+          const optimistic: WeeklyPlanItem = {
+            ...duplicateItem,
+            ...snapshot,
+            id: duplicateItem.id,
+            backendId: duplicateItem.backendId,
+          };
+
+          setPlanData(prev => prev.map(item => (item.id === duplicateItem.id ? optimistic : item)));
+          setFilteredData(prev => prev.map(item => (item.id === duplicateItem.id ? optimistic : item)));
+
           setIsAddFormOpen(false);
           setNewItem(null);
           setAddError('');
@@ -569,13 +587,36 @@ export default function WeeklyPlan() {
           setAddSuccessMsg(`Đã cập nhật kế hoạch "${snapshot.project}" thành công!`);
           setDateFrom(formatDateForInput(snapshot.timeline));
           setDateTo(formatDateForInput(getSundayOfWeek(snapshot.timeline)));
+
+          try {
+            if (optimistic.backendId) {
+              await apiUpdateTempWeeklyPlan(optimistic);
+            } else {
+              const saved = await apiAddTempWeeklyPlan({ ...optimistic, backendId: undefined });
+              setPlanData(prev => prev.map(item => (item.id === duplicateItem.id ? saved : item)));
+              setFilteredData(prev => prev.map(item => (item.id === duplicateItem.id ? saved : item)));
+              setAddedItemId(saved.id);
+            }
+          } catch (err) {
+            console.error('Error saving duplicate weekly plan:', err);
+            modal.error({
+              title: 'Lỗi lưu dữ liệu',
+              content: 'Không thể lưu kế hoạch vào DB. Vui lòng thử lại.',
+              centered: true,
+            });
+          }
         },
       });
       return;
     }
+
     const nextId = planData.reduce((m, i) => Math.max(m, i.id), 0) + 1;
-    const toAdd: WeeklyPlanItem = { ...newItem, id: nextId };
+    const toAdd: WeeklyPlanItem = { ...newItem, id: nextId, backendId: undefined };
+
+    // Optimistic UI update (keeps current UX), then persist to DB.
     setPlanData(prev => [...prev, toAdd]);
+    setFilteredData(prev => [...prev, toAdd]);
+
     setIsAddFormOpen(false);
     setNewItem(null);
     setAddError('');
@@ -584,6 +625,21 @@ export default function WeeklyPlan() {
     // Adjust filter to show the week of the newly added item
     setDateFrom(formatDateForInput(toAdd.timeline));
     setDateTo(formatDateForInput(getSundayOfWeek(toAdd.timeline)));
+
+    try {
+      const saved = await apiAddTempWeeklyPlan(toAdd);
+      // Backend may return a different ID; sync it back into state.
+      setPlanData(prev => prev.map(item => (item.id === nextId ? saved : item)));
+      setFilteredData(prev => prev.map(item => (item.id === nextId ? saved : item)));
+      setAddedItemId(saved.id);
+    } catch (err) {
+      console.error('Error saving new weekly plan:', err);
+      modal.error({
+        title: 'Lỗi lưu dữ liệu',
+        content: 'Không thể lưu kế hoạch vào DB. Dữ liệu đang hiển thị có thể chưa được lưu.',
+        centered: true,
+      });
+    }
   };
 
   useEffect(() => {
