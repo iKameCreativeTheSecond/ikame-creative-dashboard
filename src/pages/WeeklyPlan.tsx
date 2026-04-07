@@ -240,19 +240,6 @@ export default function WeeklyPlan() {
     return data.map(deserializeConfirmedPlan);
   };
 
-  const apiAddWeeklyPlan = async (item: WeeklyPlanItem): Promise<WeeklyPlanItem> => {
-    const payload = serializeConfirmedPlan(item);
-    const response = await fetch(serverUrl + '/post/add-new-weekly-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const responseData = await response.json();
-    const nextId = Number(responseData.ID ?? responseData.id);
-    return { ...item, id: Number.isFinite(nextId) ? nextId : item.id };
-  };
-
   const apiUpdateWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
     const payload = serializeConfirmedPlan(item);
     const response = await fetch(serverUrl + '/post/update-weekly-order', {
@@ -263,11 +250,11 @@ export default function WeeklyPlan() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   };
 
-  const apiDeleteWeeklyPlan = async (id: number): Promise<void> => {
+  const apiDeleteWeeklyPlan = async (project: string, startWeekIso: string): Promise<void> => {
     const response = await fetch(serverUrl + '/post/delete-weekly-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ID: String(id) }),
+      body: JSON.stringify({ Project: project, StartWeek: startWeekIso }),
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   };
@@ -302,11 +289,11 @@ export default function WeeklyPlan() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   };
 
-  const apiDeleteTempWeeklyPlan = async (id: number): Promise<void> => {
+  const apiDeleteTempWeeklyPlan = async (project: string, startWeekIso: string): Promise<void> => {
     const response = await fetch(serverUrl + '/post/delete-temp-weekly-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ID: String(id) }),
+      body: JSON.stringify({ Project: project, StartWeek: startWeekIso }),
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   };
@@ -795,9 +782,7 @@ export default function WeeklyPlan() {
     setFilteredData(prev => prev.filter(item => item.id !== id));
   };
 
-  const requestDeleteItem = (item: WeeklyPlanItem) =>
-  {
-    console.log('Requesting delete for item:', item);
+  const requestDeleteItem = (item: WeeklyPlanItem) => {
     modal.confirm({
       title: 'Xác nhận xoá',
       content: `Bạn có chắc muốn xoá kế hoạch "${item.project}" không?`,
@@ -805,7 +790,30 @@ export default function WeeklyPlan() {
       okButtonProps: { danger: true },
       cancelText: 'Hủy',
       centered: true,
-      onOk: () => {
+      onOk: async () => {
+        const project = (item.project ?? '').trim();
+        const startWeekIso = item.timeline?.toISOString?.() ?? '';
+        if (!project || !startWeekIso) {
+          deleteItem(item.id);
+          setDeleteSuccessMsg(`Đã xoá kế hoạch "${item.project}" thành công!`);
+          return;
+        }
+
+        const results = await Promise.allSettled([
+          apiDeleteTempWeeklyPlan(project, startWeekIso),
+          apiDeleteWeeklyPlan(project, startWeekIso),
+        ]);
+
+        const okCount = results.filter(r => r.status === 'fulfilled').length;
+        if (okCount === 0) {
+          modal.error({
+            title: 'Lỗi xoá dữ liệu',
+            content: 'Không thể xoá kế hoạch trong DB. Vui lòng thử lại.',
+            centered: true,
+          });
+          return;
+        }
+
         deleteItem(item.id);
         setDeleteSuccessMsg(`Đã xoá kế hoạch "${item.project}" thành công!`);
       },

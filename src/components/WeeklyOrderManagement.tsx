@@ -123,23 +123,31 @@ const WeeklyOrderManagement: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this weekly order?")) {
-      fetch(`${serverUrl}/post/delete-weekly-order`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ID: id })
-      }).then(() => {
-        // console.log("Deleted weekly order with ID:", id);
-        const data = orders.filter(order => order.ID !== id);
-        AdminData.WeeklyOrders = data;
-        setOrders(data);
-      }).catch((error) => {
-        console.error("Error deleting weekly order:", error);
-        alert("Failed to delete weekly order. Please try again.");
-      });
+    if (!window.confirm("Are you sure you want to delete this weekly order?")) return;
+
+    const order = orders.find(o => o.ID === id);
+    const project = (order?.Project ?? '').trim();
+    const startWeekIso = order?.StartWeek ? new Date(order.StartWeek).toISOString() : '';
+    if (!project || !startWeekIso) {
+      alert('Missing Project/StartWeek. Cannot delete.');
+      return;
     }
+
+    fetch(`${serverUrl}/post/delete-weekly-order`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ Project: project, StartWeek: startWeekIso })
+    }).then(() => {
+      // console.log("Deleted weekly order with ID:", id);
+      const data = orders.filter(order => order.ID !== id);
+      AdminData.WeeklyOrders = data;
+      setOrders(data);
+    }).catch((error) => {
+      console.error("Error deleting weekly order:", error);
+      alert("Failed to delete weekly order. Please try again.");
+    });
   };
 
   const handleAdd = () => {
