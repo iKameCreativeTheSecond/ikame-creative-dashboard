@@ -5,6 +5,8 @@ import TopBar from '../components/TopBar';
 import AdminData from '../common/AdministratorData';
 import './WeeklyPlan.css';
 
+import type { ProjectIssue } from '../components/ProjectIssueTable';
+
 interface WeeklyPlanItem {
   id: number;
   backendId?: string; // raw id from backend (ID/id). Can be missing.
@@ -31,6 +33,12 @@ interface WeeklyPlanItem {
   completedBanner: number;
   completedPLA: number;
   completedVideo: number;
+  // Report values (backend-provided Difference/Different per task type)
+  reportCPP: number;
+  reportIcon: number;
+  reportBanner: number;
+  reportPLA: number;
+  reportVideo: number;
   confirmationStatus: 'sufficient' | 'lacking' | 'pending';
 }
 
@@ -50,6 +58,9 @@ type QuantityField =
   | 'completedBanner'
   | 'completedPLA'
   | 'completedVideo';
+
+type CompletedField = 'completedCPP' | 'completedIcon' | 'completedBanner' | 'completedPLA' | 'completedVideo';
+type ReportField = 'reportCPP' | 'reportIcon' | 'reportBanner' | 'reportPLA' | 'reportVideo';
 
 type TextField = 'objectives' | 'strategy';
 
@@ -201,6 +212,11 @@ export default function WeeklyPlan() {
       completedBanner: 0,
       completedPLA: 0,
       completedVideo: 0,
+      reportCPP: 0,
+      reportIcon: 0,
+      reportBanner: 0,
+      reportPLA: 0,
+      reportVideo: 0,
     };
   };
 
@@ -363,6 +379,14 @@ export default function WeeklyPlan() {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   };
 
+  const getMondayMsFromDate = (date: Date): number => {
+    const d = new Date(date);
+    const dow = d.getDay();
+    d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
+    const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return monday.getTime();
+  };
+
   const addDays = (date: Date, days: number): Date => {
     const next = new Date(date);
     next.setDate(next.getDate() + days);
@@ -444,6 +468,192 @@ export default function WeeklyPlan() {
     return { from, to };
   };
 
+  // Load completed counts from backend whenever filters change,
+  // then map into completedCPP/Icon/Banner/PLA/Video so the Report column updates.
+  useEffect(() => {
+    const { from, to } = getEffectiveRange();
+
+    const fromIso = new Date(from.getFullYear(), from.getMonth(), from.getDate()).toISOString();
+    const toIso = new Date(to.getFullYear(), to.getMonth(), to.getDate()).toISOString();
+
+    const selectedProjectSet = new Set(selectedProjects.map(p => String(p ?? '').trim().toLowerCase()).filter(Boolean));
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const mapTaskTypeToFields = (
+      taskTypeRaw: string | undefined | null
+    ): { completed: CompletedField; report: ReportField } | null => {
+      const taskType = String(taskTypeRaw ?? '').trim().toLowerCase();
+      switch (taskType) {
+        case 'art_cpp':
+        case 'cpp':
+          return { completed: 'completedCPP', report: 'reportCPP' };
+        case 'art_icon':
+        case 'icon':
+          return { completed: 'completedIcon', report: 'reportIcon' };
+        case 'art_banner':
+        case 'banner':
+          return { completed: 'completedBanner', report: 'reportBanner' };
+        case 'playable':
+        case 'pla':
+          return { completed: 'completedPLA', report: 'reportPLA' };
+        case 'video':
+          return { completed: 'completedVideo', report: 'reportVideo' };
+        default:
+          return null;
+      }
+    };
+
+    const applyCompletedToState = (issues: ProjectIssue[]) => {
+      const completedByKey = new Map<
+        string,
+        Pick<WeeklyPlanItem, 'completedCPP' | 'completedIcon' | 'completedBanner' | 'completedPLA' | 'completedVideo'>
+      >();
+
+      const reportByKey = new Map<
+        string,
+        Pick<WeeklyPlanItem, 'reportCPP' | 'reportIcon' | 'reportBanner' | 'reportPLA' | 'reportVideo'>
+      >();
+
+      for (const issue of issues ?? []) {
+        if (!issue?.Project || !issue?.StartWeek) continue;
+
+        const projectKey = String(issue.Project).trim().toLowerCase();
+        if (selectedProjectSet.size > 0 && !selectedProjectSet.has(projectKey)) continue;
+
+        const fields = mapTaskTypeToFields(issue.TaskType);
+        if (!fields) continue;
+
+        const issueMondayMs = getMondayMsFromDate(new Date(issue.StartWeek));
+        const key = `${projectKey}|${issueMondayMs}`;
+
+        const current = completedByKey.get(key) ?? {
+          completedCPP: 0,
+          completedIcon: 0,
+          completedBanner: 0,
+          completedPLA: 0,
+          completedVideo: 0,
+        };
+
+        const increment = Number(issue.CompletedCount ?? 0);
+        const nextCompleted = Number.isFinite(increment) ? current[fields.completed] + increment : current[fields.completed];
+        completedByKey.set(key, { ...current, [fields.completed]: nextCompleted });
+
+        const reportCurrent = reportByKey.get(key) ?? {
+          reportCPP: 0,
+          reportIcon: 0,
+          reportBanner: 0,
+          reportPLA: 0,
+          reportVideo: 0,
+        };
+
+        const rawDifference = (issue as any).Difference ?? (issue as any).Different;
+        const diffIncrement = Number(rawDifference ?? 0);
+        const nextReport = Number.isFinite(diffIncrement)
+          ? reportCurrent[fields.report] + diffIncrement
+          : reportCurrent[fields.report];
+        reportByKey.set(key, { ...reportCurrent, [fields.report]: nextReport });
+      }
+
+      const isInRange = (timeline: Date) => {
+        const t = normalizeToLocalDate(timeline).getTime();
+        const fromT = normalizeToLocalDate(from).getTime();
+        const toT = normalizeToLocalDate(to).getTime();
+        return t >= fromT && t <= toT;
+      };
+
+      const patchItem = (item: WeeklyPlanItem): WeeklyPlanItem => {
+        if (!item?.project || !item?.timeline) return item;
+        if (!isInRange(item.timeline)) return item;
+
+        const projectKey = String(item.project).trim().toLowerCase();
+        if (selectedProjectSet.size > 0 && !selectedProjectSet.has(projectKey)) {
+          return {
+            ...item,
+            completedCPP: 0,
+            completedIcon: 0,
+            completedBanner: 0,
+            completedPLA: 0,
+            completedVideo: 0,
+            reportCPP: 0,
+            reportIcon: 0,
+            reportBanner: 0,
+            reportPLA: 0,
+            reportVideo: 0,
+          };
+        }
+
+        const mondayMs = getMondayMsFromDate(item.timeline);
+        const key = `${projectKey}|${mondayMs}`;
+        const completed = completedByKey.get(key);
+        const report = reportByKey.get(key);
+
+        if (!completed && !report) {
+          return {
+            ...item,
+            completedCPP: 0,
+            completedIcon: 0,
+            completedBanner: 0,
+            completedPLA: 0,
+            completedVideo: 0,
+            reportCPP: 0,
+            reportIcon: 0,
+            reportBanner: 0,
+            reportPLA: 0,
+            reportVideo: 0,
+          };
+        }
+
+        return {
+          ...item,
+          ...(completed ?? {
+            completedCPP: 0,
+            completedIcon: 0,
+            completedBanner: 0,
+            completedPLA: 0,
+            completedVideo: 0,
+          }),
+          ...(report ?? {
+            reportCPP: 0,
+            reportIcon: 0,
+            reportBanner: 0,
+            reportPLA: 0,
+            reportVideo: 0,
+          }),
+        };
+      };
+
+      setPlanData(prev => prev.map(patchItem));
+      setFilteredData(prev => prev.map(patchItem));
+    };
+
+    (async () => {
+      try
+      {
+        const masterToken = import.meta.env.VITE_SERVER_MASTER_TOKEN;
+        const response = await fetch(serverUrl + '/post/project-issues', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': masterToken,
+          },
+          body: JSON.stringify({ StartDate: fromIso, EndDate: toIso }),
+          signal,
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const issues = (await response.json()) as ProjectIssue[];
+        if (signal.aborted) return;
+        applyCompletedToState(Array.isArray(issues) ? issues : []);
+      } catch (err) {
+        if ((err as any)?.name === 'AbortError') return;
+        console.error('Error fetching project issues for WeeklyPlan report:', err);
+      }
+    })();
+
+    return () => controller.abort();
+  }, [selectedProjects, dateFrom, dateTo]);
+
   const canShiftWeekRange = (direction: -1 | 1) => {
     if (direction === -1) return true;
 
@@ -497,6 +707,11 @@ export default function WeeklyPlan() {
       completedBanner: 0,
       completedPLA: 0,
       completedVideo: 0,
+      reportCPP: 0,
+      reportIcon: 0,
+      reportBanner: 0,
+      reportPLA: 0,
+      reportVideo: 0,
       confirmationStatus: 'pending'
     };
     setNewItem(defaultItem);
@@ -1139,9 +1354,8 @@ export default function WeeklyPlan() {
                   <td className="col-status">
                     <div className="confirm-diff-list">
                       {(['CPP', 'Icon', 'Banner', 'PLA', 'Video'] as const).map(type => {
-                        const confirmed = item[`confirmed${type}` as QuantityField];
-                        const completed = item[`completed${type}` as QuantityField];
-                        const diff = confirmed - completed;
+                        const reportKey = (`report${type}`) as ReportField;
+                        const diff = item[reportKey];
                         const cls = diff > 0 ? 'diff-surplus' : diff < 0 ? 'diff-lacking' : 'diff-exact';
                         const label = diff > 0 ? `+${diff}` : diff < 0 ? `${diff}` : '✓';
                         return (
