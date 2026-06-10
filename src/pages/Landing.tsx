@@ -4,6 +4,7 @@ import { Button, Card, Space, Typography } from 'antd';
 import './Landing.css';
 import { GlobalData } from "../common/GlobalData";
 import logoImg from '../assets/logo.png';
+import bgImg from '../assets/background.jpg';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -70,8 +71,8 @@ export default function Landing() {
 
                 <div className="landing-short-divider" />
 
-                <Paragraph style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.7, maxWidth: 300, margin: 0 }}>
-                    Theo dõi hiệu suất sáng tạo của đội nhóm theo thời gian thực, mọi lúc mọi nơi.
+                <Paragraph style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.7, maxWidth: 400, margin: 0 }}>
+                    Theo dõi hiệu suất của đội nhóm Creative Game theo thời gian thực, mọi lúc mọi nơi.
                 </Paragraph>
 
                 <Space direction="vertical" size={10}>
@@ -116,13 +117,7 @@ export default function Landing() {
                 </Card>
             </div>
 
-            <div className="landing-right">
-                <svg className="landing-waves" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0,100 C10,55 28,15 62,32 C78,40 90,52 100,46 L100,100 Z" fill="rgba(255,255,255,0.10)" />
-                    <path d="M0,100 C8,68 22,38 54,52 C70,59 86,67 100,62 L100,100 Z" fill="rgba(255,255,255,0.14)" />
-                    <path d="M0,100 C6,80 18,62 44,70 C62,76 80,81 100,76 L100,100 Z" fill="rgba(255,255,255,0.18)" />
-                </svg>
-            </div>
+            <div className="landing-right" style={{ backgroundImage: `url(${bgImg})` }} />
         </div>
     );
 }

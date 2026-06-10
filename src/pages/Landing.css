@@ -39,20 +39,12 @@
   display: inline-block;
 }
 
-/* Right panel: teal gradient + waves */
+/* Right panel: background image */
 .landing-right {
   width: 64%;
-  background: linear-gradient(135deg, #80cbc4 0%, #26a69a 40%, #00bfa5 70%, #1de9b6 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-.landing-waves {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 @media (max-width: 768px) {
