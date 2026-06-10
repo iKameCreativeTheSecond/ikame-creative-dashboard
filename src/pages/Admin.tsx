@@ -1,5 +1,6 @@
-import './Admin.css';
 import { useEffect, useState } from 'react';
+import { Layout, Menu, Result, Spin, Typography } from 'antd';
+import type { MenuProps } from 'antd';
 import TeamManagement from '../components/TeamManagement';
 import WeeklyOrderManagement from '../components/WeeklyOrderManagement';
 import CreativeToolManagement from '../components/CreativeToolManagement';
@@ -7,18 +8,18 @@ import ProjectDetailsManagement from '../components/ProjectDetailsManagement';
 import TaskLevelManagement from '../components/TaskLevelManagement';
 import { GlobalData } from '../common/GlobalData';
 
-// Replace old sidebar with the four sections that used to be tabs
-const sidebarItems = [
-    { key: 'team', label: 'Team Management', icon: '👥' },
-    { key: 'creative-tool', label: 'Creative Tool', icon: '🎨' },
-    { key: 'weekly-orders', label: 'Weekly Orders', icon: '🗓️' },
-    { key: 'project-details', label: 'Project Details', icon: '📋' },
-    { key: 'task-level', label: 'Task Level', icon: '📊' },
-    { key: 'contacts', label: 'Contacts', icon: '📇' }
+const { Sider, Content, Header } = Layout;
+
+const menuItems: MenuProps['items'] = [
+    { key: 'team',            icon: <span>👥</span>, label: 'Team Management'  },
+    { key: 'creative-tool',   icon: <span>🎨</span>, label: 'Creative Tool'    },
+    { key: 'weekly-orders',   icon: <span>🗓️</span>, label: 'Weekly Orders'    },
+    { key: 'project-details', icon: <span>📋</span>, label: 'Project Details'  },
+    { key: 'task-level',      icon: <span>📊</span>, label: 'Task Level'       },
+    { key: 'contacts',        icon: <span>📇</span>, label: 'Contacts'         },
 ];
 
 const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
-
 
 async function IsAdminCheckAsync() {
     const response = await fetch(`${serverUrl}/get/admin-role`, {
@@ -28,24 +29,15 @@ async function IsAdminCheckAsync() {
             'Authorization': GlobalData.getUserToken() || ''
         }
     });
-    if (response.ok)
-    {
-        console.log("Admin check passed.");
-        return true;
-    }
-    return false;
+    return response.ok;
 }
 
 export default function Admin() {
     const [activeTab, setActiveTab] = useState('team');
-    const [ activeSidebarItem, setActiveSidebarItem ] = useState('team');
-    const [ isAdmin, setIsAdmin ] = useState<boolean | null>(null);
-    
-    console.log(`Admin status: ${isAdmin}`);
+    const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
     useEffect(() => {
         let isMounted = true;
-
         (async () => {
             try {
                 const ok = await IsAdminCheckAsync();
@@ -54,87 +46,69 @@ export default function Admin() {
                 if (isMounted) setIsAdmin(false);
             }
         })();
-
-        return () => {
-            isMounted = false;
-        };
+        return () => { isMounted = false; };
     }, []);
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'team':
-                return <TeamManagement />;
-            case 'creative-tool':
-                return <CreativeToolManagement />;
-            case 'weekly-orders':
-                return <WeeklyOrderManagement />;
-            case 'project-details':
-                return <ProjectDetailsManagement />;
-            case 'task-level':
-                return <TaskLevelManagement />;
-            case 'contacts':
-                return <div style={{ color: '#333', fontSize: '1.5rem', marginTop: '40px' }}>Contacts content goes here.</div>;
-            default:
-                return null;
+            case 'team':            return <TeamManagement />;
+            case 'creative-tool':   return <CreativeToolManagement />;
+            case 'weekly-orders':   return <WeeklyOrderManagement />;
+            case 'project-details': return <ProjectDetailsManagement />;
+            case 'task-level':      return <TaskLevelManagement />;
+            case 'contacts':        return <Typography.Text style={{ display: 'block', padding: '40px 24px', fontSize: '1.1rem' }}>Contacts content goes here.</Typography.Text>;
+            default:                return null;
         }
     };
 
-    // Derive a page title from the active section
-    const pageTitle = sidebarItems.find(i => i.key === activeTab)?.label ?? 'Admin';
+    const pageTitle = (menuItems.find(i => i?.key === activeTab)?.label ?? 'Admin') as string;
 
-    if (isAdmin === null || isAdmin === false) {
-        return <div className="admin-loading">NO Admin Privileges...</div>;
+    if (isAdmin === null) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (!isAdmin) {
+        return <Result status="403" title="403" subTitle="Bạn không có quyền truy cập trang Admin." />;
     }
 
     return (
-        <div className="admin-layout">
-            {/* Sidebar */}
-            <aside className="admin-sidebar">
-                <div className="admin-logo">
-                    {/* <div className="logo-icon">C</div> */}
-                    <span className="logo-text">Creative Administration</span>
+        <Layout style={{ minHeight: '100vh' }}>
+            <Sider
+                width={240}
+                style={{ position: 'fixed', height: '100vh', overflow: 'auto', left: 0, top: 0 }}
+            >
+                <div style={{ padding: '20px', borderBottom: '1px solid rgba(91, 196, 255, 0.12)' }}>
+                    <Typography.Text strong style={{ color: '#fff', fontSize: 15 }}>
+                        Creative Administration
+                    </Typography.Text>
                 </div>
-                <nav className="admin-nav">
-                    {sidebarItems.map(item => (
-                        <div 
-                            key={item.key} 
-                            className={`nav-item ${activeSidebarItem === item.key ? 'active' : ''}`}
-                            onClick={() => { setActiveSidebarItem(item.key); setActiveTab(item.key); }}
-                        >
-                            <span className="nav-icon">{item.icon}</span>
-                            <span className="nav-label">{item.label}</span>
-                        </div>
-                    ))}
-                </nav>
-                {/* <div className="admin-sidebar-footer">
-                    <div className="nav-item">
-                        <span className="nav-icon">⚙️</span>
-                        <span className="nav-label">Setting</span>
-                    </div>
-                    <div className="nav-item">
-                        <span className="nav-icon">❓</span>
-                        <span className="nav-label">Support</span>
-                    </div>
-                    <div className="admin-user-profile">
-                        <img src="https://via.placeholder.com/40" alt="User" className="user-avatar" />
-                        <div className="user-info">
-                            <div className="user-name">Shahid Miah</div>
-                            <div className="user-email">hello@workspace.agency</div>
-                        </div>
-                    </div>
-                </div> */}
-            </aside>
-
-            {/* Main Content */}
-            <main className="admin-main">
-                <div className="admin-header">
-                    <h1 className="admin-page-title">{pageTitle}</h1>
-                </div>
-
-                <div className="admin-content">
+                <Menu
+                    mode="inline"
+                    selectedKeys={[activeTab]}
+                    items={menuItems}
+                    onClick={({ key }) => setActiveTab(key)}
+                    style={{ border: 'none', marginTop: 8 }}
+                />
+            </Sider>
+            <Layout style={{ marginLeft: 240 }}>
+                <Header style={{
+                    padding: '0 24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderBottom: '1px solid rgba(91, 196, 255, 0.12)',
+                }}>
+                    <Typography.Title level={5} style={{ margin: 0, color: '#fff' }}>
+                        {pageTitle}
+                    </Typography.Title>
+                </Header>
+                <Content style={{ padding: 10 }}>
                     {renderContent()}
-                </div>
-            </main>
-        </div>
+                </Content>
+            </Layout>
+        </Layout>
     );
 }

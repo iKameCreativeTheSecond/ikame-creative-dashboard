@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Select, DatePicker, Modal } from 'antd';
+import { Button, DatePicker, Empty, Input, InputNumber, message, Modal, Select } from 'antd';
 import dayjs from 'dayjs';
 import TopBar from '../components/TopBar';
 import AdminData from '../common/AdministratorData';
@@ -82,6 +82,7 @@ export default function WeeklyPlan() {
   const [filteredData, setFilteredData] = useState<WeeklyPlanItem[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [modal, modalContextHolder] = Modal.useModal();
+  const [messageApi, messageContextHolder] = message.useMessage();
   const [dateFrom, setDateFrom] = useState(() => {
     const d = getVietnamNow();
     const day = d.getDay();
@@ -102,8 +103,6 @@ export default function WeeklyPlan() {
   });
   const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [addError, setAddError] = useState<string>('');
-  const [addSuccessMsg, setAddSuccessMsg] = useState<string>('');
-  const [deleteSuccessMsg, setDeleteSuccessMsg] = useState<string>('');
   const [addedItemId, setAddedItemId] = useState<number | null>(null);
   const [newItem, setNewItem] = useState<WeeklyPlanItem | null>(null);
   const [projectOptions, setProjectOptions] = useState<string[]>(() => AdminData.getListProjects());
@@ -787,7 +786,7 @@ export default function WeeklyPlan() {
           setNewItem(null);
           setAddError('');
           setAddedItemId(duplicateItem.id);
-          setAddSuccessMsg(`Đã cập nhật kế hoạch "${snapshot.project}" thành công!`);
+          messageApi.success(`Đã cập nhật kế hoạch "${snapshot.project}" thành công!`);
           setDateFrom(formatDateForInput(snapshot.timeline));
           setDateTo(formatDateForInput(getSundayOfWeek(snapshot.timeline)));
 
@@ -824,7 +823,7 @@ export default function WeeklyPlan() {
     setNewItem(null);
     setAddError('');
     setAddedItemId(nextId);
-    setAddSuccessMsg(`Đã thêm kế hoạch "${toAdd.project}" thành công!`);
+    messageApi.success(`Đã thêm kế hoạch "${toAdd.project}" thành công!`);
     // Adjust filter to show the week of the newly added item
     setDateFrom(formatDateForInput(toAdd.timeline));
     setDateTo(formatDateForInput(getSundayOfWeek(toAdd.timeline)));
@@ -941,22 +940,6 @@ export default function WeeklyPlan() {
     }
   }, [addedItemId, planData]);
 
-  // Auto-clear success notification
-  useEffect(() => {
-    if (addSuccessMsg) {
-      const timer = setTimeout(() => setAddSuccessMsg(''), 3500);
-      return () => clearTimeout(timer);
-    }
-  }, [addSuccessMsg]);
-
-  // Auto-clear delete success notification
-  useEffect(() => {
-    if (deleteSuccessMsg) {
-      const timer = setTimeout(() => setDeleteSuccessMsg(''), 3500);
-      return () => clearTimeout(timer);
-    }
-  }, [deleteSuccessMsg]);
-
   // Sort filtered data by timeline
   const sortedItems = useMemo(() => {
     const sorted = [...filteredData];
@@ -1011,7 +994,7 @@ export default function WeeklyPlan() {
         const startWeekIso = item.timeline?.toISOString?.() ?? '';
         if (!project || !startWeekIso) {
           deleteItem(item.id);
-          setDeleteSuccessMsg(`Đã xoá kế hoạch "${item.project}" thành công!`);
+          messageApi.success(`Đã xoá kế hoạch "${item.project}" thành công!`);
           return;
         }
 
@@ -1055,14 +1038,14 @@ export default function WeeklyPlan() {
 
   const renderQuantityInput = (item: WeeklyPlanItem, field: QuantityField) => {
     return (
-      <input
-        className="quantity-input"
-        type="number"
+      <InputNumber
         min={0}
         step={1}
         value={item[field]}
-        onChange={(e) => updateQuantity(item.id, field, Number(e.target.value))}
-        inputMode="numeric"
+        onChange={(value) => updateQuantity(item.id, field, Number(value ?? 0))}
+        controls={false}
+        size="small"
+        style={{ width: 64 }}
       />
     );
   };
@@ -1083,6 +1066,7 @@ export default function WeeklyPlan() {
   return (
     <div className="weekly-plan-page">
       {modalContextHolder}
+      {messageContextHolder}
       <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} siteName="Weekly Plan Dashboard" showHomeButton={true} />
       <div className="weekly-plan-container">
         <div className="filter-controls weekly-plan-filter-controls">
@@ -1116,38 +1100,21 @@ export default function WeeklyPlan() {
             <div className="filter-group weekly-plan-quick-group">
               <label>Tùy chọn nhanh</label>
               <div className="weekly-plan-quick-buttons">
-                <button
-                  type="button"
-                  className="quick-filter-btn"
-                  onClick={() => shiftWeekRange(-1)}
-                  aria-label="Lùi 1 tuần"
-                  title="Lùi 1 tuần"
-                >
-                  ← Tuần trước
-                </button>
-                <button type="button" className="quick-filter-btn" onClick={() => handleQuickFilter(1)}>1 Tuần trước</button>
-                <button type="button" className="quick-filter-btn" onClick={() => handleQuickFilter(2)}>2 Tuần trước</button>
-                <button type="button" className="quick-filter-btn" onClick={() => handleQuickFilter(4)}>4 Tuần trước</button>
-                <button type="button" className="quick-filter-btn" onClick={() => handleQuickFilter(6)}>6 Tuần trước</button>
-                <button type="button" className="quick-filter-btn" onClick={handleNextWeekFilter}>1 Tuần tới</button>
-                <button
-                  type="button"
-                  className="quick-filter-btn"
-                  onClick={() => shiftWeekRange(1)}
-                  disabled={!canShiftWeekRange(1)}
-                  aria-label="Tiến 1 tuần"
-                  title="Tiến 1 tuần"
-                >
-                  Tuần sau →
-                </button>
-                <button type="button" className="clear-filters-btn active" onClick={clearDateFilters}>Xóa</button>
+                <Button size="small" onClick={() => shiftWeekRange(-1)}>← Tuần trước</Button>
+                <Button size="small" onClick={() => handleQuickFilter(1)}>1 Tuần trước</Button>
+                <Button size="small" onClick={() => handleQuickFilter(2)}>2 Tuần trước</Button>
+                <Button size="small" onClick={() => handleQuickFilter(4)}>4 Tuần trước</Button>
+                <Button size="small" onClick={() => handleQuickFilter(6)}>6 Tuần trước</Button>
+                <Button size="small" onClick={handleNextWeekFilter}>1 Tuần tới</Button>
+                <Button size="small" onClick={() => shiftWeekRange(1)} disabled={!canShiftWeekRange(1)}>Tuần sau →</Button>
+                <Button size="small" danger onClick={clearDateFilters}>Xóa</Button>
               </div>
             </div>
 
             <div className="filter-group">
               <label>Thêm mục</label>
               <div>
-                <button type="button" className="quick-filter-btn" onClick={openAddForm}>+ Thêm mục mới</button>
+                <Button type="primary" size="small" onClick={openAddForm}>+ Thêm mục mới</Button>
               </div>
             </div>
           </div>
@@ -1165,20 +1132,6 @@ export default function WeeklyPlan() {
             </div>
           )}
         </div>
-
-        {addSuccessMsg && (
-          <div className="weekly-plan-success-toast">
-            <span className="weekly-plan-success-icon">✓</span>
-            {addSuccessMsg}
-          </div>
-        )}
-
-        {deleteSuccessMsg && (
-          <div className="weekly-plan-success-toast">
-            <span className="weekly-plan-success-icon">✓</span>
-            {deleteSuccessMsg}
-          </div>
-        )}
 
         {isAddFormOpen && newItem && (
           <div className="weekly-plan-add-card" ref={addFormRef}>
@@ -1218,8 +1171,7 @@ export default function WeeklyPlan() {
               <div className="weekly-plan-add-body">
                 <div className="weekly-plan-field">
                   <label>Mục tiêu</label>
-                  <textarea
-                    className="weekly-plan-textarea"
+                  <Input.TextArea
                     rows={7}
                     value={newItem.objectives}
                     onChange={(e) => updateNewItemText('objectives', e.target.value)}
@@ -1228,8 +1180,7 @@ export default function WeeklyPlan() {
                 </div>
                 <div className="weekly-plan-field">
                   <label>Chiến lược</label>
-                  <textarea
-                    className="weekly-plan-textarea"
+                  <Input.TextArea
                     rows={7}
                     value={newItem.strategy}
                     onChange={(e) => updateNewItemText('strategy', e.target.value)}
@@ -1241,11 +1192,11 @@ export default function WeeklyPlan() {
               <div className="weekly-plan-add-qty">
                 <div className="weekly-plan-add-qty-title">Số lượng order</div>
                 <div className="weekly-plan-qty-grid">
-                  <div className="weekly-plan-qty-item"><span className="qty-label">CPP</span><input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedCPP} onChange={(e) => updateNewItemQuantity('proposedCPP', Number(e.target.value))} /></div>
-                  <div className="weekly-plan-qty-item"><span className="qty-label">Icon</span><input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedIcon} onChange={(e) => updateNewItemQuantity('proposedIcon', Number(e.target.value))} /></div>
-                  <div className="weekly-plan-qty-item"><span className="qty-label">Banner</span><input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedBanner} onChange={(e) => updateNewItemQuantity('proposedBanner', Number(e.target.value))} /></div>
-                  <div className="weekly-plan-qty-item"><span className="qty-label">PLA</span><input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedPLA} onChange={(e) => updateNewItemQuantity('proposedPLA', Number(e.target.value))} /></div>
-                  <div className="weekly-plan-qty-item"><span className="qty-label">Video</span><input className="quantity-input" type="number" min={0} step={1} value={newItem.proposedVideo} onChange={(e) => updateNewItemQuantity('proposedVideo', Number(e.target.value))} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">CPP</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedCPP} onChange={(v) => updateNewItemQuantity('proposedCPP', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">Icon</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedIcon} onChange={(v) => updateNewItemQuantity('proposedIcon', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">Banner</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedBanner} onChange={(v) => updateNewItemQuantity('proposedBanner', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">PLA</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedPLA} onChange={(v) => updateNewItemQuantity('proposedPLA', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">Video</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedVideo} onChange={(v) => updateNewItemQuantity('proposedVideo', Number(v ?? 0))} style={{ width: '100%' }} /></div>
                 </div>
               </div>
 
@@ -1254,8 +1205,8 @@ export default function WeeklyPlan() {
               )}
 
               <div className="weekly-plan-add-actions">
-                <button type="submit" className="quick-filter-btn weekly-plan-add-btn">Thêm</button>
-                <button type="button" className="clear-filters-btn active weekly-plan-add-btn" onClick={cancelAddForm}>Hủy</button>
+                <Button type="primary" htmlType="submit">Thêm</Button>
+                <Button danger onClick={cancelAddForm}>Hủy</Button>
               </div>
             </form>
           </div>
@@ -1293,12 +1244,7 @@ export default function WeeklyPlan() {
                     <span className={`project-badge ${getStatusClass(item.status)}`}>
                       {item.project}
                     </span>
-                    <button
-                      type="button"
-                      className="qty-copy-all-btn qty-delete-btn"
-                      title="Xoá mục này"
-                      onClick={() => requestDeleteItem(item)}
-                    >Xoá</button>
+                    <Button danger size="small" block style={{ marginTop: '2rem' }} onClick={() => requestDeleteItem(item)}>Xoá</Button>
                   </td>
                   <td className="col-objectives">
                     {renderTextArea(item, 'objectives')}
@@ -1308,24 +1254,24 @@ export default function WeeklyPlan() {
                   </td>
                   <td className="col-quantity">
                     <div className="quantity-list">
-                      <div className="quantity-item"><span className="qty-label">CPP:</span> {renderQuantityInput(item, 'proposedCPP')}<button type="button" className="qty-copy-btn" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedCPP')}>→</button></div>
-                      <div className="quantity-item"><span className="qty-label">Icon:</span> {renderQuantityInput(item, 'proposedIcon')}<button type="button" className="qty-copy-btn" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedIcon')}>→</button></div>
-                      <div className="quantity-item"><span className="qty-label">Banner:</span> {renderQuantityInput(item, 'proposedBanner')}<button type="button" className="qty-copy-btn" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedBanner')}>→</button></div>
-                      <div className="quantity-item"><span className="qty-label">PLA:</span> {renderQuantityInput(item, 'proposedPLA')}<button type="button" className="qty-copy-btn" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedPLA')}>→</button></div>
-                      <div className="quantity-item"><span className="qty-label">Video:</span> {renderQuantityInput(item, 'proposedVideo')}<button type="button" className="qty-copy-btn" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedVideo')}>→</button></div>
+                      <div className="quantity-item"><span className="qty-label">CPP:</span> {renderQuantityInput(item, 'proposedCPP')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedCPP')}>→</Button></div>
+                      <div className="quantity-item"><span className="qty-label">Icon:</span> {renderQuantityInput(item, 'proposedIcon')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedIcon')}>→</Button></div>
+                      <div className="quantity-item"><span className="qty-label">Banner:</span> {renderQuantityInput(item, 'proposedBanner')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedBanner')}>→</Button></div>
+                      <div className="quantity-item"><span className="qty-label">PLA:</span> {renderQuantityInput(item, 'proposedPLA')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedPLA')}>→</Button></div>
+                      <div className="quantity-item"><span className="qty-label">Video:</span> {renderQuantityInput(item, 'proposedVideo')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedVideo')}>→</Button></div>
                     </div>
                     <div style={{ display: 'flex', gap: '6px' }}>
-                      <button
-                        type="button"
-                        className="qty-copy-all-btn qty-save-btn"
-                        title="Save"
+                      <Button
+                        type="primary"
+                        size="small"
+                        block
                         onClick={() => {
                           apiUpdateTempWeeklyPlan(item)
-                            .then(() => setAddSuccessMsg(`Đã lưu kế hoạch "${item.project}" thành công!`))
-                            .catch(err => { console.error('Lỗi lưu:', err); setAddSuccessMsg(`Lỗi khi lưu kế hoạch "${item.project}"!`); });
+                            .then(() => messageApi.success(`Đã lưu kế hoạch "${item.project}" thành công!`))
+                            .catch(err => { console.error('Lỗi lưu:', err); messageApi.error(`Lỗi khi lưu kế hoạch "${item.project}"!`); });
                         }}
-                      >Save</button>
-                      <button type="button" className="qty-copy-all-btn" title="Copy tất cả sang Confirm" onClick={() => copyAllToConfirmed(item.id)}>Copy all →</button>
+                      >Save</Button>
+                      <Button size="small" block onClick={() => copyAllToConfirmed(item.id)}>Copy all →</Button>
                     </div>
                   </td>
                   <td className="col-quantity">
@@ -1336,21 +1282,22 @@ export default function WeeklyPlan() {
                       <div className="quantity-item"><span className="qty-label">PLA:</span> {renderQuantityInput(item, 'confirmedPLA')}</div>
                       <div className="quantity-item"><span className="qty-label">Video:</span> {renderQuantityInput(item, 'confirmedVideo')}</div>
                     </div>
-                    <button
-                      type="button"
-                      className="qty-copy-all-btn qty-save-btn"
-                      title="Save"
+                    <Button
+                      type="primary"
+                      size="small"
+                      block
+                      style={{ marginTop: '0.6rem' }}
                       onClick={() => {
                         apiUpdateWeeklyPlan(item)
-                          .then(() => setAddSuccessMsg(`Đã lưu kế hoạch "${item.project}" thành công!`))
+                          .then(() => messageApi.success(`Đã lưu kế hoạch "${item.project}" thành công!`))
                           .catch(err => {
                             console.error('Lỗi confirm:', err);
-                            setAddSuccessMsg(`Lỗi khi lưu kế hoạch "${item.project}"!`);
+                            messageApi.error(`Lỗi khi lưu kế hoạch "${item.project}"!`);
                           });
                       }}
                     >
                       Confirm
-                    </button>
+                    </Button>
                   </td>
                   <td className="col-status">
                     <div className="confirm-diff-list">
@@ -1375,9 +1322,7 @@ export default function WeeklyPlan() {
         </div>
 
         {sortedItems.length === 0 && (
-          <div className="no-data">
-            <p>Không có dữ liệu</p>
-          </div>
+          <Empty description="Không có dữ liệu" style={{ padding: '3rem', color: '#7a9bb8' }} />
         )}
       </div>
     </div>

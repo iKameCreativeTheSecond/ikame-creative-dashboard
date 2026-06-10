@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import { Select } from 'antd';
-import 'antd/dist/reset.css';
+import { Button, DatePicker, Select, Space, Typography } from 'antd';
+import dayjs from 'dayjs';
 import './Filter.css';
 
 type Range = {
@@ -33,7 +32,6 @@ function formatDate(d: Date) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-// Helper function to get Monday of current week
 function getMondayOfWeek(date: Date): Date {
   const day = date.getDay();
   const diff = date.getDate() - day + (day === 0 ? -6 : 1);
@@ -43,7 +41,6 @@ function getMondayOfWeek(date: Date): Date {
 }
 
 const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
-  // Set default dates: startDate = 1 week before Monday, endDate = Monday of current week
   const today = new Date();
   const currentMonday = getMondayOfWeek(new Date(today));
   const oneWeekAgo = new Date(currentMonday);
@@ -53,95 +50,87 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
 
-  // Filter staff options based on selected team(s)
   const filteredStaffOptions = selectedTeams.length === 1
     ? staffOptions.filter(opt => opt.team === selectedTeams[0])
     : [];
 
-  const applyChange = (s: string | null, e: string | null, selectedTeams: string[], selectedStaff: string[]) => {
+  const applyChange = (s: string | null, e: string | null, teams: string[], staff: string[]) => {
     if (s && e && new Date(e) < new Date(s)) {
       alert('End date cannot be before start date.');
       return;
     }
     setStartDate(s);
     setEndDate(e);
-    onChange?.({ startDate: s, endDate: e }, selectedTeams, selectedStaff);
+    onChange?.({ startDate: s, endDate: e }, teams, staff);
   };
 
   const setQuickRange = (months: number, weeks = 0) => {
     const now = new Date();
-    const currentMonday = getMondayOfWeek(new Date(now));
-    const end = formatDate(currentMonday);
-    
-    const start = new Date(currentMonday);
-    if (months) {
-      start.setMonth(start.getMonth() - months);
-    }
-    if (weeks) {
-      start.setDate(start.getDate() - (weeks * 7) + 7); // +7 to include current week
-    }
+    const monday = getMondayOfWeek(new Date(now));
+    const end = formatDate(monday);
+    const start = new Date(monday);
+    if (months) start.setMonth(start.getMonth() - months);
+    if (weeks) start.setDate(start.getDate() - (weeks * 7) + 7);
     applyChange(formatDate(start), end, selectedTeams, selectedStaff);
   };
 
-  // Handlers for Ant Design Select
   const handleTeamsChange = (values: string[]) => {
     setSelectedTeams(values);
-    applyChange(startDate, endDate, values, selectedStaff); // Clear selected staff when teams change
+    applyChange(startDate, endDate, values, selectedStaff);
   };
+
   const handleStaffChange = (values: string[]) => {
     setSelectedStaff(values);
     applyChange(startDate, endDate, selectedTeams, values);
   };
 
-  // Call onChange on mount with initial default values
   useEffect(() => {
     onChange?.({ startDate, endDate }, selectedTeams, selectedStaff);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const staffPlaceholder = selectedTeams.length === 0
+    ? 'Select a team first'
+    : selectedTeams.length > 1
+      ? 'Select only one team to choose staff'
+      : 'Select staff...';
 
   return (
     <div className="date-filter">
       <div className="filter-header">
         <div className="filter-header-left">
-          <svg
-            className="filter-header-icon"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden
-          >
-            <path
-              d="M3 5a1 1 0 011-1h16a1 1 0 01.8 1.6l-6.2 8.27a1 1 0 00-.2.6V19a1 1 0 01-.55.9l-3 1.5A1 1 0 019 20.5v-5.03a1 1 0 00-.2-.6L2.2 6.6A1 1 0 013 5z"
-              fill="#5F6D7A"
-            />
+          <svg className="filter-header-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M3 5a1 1 0 011-1h16a1 1 0 01.8 1.6l-6.2 8.27a1 1 0 00-.2.6V19a1 1 0 01-.55.9l-3 1.5A1 1 0 019 20.5v-5.03a1 1 0 00-.2-.6L2.2 6.6A1 1 0 013 5z" fill="#5F6D7A" />
           </svg>
-          <span className="filter-header-title">Filter</span>
+          <Typography.Text strong style={{ color: '#fff', fontSize: 15 }}>Filter</Typography.Text>
         </div>
       </div>
-      <div className="date-filter-row">
-        <label>
-          From
-          <input
-            type="date"
-            value={startDate ?? ''}
-            onChange={(e) => applyChange(e.target.value || null, endDate, selectedTeams, selectedStaff)}
-          />
-        </label>
 
-        <label>
-          To
-          <input
-            type="date"
-            value={endDate ?? ''}
-            onChange={(e) => applyChange(startDate, e.target.value || null, selectedTeams, selectedStaff)}
+      <div className="date-filter-row">
+        <Space size={10} align="center" wrap>
+          <Typography.Text style={{ color: '#d0e8f5', fontSize: 13 }}>From</Typography.Text>
+          <DatePicker
+            value={startDate ? dayjs(startDate) : null}
+            onChange={(date) => applyChange(date ? date.format('YYYY-MM-DD') : null, endDate, selectedTeams, selectedStaff)}
+            format="DD/MM/YYYY"
+            placeholder="From"
+            style={{ width: 150 }}
+            allowClear={false}
           />
-        </label>
+          <Typography.Text style={{ color: '#d0e8f5', fontSize: 13 }}>To</Typography.Text>
+          <DatePicker
+            value={endDate ? dayjs(endDate) : null}
+            onChange={(date) => applyChange(startDate, date ? date.format('YYYY-MM-DD') : null, selectedTeams, selectedStaff)}
+            format="DD/MM/YYYY"
+            placeholder="To"
+            style={{ width: 150 }}
+            allowClear={false}
+          />
+        </Space>
       </div>
 
-      {/* Multi-select dropdown filters styled like Ant Design */}
-      <div className="date-filter-dropdowns" style={{ display: 'flex', gap: 24, marginBottom: 16 }}>
+      <div className="date-filter-dropdowns" style={{ display: 'flex', gap: 24, marginBottom: 4 }}>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Teams</label>
+          <Typography.Text style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Teams</Typography.Text>
           <Select
             mode="multiple"
             allowClear
@@ -153,11 +142,11 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
           />
         </div>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Staff Members</label>
+          <Typography.Text style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Staff Members</Typography.Text>
           <Select
             mode="multiple"
             allowClear
-            placeholder={selectedTeams.length === 0 ? "Select a team first" : selectedTeams.length > 1 ? "Select only one team to choose staff" : "Select staff..."}
+            placeholder={staffPlaceholder}
             style={{ width: '100%' }}
             value={selectedStaff}
             onChange={handleStaffChange}
@@ -168,20 +157,16 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
       </div>
 
       <div className="date-filter-quick">
-        <span>Quick Options:</span>
-        <div className="quick-buttons">
-          <button type="button" onClick={() => setQuickRange(0, 1)}>1 tuần</button>
-          <button type="button" onClick={() => setQuickRange(1)}>1 tháng</button>
-          <button type="button" onClick={() => setQuickRange(3)}>3 tháng</button>
-          <button type="button" onClick={() => setQuickRange(6)}>6 tháng</button>
-          <button
-            type="button"
-            className="clear"
-            onClick={() => applyChange(null, null, selectedTeams, selectedStaff)}
-          >
-            Xóa
-          </button>
-        </div>
+        <Typography.Text style={{ color: '#d0e8f5', fontWeight: 600, fontSize: 13, minWidth: 120, flexShrink: 0 }}>
+          Quick Options:
+        </Typography.Text>
+        <Space size={8} wrap>
+          <Button size="small" shape="round" onClick={() => setQuickRange(0, 1)}>1 tuần</Button>
+          <Button size="small" shape="round" onClick={() => setQuickRange(1)}>1 tháng</Button>
+          <Button size="small" shape="round" onClick={() => setQuickRange(3)}>3 tháng</Button>
+          <Button size="small" shape="round" onClick={() => setQuickRange(6)}>6 tháng</Button>
+          <Button size="small" shape="round" danger onClick={() => applyChange(null, null, selectedTeams, selectedStaff)}>Xóa</Button>
+        </Space>
       </div>
     </div>
   );

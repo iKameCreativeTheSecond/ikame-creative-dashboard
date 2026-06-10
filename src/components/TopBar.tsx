@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from "react-router-dom";
-import './TopBar.css';
-import { FaUserCircle, FaChevronDown, FaCog, FaSignOutAlt, FaEdit, FaCalendarAlt } from 'react-icons/fa';
+import { Avatar, Button, Dropdown, Space, Typography } from 'antd';
+import type { MenuProps } from 'antd';
+import { FaUserCircle, FaCog, FaSignOutAlt, FaEdit, FaCalendarAlt, FaChevronDown } from 'react-icons/fa';
 import { GlobalData } from '../common/GlobalData';
+import './TopBar.css';
 
 interface TopBarProps {
     userName: string;
@@ -11,95 +13,58 @@ interface TopBarProps {
     showHomeButton?: boolean;
 }
 
-
 const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Performance Dashboard', showHomeButton = false }) => {
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
 
-  const navigate = useNavigate();
-
-
-  const handleSettings = () => {
-    //TODO Chuyển hướng hoặc mở modal cài đặt
-    alert('Chuyển đến trang cài đặt!');
-    setOpen(false);
-  };
-
-  const handleLogout = () => {
-    GlobalData.logout();
-    navigate('/');
-  };
-
-    const handleEdit = () => {
-      // TODO : VERUFY IF USER IS ADMIN
-
-      navigate('/admin');
+    const handleSettings = () => {
+        alert('Chuyển đến trang cài đặt!');
     };
 
-    const handleWeeklyPlan = () => {
-      navigate('/weekly-plan');
-      setOpen(false);
+    const handleLogout = () => {
+        GlobalData.logout();
+        navigate('/');
     };
 
-    const handleHome = () => {
-      navigate('/home');
-      setOpen(false);
+    const dropdownItems: MenuProps['items'] = [
+        { key: 'settings', icon: <FaCog />, label: 'Cài đặt' },
+        { type: 'divider' },
+        { key: 'logout', icon: <FaSignOutAlt />, label: 'Đăng xuất', danger: true },
+    ];
+
+    const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+        if (key === 'settings') handleSettings();
+        else if (key === 'logout') handleLogout();
     };
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  return (
-    <div className="topbar">
-      <div className="topbar-left">
-        <span className="site-name">{siteName}</span>
-      </div>
-      <div className="topbar-right" ref={dropdownRef}>
-        {showHomeButton ? (
-          <button className="weekly-plan-button" onClick={handleHome} title="Back to Home">
-            <FaCalendarAlt />
-            <span>Home</span>
-          </button>
-        ) : (
-          <button className="weekly-plan-button" onClick={handleWeeklyPlan} title="Weekly Plan">
-            <FaCalendarAlt />
-            <span>Weekly Plan</span>
-          </button>
-        )}
-        <button className="edit-button" onClick={handleEdit} title="Edit (Admin)">
-          <FaEdit />
-        </button>
-        { imageUrl ? (
-          <img src={imageUrl} alt={userName} className="user-icon" />
-        ) : (
-          <FaUserCircle className="user-icon" />
-        )}
-        <div className="user-dropdown" onClick={() => setOpen(!open)}>
-          <span className="user-name">{userName}</span>
-          <FaChevronDown className="dropdown-icon" />
-          {open && (
-            <div className="dropdown-menu">
-              <div className="dropdown-item" onClick={handleSettings}>
-                <FaCog className="dropdown-item-icon" /> Cài đặt
-              </div>
-              <div className="dropdown-item" onClick={handleLogout}>
-                <FaSignOutAlt className="dropdown-item-icon" /> Đăng xuất
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+    return (
+        <header className="topbar">
+            <Typography.Text strong style={{ fontSize: '1.15rem', color: '#ffffff', letterSpacing: -0.2 }}>
+                {siteName}
+            </Typography.Text>
+            <Space size={8}>
+                <Button
+                    icon={<FaCalendarAlt />}
+                    onClick={() => navigate(showHomeButton ? '/home' : '/weekly-plan')}
+                    ghost
+                >
+                    {showHomeButton ? 'Home' : 'Weekly Plan'}
+                </Button>
+                <Button icon={<FaEdit />} ghost onClick={() => navigate('/admin')} />
+                {imageUrl
+                    ? <Avatar src={imageUrl} size={32} />
+                    : <Avatar icon={<FaUserCircle />} size={32} />
+                }
+                <Dropdown menu={{ items: dropdownItems, onClick: handleMenuClick }} trigger={['click']}>
+                    <Space size={4} style={{ cursor: 'pointer' }}>
+                        <Typography.Text style={{ color: '#d0e8f5', fontSize: '0.9rem', fontWeight: 500 }}>
+                            {userName}
+                        </Typography.Text>
+                        <FaChevronDown style={{ color: '#c0d8ec', fontSize: '0.8rem' }} />
+                    </Space>
+                </Dropdown>
+            </Space>
+        </header>
+    );
 };
 
 export default TopBar;

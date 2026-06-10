@@ -1,4 +1,5 @@
-import './Home.css'
+import './Home.css';
+import { Typography } from 'antd';
 import Charts, { type ChartObjectData } from '../components/Charts'
 import TeamTargetProgress, { type WeeklyTeamPerformaceData } from '../components/TeamTargetProgress';
 import ProjectIssueTable, { type ProjectIssue } from '../components/ProjectIssueTable';
@@ -385,10 +386,10 @@ export default function Home()
                             teamOptions={teamOptions}
                             staffOptions={staffOptions}
                         />
-                        <div style={{ marginTop: 8, fontSize: 14 }}>
-                            <strong>Đã chọn:</strong>{' '}
+                        <Typography.Text style={{ marginTop: 8, display: 'block', fontSize: 14 }}>
+                            <Typography.Text strong>Đã chọn:</Typography.Text>{' '}
                             {range ? `${range.startDate ?? '-'} → ${range.endDate ?? '-'}` : 'Chưa chọn'}
-                        </div>
+                        </Typography.Text>
                     </div>
                     <Charts
                         data={chartsData}
