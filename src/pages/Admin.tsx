@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Layout, Menu, Result, Spin, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import TeamManagement from '../components/TeamManagement';
-import WeeklyOrderManagement from '../components/WeeklyOrderManagement';
 import CreativeToolManagement from '../components/CreativeToolManagement';
 import ProjectDetailsManagement from '../components/ProjectDetailsManagement';
 import TaskLevelManagement from '../components/TaskLevelManagement';
