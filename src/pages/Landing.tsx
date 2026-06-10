@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import './Landing.css';
 import { GlobalData } from "../common/GlobalData";
+import logoImg from '../assets/logo.png';
 
 export default function Landing()
 {
@@ -55,36 +56,55 @@ export default function Landing()
         
     return (
         <div className="landing-container">
-            <div className="landing-card">
-                <img src="/vite.svg" alt="Logo" className="landing-logo" />
-                <div className="landing-title">Staff Performance Dashboard</div>
-                <div className="landing-subtitle">iKame Global</div>
-                <div className="landing-welcome">Chào mừng trở lại!</div>
-                <div style={{ color: '#6b7a90', marginBottom: '1.2rem' }}>
-                    Đăng nhập bằng tài khoản Google để truy cập dashboard
+            {/* Left panel: branding + login */}
+            <div className="landing-left">
+                <img src={logoImg} alt="iKame Logo" className="landing-brand-logo" />
+                <div className="landing-brand-name">
+                    Creative<br /><span>Performance</span><br />Dashboard
                 </div>
-                <div className="landing-google-btn">
-                    <GoogleLogin
-                        onSuccess={handleLoginSuccess}
-                        onError={() => console.warn('Login Failed')}
-                        auto_select={ true }
-                        size="medium"
-                        type="standard"
-                        text="signin_with"
-                        shape="rectangular"
-                        theme="outline"
-                        width={ 300 }
-                    />
+                <div className="landing-divider" />
+                <div className="landing-tagline">
+                    Theo dõi hiệu suất sáng tạo của đội nhóm theo thời gian thực, mọi lúc mọi nơi.
                 </div>
-                {/* <div className="landing-or">hoặc</div>
-                <button className="landing-demo-btn">
-                    <span role="img" aria-label="Demo">🧑‍💻</span>
-                    Demo Mode (Không cần Google)
-                </button>
-                <div className="landing-demo-desc">
-                    Dùng tài khoản demo để test ứng dụng
-                </div> */}
+                <div className="landing-features">
+                    <div className="landing-feature-item">
+                        <span className="landing-feature-dot" />
+                        Báo cáo hiệu suất hàng tuần
+                    </div>
+                    <div className="landing-feature-item">
+                        <span className="landing-feature-dot" />
+                        Quản lý kế hoạch dự án
+                    </div>
+                    <div className="landing-feature-item">
+                        <span className="landing-feature-dot" />
+                        Phân tích chỉ số theo nhóm
+                    </div>
+                </div>
+
+                {/* Login card embedded in left panel */}
+                <div className="landing-card">
+                    <div className="landing-welcome">Chào mừng trở lại!</div>
+                    <div className="landing-desc">
+                        Đăng nhập bằng tài khoản Google để truy cập dashboard
+                    </div>
+                    <div className="landing-google-btn">
+                        <GoogleLogin
+                            onSuccess={handleLoginSuccess}
+                            onError={() => console.warn('Login Failed')}
+                            auto_select={true}
+                            size="large"
+                            type="standard"
+                            text="signin_with"
+                            shape="rectangular"
+                            theme="filled_black"
+                            width={300}
+                        />
+                    </div>
+                </div>
             </div>
+
+            {/* Right panel: background image only */}
+            <div className="landing-right" />
         </div>
     );
     

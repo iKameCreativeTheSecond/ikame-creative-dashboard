@@ -1,90 +1,125 @@
-/* Beautiful landing page styles inspired by the provided image */
+/* Split-panel landing page */
 .landing-container {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #f7fafd;
+  flex-direction: row;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
+/* ── Left panel: branding + login ── */
+.landing-left {
+  width: 34%;
+  background: linear-gradient(160deg, #0f1e2e 0%, #1b3a5c 60%, #1e4976 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4rem 3.5rem;
+  gap: 1.25rem;
+  overflow-y: auto;
+}
+
+.landing-brand-logo {
+  width: 72px;
+  height: auto;
+  object-fit: contain;
+}
+
+.landing-brand-name {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+.landing-brand-name span {
+  color: #5bc4ff;
+}
+
+.landing-tagline {
+  font-size: 0.95rem;
+  color: #8fb4d4;
+  line-height: 1.7;
+  max-width: 300px;
+}
+
+.landing-divider {
+  width: 48px;
+  height: 3px;
+  background: #5bc4ff;
+  border-radius: 2px;
+}
+
+.landing-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.landing-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #a8cce0;
+  font-size: 0.9rem;
+}
+
+.landing-feature-dot {
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  border-radius: 50%;
+  background: #5bc4ff;
+}
+
+/* ── Login card (inside left panel) ── */
 .landing-card {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 8px 32px rgba(60, 80, 180, 0.12);
-  padding: 2.5rem 2rem 2rem 2rem;
-  max-width: 400px;
   width: 100%;
-  text-align: center;
-}
-
-.landing-logo {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 1.2rem;
-}
-
-.landing-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #2d3a4a;
-  margin-bottom: 0.5rem;
-}
-
-.landing-subtitle {
-  font-size: 1.1rem;
-  color: #6b7a90;
-  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(91, 196, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .landing-welcome {
-  font-size: 1.25rem;
-  font-weight: 500;
-  color: #2d3a4a;
-  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.4rem;
+}
+
+.landing-desc {
+  color: #7a9bb8;
+  font-size: 0.88rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
 }
 
 .landing-google-btn {
-  align-items: center;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
 }
-/* .landing-google-btn:hover {
-  box-shadow: 0 8px 32px rgba(60, 80, 180, 0.16);
-  border: 1px solid #cfd8e6;
-} */
 
-.landing-or {
-  margin: 1.2rem 0 0.8rem 0;
-  color: #b0b8c1;
-  font-size: 0.95rem;
-  font-weight: 500;
+/* ── Right panel: background image only ── */
+.landing-right {
+  width: 66%;
+  background: url('../assets/background.JPG') center center / cover no-repeat;
 }
 
-.landing-demo-btn {
-  background: #2d3a4a;
-  color: #fff;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
-  padding: 0.85rem 0;
-  width: 100%;
-  font-size: 1.05rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  transition: background 0.2s;
-}
-.landing-demo-btn:hover {
-  background: #3b4a5a;
-}
-
-.landing-demo-desc {
-  color: #6b7a90;
-  font-size: 0.95rem;
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .landing-container {
+    flex-direction: column;
+  }
+  .landing-left {
+    width: 100%;
+    padding: 2.5rem 1.75rem;
+    min-height: 100vh;
+  }
+  .landing-right {
+    display: none;
+  }
 }
