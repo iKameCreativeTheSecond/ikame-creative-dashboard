@@ -3,6 +3,7 @@ import { Select, DatePicker, Modal } from 'antd';
 import dayjs from 'dayjs';
 import TopBar from '../components/TopBar';
 import AdminData from '../common/AdministratorData';
+import { GlobalData } from '../common/GlobalData';
 import './WeeklyPlan.css';
 
 import type { ProjectIssue } from '../components/ProjectIssueTable';
@@ -1082,7 +1083,7 @@ export default function WeeklyPlan() {
   return (
     <div className="weekly-plan-page">
       {modalContextHolder}
-      <TopBar userName="Creative Team" siteName="Weekly Plan Dashboard" showHomeButton={true} />
+      <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} siteName="Weekly Plan Dashboard" showHomeButton={true} />
       <div className="weekly-plan-container">
         <div className="filter-controls weekly-plan-filter-controls">
           <div className="filter-row">
