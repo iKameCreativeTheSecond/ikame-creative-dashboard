@@ -59,6 +59,14 @@ export class GlobalData
         }
         return this.User;
     }
+
+    public static logout()
+    {
+        this.UserToken = undefined as any;
+        this.User = undefined as any;
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('user');
+    }
 }
 
 export function GetTeamFromTaskType(taskType: string): string

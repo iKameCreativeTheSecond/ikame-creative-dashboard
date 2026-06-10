@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import './TopBar.css';
 import { FaUserCircle, FaChevronDown, FaCog, FaSignOutAlt, FaEdit, FaCalendarAlt } from 'react-icons/fa';
+import { GlobalData } from '../common/GlobalData';
 
 interface TopBarProps {
     userName: string;
@@ -25,9 +26,8 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Perform
   };
 
   const handleLogout = () => {
-    //TODO Xóa token, chuyển về trang đăng nhập
-    alert('Đăng xuất!');
-    setOpen(false);
+    GlobalData.logout();
+    navigate('/');
   };
 
     const handleEdit = () => {
