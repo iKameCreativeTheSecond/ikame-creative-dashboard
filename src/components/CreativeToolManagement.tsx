@@ -298,11 +298,11 @@ export default function CreativeToolManagement()
                                 Team:
                                 <select name="Team" value={formData.Team} onChange={handleFormChange} required>
                                     <option value="">Select Team</option>
-                                    <option value="PLA Creative">PLA</option>
-                                    <option value="Art Creative">Art</option>
-                                    <option value="Video Creative">Video</option>
-                                    <option value="Research Creative">Research</option>
-                                    <option value="Concept Creative">Concept</option>
+                                    <option value="PLA">PLA</option>
+                                    <option value="Art">Art</option>
+                                    <option value="Video">Video</option>
+                                    <option value="Research">Research</option>
+                                    <option value="Concept">Concept</option>
                                 </select>
                             </label>
                             <label>
