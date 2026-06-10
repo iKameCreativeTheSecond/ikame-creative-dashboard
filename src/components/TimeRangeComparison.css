@@ -1,7 +1,7 @@
-.time-range-comparison {
+﻿.time-range-comparison {
   width: 100%;
-  background: #fff;
-  border: 1px solid #E6E9EF;
+  background: #132a3e;
+  border: 1px solid rgba(91, 196, 255, 0.15);
   border-radius: 12px;
   padding: 20px 24px;
   margin-top: 16px;
@@ -16,9 +16,9 @@
 
 .time-range-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: #101828;
+  color: #ffffff;
 }
 
 /* Visual Timeline */
@@ -30,8 +30,8 @@
 .timeline-bar {
   position: relative;
   height: 60px;
-  background: linear-gradient(to right, #F1F5F9 0%, #E2E8F0 100%);
-  border: 1px solid #CBD5E1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(91, 196, 255, 0.15);
   border-radius: 8px;
   margin-bottom: 8px;
   transition: background 0.2s;
@@ -49,19 +49,19 @@
 }
 
 .timeline-range:hover {
-  opacity: 0.95 !important;
+  opacity: 0.9 !important;
 }
 
 .timeline-range-1 {
-  background: linear-gradient(135deg, #3B82F6 0%, #1D7BD9 100%);
-  border: 2px solid #1D7BD9;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d7bd9 100%);
+  border: 2px solid #1d7bd9;
   opacity: 0.85;
   z-index: 2;
 }
 
 .timeline-range-2 {
-  background: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%);
-  border: 2px solid #8B5CF6;
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+  border: 2px solid #8b5cf6;
   opacity: 0.85;
   z-index: 3;
 }
@@ -90,7 +90,7 @@
   font-size: 11px;
   font-weight: 600;
   color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -100,8 +100,8 @@
 .range-duration {
   font-size: 9px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
 }
 
@@ -115,13 +115,13 @@
 }
 
 .timeline-range-1 .range-handle {
-  background: #1E40AF;
-  border: 2px solid #1E3A8A;
+  background: #1e40af;
+  border: 2px solid #1e3a8a;
 }
 
 .timeline-range-2 .range-handle {
-  background: #7C3AED;
-  border: 2px solid #6D28D9;
+  background: #7c3aed;
+  border: 2px solid #6d28d9;
 }
 
 .range-handle-start {
@@ -134,7 +134,7 @@
 
 .range-handle:hover {
   transform: scaleX(1.3);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .range-handle:active {
@@ -146,13 +146,13 @@
   justify-content: space-between;
   align-items: center;
   font-size: 11px;
-  color: #64748B;
+  color: #b0c8dc;
   padding: 0 4px;
 }
 
 .timeline-title {
   font-weight: 600;
-  color: #475569;
+  color: #c0d8ec;
 }
 
 .timeline-ticks {
@@ -172,13 +172,13 @@
 .tick-mark {
   width: 1px;
   height: 8px;
-  background-color: #D1D5DB;
+  background-color: rgba(91, 196, 255, 0.2);
 }
 
 .tick-label {
   margin-top: 4px;
   font-size: 10px;
-  color: #9CA3AF;
+  color: #7a9bb8;
   white-space: nowrap;
 }
 
@@ -191,24 +191,24 @@
 }
 
 .range-selector {
-  background: #F8FAFC;
-  border: 2px solid #E6E9EF;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(91, 196, 255, 0.15);
   border-radius: 12px;
   padding: 16px;
   transition: all 0.2s;
 }
 
 .range-selector:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-color: rgba(91, 196, 255, 0.3);
+  background: rgba(91, 196, 255, 0.04);
 }
 
 .range-selector-1 {
-  border-left: 4px solid #1D7BD9;
+  border-left: 3px solid #3b82f6;
 }
 
 .range-selector-2 {
-  border-left: 4px solid #8B5CF6;
+  border-left: 3px solid #8b5cf6;
 }
 
 .range-selector-header {
@@ -218,7 +218,7 @@
   margin-bottom: 12px;
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: #d0e8f5;
 }
 
 .range-selector-inputs {
@@ -236,7 +236,7 @@
 .date-input-group label {
   font-size: 11px;
   font-weight: 500;
-  color: #64748B;
+  color: #b0c8dc;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -244,27 +244,32 @@
 .date-input-group select {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #CBD5E1;
+  border: 1px solid rgba(91, 196, 255, 0.2);
   border-radius: 6px;
-  font-size: 13px;
-  color: #1F2937;
-  background: white;
+  font-size: 14px;
+  color: #e2ecf4;
+  background: rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .date-input-group select:hover {
-  border-color: #94A3B8;
+  border-color: rgba(91, 196, 255, 0.35);
 }
 
 .date-input-group select:focus {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #5bc4ff;
+  box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
+}
+
+.date-input-group select option {
+  background: #132a3e;
+  color: #e2ecf4;
 }
 
 .date-input-group select option:disabled {
-  color: #CBD5E1;
+  color: #3a5060;
 }
 
 /* Statistics */
@@ -276,8 +281,8 @@
 }
 
 .stats-box {
-  background: #F8FAFC;
-  border: 1px solid #E6E9EF;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(91, 196, 255, 0.12);
   border-radius: 12px;
   padding: 16px;
   display: flex;
@@ -286,15 +291,15 @@
 }
 
 .stats-box-1 {
-  border-left: 4px solid #1D7BD9;
+  border-left: 3px solid #3b82f6;
 }
 
 .stats-box-2 {
-  border-left: 4px solid #8B5CF6;
+  border-left: 3px solid #8b5cf6;
 }
 
 .stats-comparison {
-  border-left: 4px solid #10B981;
+  border-left: 3px solid #22c55e;
   min-width: 200px;
 }
 
@@ -304,12 +309,12 @@
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: #d0e8f5;
 }
 
 .stats-date {
   font-size: 11px;
-  color: #64748B;
+  color: #b0c8dc;
   margin-top: -4px;
 }
 
@@ -323,18 +328,18 @@
 .stats-number {
   font-size: 28px;
   font-weight: 700;
-  color: #1F2937;
+  color: #ffffff;
   line-height: 1;
 }
 
 .stats-breakdown {
   font-size: 11px;
-  color: #64748B;
+  color: #b0c8dc;
 }
 
 .stats-empty {
   font-size: 13px;
-  color: #94A3B8;
+  color: #7a9bb8;
   font-style: italic;
   padding: 20px 0;
   text-align: center;
@@ -347,11 +352,11 @@
 }
 
 .comparison-change.increase {
-  color: #10B981;
+  color: #4ade80;
 }
 
 .comparison-change.decrease {
-  color: #EF4444;
+  color: #f87171;
 }
 
 .comparison-percent {
@@ -362,20 +367,19 @@
 
 .comparison-details {
   font-size: 12px;
-  color: #64748B;
+  color: #b0c8dc;
   margin-top: 4px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 1024px) {
   .range-selectors {
     grid-template-columns: 1fr;
   }
-  
+
   .time-range-stats {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-comparison {
     min-width: auto;
   }

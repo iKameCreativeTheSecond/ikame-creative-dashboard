@@ -1,5 +1,4 @@
-/* Project Details Management - Two Column Form */
-.project-details-form {
+﻿.project-details-form {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -31,19 +30,27 @@
 .project-details-form .form-group label {
   margin-bottom: 6px;
   font-weight: 500;
-  color: #333;
+  color: #d0e8f5;
+  font-size: 13px;
 }
 
 .project-details-form .form-group input {
   width: 100% !important;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border: 1px solid rgba(91, 196, 255, 0.2);
+  border-radius: 6px;
   font-size: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2ecf4;
+  box-sizing: border-box;
+}
+
+.project-details-form .form-group input::placeholder {
+  color: #7a9bb8;
 }
 
 .project-details-form .form-group input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #5bc4ff;
+  box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
 }

@@ -1,4 +1,4 @@
-/* Split-panel landing page */
+﻿/* Split-panel landing page */
 .landing-container {
   min-height: 100vh;
   display: flex;
@@ -6,7 +6,7 @@
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
-/* ── Left panel: branding + login ── */
+/* â”€â”€ Left panel: branding + login â”€â”€ */
 .landing-left {
   width: 34%;
   background: linear-gradient(160deg, #0f1e2e 0%, #1b3a5c 60%, #1e4976 100%);
@@ -39,7 +39,7 @@
 
 .landing-tagline {
   font-size: 0.95rem;
-  color: #8fb4d4;
+  color: #c0d8ec;
   line-height: 1.7;
   max-width: 300px;
 }
@@ -61,7 +61,7 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  color: #a8cce0;
+  color: #d0e8f5;
   font-size: 0.9rem;
 }
 
@@ -73,7 +73,7 @@
   background: #5bc4ff;
 }
 
-/* ── Login card (inside left panel) ── */
+/* â”€â”€ Login card (inside left panel) â”€â”€ */
 .landing-card {
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
@@ -91,7 +91,7 @@
 }
 
 .landing-desc {
-  color: #7a9bb8;
+  color: #b0c8dc;
   font-size: 0.88rem;
   margin-bottom: 1.25rem;
   line-height: 1.5;
@@ -103,13 +103,13 @@
   width: 100%;
 }
 
-/* ── Right panel: background image only ── */
+/* â”€â”€ Right panel: background image only â”€â”€ */
 .landing-right {
   width: 66%;
   background: url('../assets/background.JPG') center center / cover no-repeat;
 }
 
-/* ── Responsive ── */
+/* â”€â”€ Responsive â”€â”€ */
 @media (max-width: 768px) {
   .landing-container {
     flex-direction: column;

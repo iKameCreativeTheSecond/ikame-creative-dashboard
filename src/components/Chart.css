@@ -1,11 +1,9 @@
-/* LineChart.css - style to match the provided screenshot */
-
-.chart-card {
+﻿.chart-card {
   width: 100%;
-  background: #fff;
-  border: 1px solid #E6E9EF;
+  background: #132a3e;
+  border: 1px solid rgba(91, 196, 255, 0.15);
   border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   overflow: visible;
@@ -13,14 +11,12 @@
 
 .chart-inner {
   width: 100%;
-  background: #fff;
-  /* padding: 5px, 5px, 5px, 5px; */
-  border: 1px solid #ffffff;
+  background: #132a3e;
+  border: 1px solid transparent;
   border-radius: 12px;
-  /* box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06); */
   display: flex;
   flex-direction: column;
-  overflow: visible;    
+  overflow: visible;
 }
 
 .chart-header {
@@ -28,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  border-bottom: 1px solid #E6E9EF;
+  border-bottom: 1px solid rgba(91, 196, 255, 0.12);
 }
 
 .chart-header-left {
@@ -43,8 +39,8 @@
 
 .chart-header-title {
   font-weight: 600;
-  color: #101828;
-  font-size: 16px;
+  color: #ffffff;
+  font-size: 15px;
 }
 
 .chart-actions {
@@ -60,14 +56,16 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid #E6E9EF;
-  background: #fff;
+  border: 1px solid rgba(91, 196, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  color: #c0d8ec;
+  transition: all 0.2s ease;
 }
 .icon-button:hover {
-  background: #F8FAFC;
-  box-shadow: 0 4px 10px rgba(16, 24, 40, 0.08);
+  background: rgba(91, 196, 255, 0.1);
+  border-color: #5bc4ff;
+  color: #ffffff;
 }
 
 .chart-body {
@@ -81,36 +79,37 @@
   top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  color: #101828;
+  color: #d0e8f5;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   z-index: 1;
 }
 
 /* Recharts tweaks */
 .recharts-wrapper {
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Arial;
 }
 
 .recharts-cartesian-grid-horizontal line,
 .recharts-cartesian-grid-vertical line {
-  stroke: #E6E9EF;
+  stroke: rgba(91, 196, 255, 0.1);
 }
 
 .recharts-cartesian-axis-tick tspan {
-  fill: #667085;
+  fill: #b0c8dc;
   font-size: 12px;
 }
 
 .recharts-tooltip-wrapper {
-  filter: drop-shadow(0 8px 20px rgba(16,24,40,0.12));
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
   z-index: 99999 !important;
   position: absolute !important;
 }
 
 .recharts-default-tooltip {
   border-radius: 8px !important;
-  border: 1px solid #E6E9EF !important;
+  border: 1px solid rgba(91, 196, 255, 0.2) !important;
+  background: #132a3e !important;
   z-index: 99999 !important;
 }
 
@@ -118,14 +117,16 @@
   stroke-width: 2;
 }
 
-/* Custom tooltip styles */
 .custom-tooltip {
-  background-color: #fff !important;
+  background: #132a3e !important;
+  border: 1px solid rgba(91, 196, 255, 0.2);
   max-width: 260px;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 10px 12px;
   z-index: 99999 !important;
+  color: #e2ecf4;
 }
+
 .custom-tooltip-issue-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -135,7 +136,7 @@
 
 .custom-tooltip > div:last-child {
   scrollbar-width: thin;
-  scrollbar-color: #CBD5E0 #F7FAFC;
+  scrollbar-color: #2a4a65 #0f1e2e;
 }
 
 .custom-tooltip > div:last-child::-webkit-scrollbar {
@@ -143,39 +144,40 @@
 }
 
 .custom-tooltip > div:last-child::-webkit-scrollbar-track {
-  background: #F7FAFC;
+  background: #0f1e2e;
   border-radius: 3px;
 }
 
 .custom-tooltip > div:last-child::-webkit-scrollbar-thumb {
-  background: #CBD5E0;
+  background: #2a4a65;
   border-radius: 3px;
 }
 
 .custom-tooltip > div:last-child::-webkit-scrollbar-thumb:hover {
-  background: #A0AEC0;
+  background: #3a6080;
 }
 
-/* Brush (slider/range selector) styles */
+/* Brush styles */
 .recharts-brush {
   cursor: pointer;
 }
 
 .recharts-brush-slide {
-  fill-opacity: 0.3;
+  fill-opacity: 0.2;
+  fill: #5bc4ff;
 }
 
 .recharts-brush-traveller {
-  fill: #4A90E2;
-  stroke: #2E6BA7;
+  fill: #5bc4ff;
+  stroke: #1e4976;
   cursor: ew-resize;
 }
 
 .recharts-brush-traveller:hover {
-  fill: #5AA0F2;
+  fill: #87d6ff;
 }
 
 .recharts-brush .recharts-brush-texts text {
-  fill: #667085;
+  fill: #b0c8dc;
   font-size: 11px;
 }

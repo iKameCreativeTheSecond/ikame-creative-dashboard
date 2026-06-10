@@ -141,7 +141,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
       {/* Multi-select dropdown filters styled like Ant Design */}
       <div className="date-filter-dropdowns" style={{ display: 'flex', gap: 24, marginBottom: 16 }}>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: 8 }}>Teams</label>
+          <label style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Teams</label>
           <Select
             mode="multiple"
             allowClear
@@ -153,7 +153,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
           />
         </div>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: 8 }}>Staff Members</label>
+          <label style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Staff Members</label>
           <Select
             mode="multiple"
             allowClear

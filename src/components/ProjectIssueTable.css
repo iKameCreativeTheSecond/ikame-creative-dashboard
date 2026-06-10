@@ -1,7 +1,8 @@
-.project-issue-table-container {
-    background: white;
+﻿.project-issue-table-container {
+    background: #132a3e;
+    border: 1px solid rgba(91, 196, 255, 0.15);
     border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     padding: 1.5rem;
     margin: 1rem 0;
 }
@@ -12,19 +13,19 @@
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid rgba(91, 196, 255, 0.12);
 }
 
 .project-issue-header h3 {
     margin: 0;
-    color: #2c3e50;
-    font-size: 1.25rem;
+    color: #ffffff;
+    font-size: 15px;
     font-weight: 600;
 }
 
 .project-count {
-    background: #f8f9fa;
-    color: #6c757d;
+    background: rgba(91, 196, 255, 0.1);
+    color: #5bc4ff;
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.875rem;
@@ -34,50 +35,49 @@
 .table-wrapper {
     overflow-x: auto;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgba(91, 196, 255, 0.1);
 }
 
 .project-issue-table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
+    background: transparent;
 }
 
 .project-issue-table thead {
-    background: #f8f9fa;
+    background: rgba(91, 196, 255, 0.08);
 }
 
 .project-issue-table th {
     padding: 1rem 0.75rem;
     text-align: left;
     font-weight: 600;
-    color: #495057;
-    font-size: 0.875rem;
+    color: #5bc4ff;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 1px solid rgba(91, 196, 255, 0.15);
 }
 
 .project-issue-table td {
     padding: 0.875rem 0.75rem;
-    border-bottom: 1px solid #f1f3f4;
-    color: #212529;
+    border-bottom: 1px solid rgba(91, 196, 255, 0.06);
+    color: #e2ecf4;
     font-size: 0.9rem;
 }
 
 .project-issue-table tbody tr:hover {
-    background-color: #f8f9fa;
-    transition: background-color 0.2s ease;
+    background: rgba(91, 196, 255, 0.05);
+    transition: background 0.15s ease;
 }
 
 .project-issue-table tbody tr:last-child td {
     border-bottom: none;
 }
 
-/* Specific column styling */
 .project-name {
     font-weight: 600;
-    color: #2c3e50;
+    color: #ffffff;
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -85,8 +85,8 @@
 }
 
 .team-name {
-    background: #e3f2fd;
-    color: #1565c0;
+    background: rgba(91, 196, 255, 0.12);
+    color: #5bc4ff;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.8rem;
@@ -96,8 +96,8 @@
 }
 
 .task-type {
-    background: #fff3cd;
-    color: #856404;
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.8rem;
@@ -110,6 +110,7 @@
 .order-count {
     font-weight: 600;
     text-align: center;
+    color: #e2ecf4;
 }
 
 .difference {
@@ -121,18 +122,18 @@
 }
 
 .status-positive {
-    background: #d4edda;
-    color: #155724;
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
 }
 
 .status-negative {
-    background: #f8d7da;
-    color: #721c24;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
 }
 
 .status-neutral {
-    background: #8cb3ff;
-    color: #1b4b73;
+    background: rgba(91, 196, 255, 0.12);
+    color: #5bc4ff;
 }
 
 .assignees {
@@ -140,36 +141,35 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #6c757d;
+    color: #b0c8dc;
     font-size: 0.85rem;
 }
 
 .no-data {
     text-align: center;
-    color: #6c757d;
+    color: #7a9bb8;
     font-style: italic;
     padding: 2rem 1rem !important;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
     .project-issue-table-container {
         padding: 1rem;
         margin: 0.5rem 0;
     }
-    
+
     .project-issue-header {
         flex-direction: column;
         gap: 0.5rem;
         align-items: flex-start;
     }
-    
+
     .project-issue-table th,
     .project-issue-table td {
         padding: 0.5rem 0.4rem;
         font-size: 0.8rem;
     }
-    
+
     .project-name,
     .assignees {
         max-width: 120px;
@@ -180,12 +180,12 @@
 .filter-controls {
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: #f8f9fa;
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: 1px solid rgba(91, 196, 255, 0.12);
 }
 
-/* Multi-Select Components */
+/* Multi-Select */
 .multi-select-container {
     position: relative;
     display: inline-block;
@@ -193,28 +193,29 @@
 }
 
 .multi-select-display {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    background: white;
+    padding: 8px 12px;
+    border: 1px solid rgba(91, 196, 255, 0.2);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2ecf4;
     cursor: pointer;
-    font-size: 0.875rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    font-size: 14px;
+    transition: border-color 0.15s;
     position: relative;
 }
 
 .multi-select-display::after {
-    content: '▼';
+    content: 'â–¼';
     position: absolute;
     right: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     font-size: 0.75rem;
-    color: #6c757d;
+    color: #b0c8dc;
 }
 
 .multi-select-container:hover .multi-select-display {
-    border-color: #007bff;
+    border-color: #5bc4ff;
 }
 
 .multi-select-options {
@@ -222,15 +223,15 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
-    border: 1px solid #ced4da;
+    background: #132a3e;
+    border: 1px solid rgba(91, 196, 255, 0.2);
     border-top: none;
-    border-radius: 0 0 4px 4px;
+    border-radius: 0 0 6px 6px;
     max-height: 200px;
     overflow-y: auto;
     z-index: 1000;
     display: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .multi-select-container:hover .multi-select-options,
@@ -241,15 +242,17 @@
 .multi-select-option {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0.75rem;
+    padding: 8px 12px;
     cursor: pointer;
-    font-size: 0.875rem;
-    border-bottom: 1px solid #f8f9fa;
-    transition: background-color 0.15s ease-in-out;
+    font-size: 14px;
+    color: #d0e8f5;
+    border-bottom: 1px solid rgba(91, 196, 255, 0.06);
+    transition: background 0.1s;
 }
 
 .multi-select-option:hover {
-    background-color: #f8f9fa;
+    background: rgba(91, 196, 255, 0.08);
+    color: #ffffff;
 }
 
 .multi-select-option:last-child {
@@ -259,6 +262,7 @@
 .multi-select-option input[type="checkbox"] {
     margin-right: 0.5rem;
     cursor: pointer;
+    accent-color: #5bc4ff;
 }
 
 .multi-select-option span {
@@ -282,68 +286,73 @@
 }
 
 .filter-group label {
-    font-size: 0.875rem;
+    font-size: 13px;
     font-weight: 500;
-    color: #495057;
+    color: #c0d8ec;
     margin-bottom: 0.25rem;
 }
 
 .filter-input,
 .filter-select {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    background: white;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    padding: 8px 12px;
+    border: 1px solid rgba(91, 196, 255, 0.2);
+    border-radius: 6px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2ecf4;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.filter-input::placeholder {
+    color: #7a9bb8;
 }
 
 .filter-input:focus,
 .filter-select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: #5bc4ff;
+    box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
 }
 
-.filter-input::placeholder {
-    color: #6c757d;
+.filter-select option {
+    background: #132a3e;
+    color: #e2ecf4;
 }
 
 .clear-filters-btn {
-    padding: 0.5rem 1rem;
-    background: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.875rem;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #d0e8f5;
+    border: 1px solid rgba(91, 196, 255, 0.2);
+    border-radius: 6px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.15s ease-in-out;
+    transition: all 0.15s;
     height: fit-content;
     white-space: nowrap;
 }
 
 .clear-filters-btn:hover {
-    background: #5a6268;
-}
-
-.clear-filters-btn:active {
-    background: #545b62;
+    background: rgba(91, 196, 255, 0.1);
+    border-color: #5bc4ff;
+    color: #ffffff;
 }
 
 .clear-filters-btn:disabled {
-    background: #e9ecef;
-    color: #6c757d;
+    opacity: 0.35;
     cursor: not-allowed;
-    opacity: 0.6;
 }
 
 .clear-filters-btn.active {
-    background: #dc3545;
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #f87171;
 }
 
 .clear-filters-btn.active:hover {
-    background: #c82333;
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
 }
 
 @media (max-width: 768px) {
@@ -351,12 +360,12 @@
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .filter-group {
         min-width: unset;
         flex: none;
     }
-    
+
     .clear-filters-btn {
         align-self: flex-start;
         margin-top: 0.5rem;
@@ -367,19 +376,19 @@
     .table-wrapper {
         font-size: 0.75rem;
     }
-    
+
     .project-issue-table th {
         padding: 0.5rem 0.25rem;
     }
-    
+
     .project-issue-table td {
         padding: 0.5rem 0.25rem;
     }
-    
+
     .filter-controls {
         padding: 0.75rem;
     }
-    
+
     .filter-row {
         gap: 0.75rem;
     }

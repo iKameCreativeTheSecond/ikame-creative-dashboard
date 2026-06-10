@@ -95,24 +95,24 @@ const CustomTooltip = ({
 
   return (
     <div className="custom-tooltip" style={{ zIndex: 9999 }}>
-      <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '14px', color: '#1F2937' }}>
+      <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '14px', color: '#e2ecf4' }}>
         {new Date(label as string).toLocaleDateString('vi-VN')}
       </p>
       {teamsAtTime.length > 0 && (
         <>
-          <p style={{ margin: '0 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#6B7280' }}>
+          <p style={{ margin: '0 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#94b8d0' }}>
             ĐIỂM HIỆU SUẤT:
           </p>
           {teamsAtTime.map((team, teamIndex) => (
             <div key={team.name} style={{ marginBottom: '8px' }}>
-              <p style={{ margin: '0 0 4px 0', fontWeight: '600', fontSize: '11px', color: '#4B5563' }}>
+              <p style={{ margin: '0 0 4px 0', fontWeight: '600', fontSize: '11px', color: '#c5d8e8' }}>
                 {team.name}:
               </p>
               {/* Performance Score */}
               {team.score !== null && (
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
                   <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: PALETTE[(teamIndex * 2) % PALETTE.length].stroke }}></span>
-                  <span style={{ color: '#374151' }}>
+                  <span style={{ color: '#d0e4f0' }}>
                     Performance: {team.score}
                   </span>
                 </div>
@@ -121,7 +121,7 @@ const CustomTooltip = ({
               {team.score2 !== null && (
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
                   <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: PALETTE[(teamIndex * 2 + 1) % PALETTE.length].stroke }}></span>
-                  <span style={{ color: '#374151' }}>
+                  <span style={{ color: '#d0e4f0' }}>
                     Base: {team.score2}
                   </span>
                 </div>
@@ -130,7 +130,7 @@ const CustomTooltip = ({
               {team.score3 !== null && (
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2px', fontSize: '11px', paddingLeft: '8px' }}>
                   <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: '#06B6D4' }}></span>
-                  <span style={{ color: '#374151' }}>
+                  <span style={{ color: '#d0e4f0' }}>
                     Creative: {team.score3}
                   </span>
                 </div>

@@ -1,13 +1,14 @@
-/* ==================== TEAM MANAGEMENT ==================== */
+﻿/* ==================== TEAM MANAGEMENT ==================== */
 .team-management {
     border-radius: 12px;
-    box-shadow: none; /* remove drop shadow around the container */
+    box-shadow: none;
     padding: 20px;
     height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: #0f1e2e;
 }
 
 /* ==================== CONTENT HEADER ==================== */
@@ -17,26 +18,26 @@
     align-items: flex-start;
     padding-top: 25px;
     padding-bottom: 25px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid rgba(91, 196, 255, 0.12);
 }
 
 .header-left {
     flex: 1;
     display: flex;
     align-items: center;
-    min-width: 0; /* allow child input to shrink without overflowing */
+    min-width: 0;
 }
 
 .content-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
-    color: #1f2937;
+    color: #ffffff;
     margin: 0 0 8px 0;
 }
 
 .content-subtitle {
-    font-size: 14px;
-    color: #6b7280;
+    font-size: 13px;
+    color: #b0c8dc;
     margin: 0;
     line-height: 1.5;
 }
@@ -47,42 +48,49 @@
 }
 
 .btn-add-policy {
-    background-color: #5b21b6;
-    color: #fff;
-    border: none;
+    background: rgba(91, 196, 255, 0.12);
+    color: #5bc4ff;
+    border: 1px solid rgba(91, 196, 255, 0.3);
     border-radius: 8px;
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
     white-space: nowrap;
 }
 
 .btn-add-policy:hover {
-    background-color: rgb(36, 14, 71);
+    background: rgba(91, 196, 255, 0.22);
+    border-color: #5bc4ff;
+    color: #ffffff;
 }
 
 /* Filter input styling */
 .filter-input {
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    padding: 10px 16px;
+    border-radius: 6px;
+    border: 1px solid rgba(91, 196, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2ecf4;
+    box-shadow: none;
+    padding: 8px 12px;
     font-size: 14px;
-    background: #fff;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.15s, box-shadow 0.15s;
     width: 100%;
-    max-width: 600px; /* let it grow as wide as available */
-    margin: 0; /* stick to the left edge within padding */
+    max-width: 600px;
+    margin: 0;
     box-sizing: border-box;
     flex: 1;
 }
 
+.filter-input::placeholder {
+    color: #7a9bb8;
+}
+
 .filter-input:focus {
-    border-color: #5b21b6;
-    box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+    border-color: #5bc4ff;
+    box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
 }
 
 /* ==================== TABLE ==================== */
@@ -92,35 +100,35 @@
     overflow-x: auto;
 }
 
-/* Table footer with pagination */
 .table-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    border-top: 1px solid #e5e7eb;
-    background: #ffffff;
+    border-top: 1px solid rgba(91, 196, 255, 0.12);
+    background: #0f1e2e;
 }
 
 .rows-per-page label {
-    font-size: 14px;
-    color: #374151;
+    font-size: 13px;
+    color: #c0d8ec;
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
 
 .rows-per-page select {
-    border: 1px solid #d1d5db;
+    border: 1px solid rgba(91, 196, 255, 0.2);
     border-radius: 6px;
-    padding: 6px 8px;
-    background: #fff;
-    font-size: 14px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2ecf4;
+    font-size: 13px;
 }
 
 .pagination-info {
     font-size: 13px;
-    color: #6b7280;
+    color: #b0c8dc;
 }
 
 .pagination-controls {
@@ -130,56 +138,65 @@
 }
 
 .page-button {
-    border: 1px solid #d1d5db;
-    background: #fff;
-    color: #374151;
+    border: 1px solid rgba(91, 196, 255, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    color: #d0e8f5;
     padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
     min-width: 32px;
+    transition: all 0.15s;
+}
+
+.page-button:hover {
+    border-color: #5bc4ff;
+    color: #5bc4ff;
+    background: rgba(91, 196, 255, 0.08);
 }
 
 .page-button:disabled {
-    opacity: 0.5;
+    opacity: 0.35;
     cursor: not-allowed;
 }
 
 .page-indicator {
     font-size: 13px;
-    color: #374151;
+    color: #d0e8f5;
     margin: 0 6px;
 }
 
 .team-table {
     width: 100%;
-    border-collapse: collapse; /* enable full grid lines */
-    background-color: #fff;
-    border: 1px solid #e5e7eb; /* outer border */
+    border-collapse: collapse;
+    background: #0f1e2e;
+    border: 1px solid rgba(91, 196, 255, 0.12);
 }
 
-.team-table th, .team-table td {
-    padding: 18px 16px;
+.team-table th,
+.team-table td {
+    padding: 16px;
     text-align: left;
-    border: 1px solid #e5e7eb; /* grid lines for all cells */
+    border: 1px solid rgba(91, 196, 255, 0.08);
 }
 
 .team-table th {
-    background-color: #ededed;
-    color: #5b21b6;
+    background: rgba(91, 196, 255, 0.08);
+    color: #5bc4ff;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     position: sticky;
     top: 0;
+    z-index: 1;
 }
 
 .team-table tbody tr {
-    transition: background-color 0.15s;
+    transition: background 0.15s;
 }
 
 .team-table tbody tr:hover {
-    background-color: #f9fafb;
+    background: rgba(91, 196, 255, 0.05);
 }
 
 .team-table tbody tr:last-child td {
@@ -197,7 +214,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e4976 0%, #5bc4ff 100%);
     color: #fff;
     display: flex;
     align-items: center;
@@ -215,32 +232,32 @@
 }
 
 .badge-member {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background: rgba(91, 196, 255, 0.12);
+    color: #5bc4ff;
 }
 
 .badge-admin {
-    background-color: #fef3c7;
-    color: #92400e;
+    background: rgba(251, 191, 36, 0.12);
+    color: #fbbf24;
 }
 
 .badge-manager {
-    background-color: #dcfce7;
-    color: #166534;
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
 }
 
 .badge-task {
-    background-color: #e0e7ff;
-    color: #3730a3;
+    background: rgba(139, 92, 246, 0.12);
+    color: #a78bfa;
 }
 
 .badge-process {
-    background-color: #fce7f3;
-    color: #9f1239;
+    background: rgba(249, 115, 22, 0.12);
+    color: #fb923c;
 }
 
 .enrolled-count {
-    color: #6b7280;
+    color: #b0c8dc;
     font-size: 14px;
 }
 
@@ -260,53 +277,48 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s, color 0.2s;
-    color: #6b7280;
+    transition: transform 0.2s, color 0.2s, background 0.2s;
+    color: #b0c8dc;
     border-radius: 4px;
 }
 
 .icon-button:hover {
     transform: scale(1.1);
-    background-color: #f3f4f6;
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .edit-button {
-    /* Base icon color */
-    --btn-color: #f59e0b;
+    --btn-color: #fbbf24;
     color: var(--btn-color);
 }
 
 .edit-button:hover {
-    /* Invert: icon becomes white, background becomes the icon color */
-    color: #ffffff;
+    color: #0f1e2e;
     background-color: var(--btn-color);
-    transform: none; /* do not scale on hover */
+    transform: none;
 }
 
-/* Ensure SVG icon actually takes the computed color */
 .edit-button svg {
-    color: inherit;          /* make svg use button color */
-    fill: currentColor;      /* fill paths with current color */
-    stroke: currentColor;    /* stroke paths with current color */
+    color: inherit;
+    fill: currentColor;
+    stroke: currentColor;
 }
 
 .edit-button:hover svg {
-    color: #ffffff;          /* force white icon on hover */
+    color: #0f1e2e;
     fill: currentColor;
     stroke: currentColor;
 }
 
 .delete-button {
-    /* Base icon color */
     --btn-color: #ef4444;
     color: var(--btn-color);
 }
 
 .delete-button:hover {
-    /* Invert: icon becomes white, background becomes the icon color */
     color: #ffffff;
     background-color: var(--btn-color);
-    transform: none; /* do not scale on hover */
+    transform: none;
 }
 
 .delete-button svg {
@@ -327,15 +339,13 @@
 }
 
 /* ==================== MODAL ==================== */
-/* ==================== MODAL ==================== */
-/* Popup Modal Overlay Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.65);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -343,47 +353,54 @@
 }
 
 .modal {
-    background: #fff;
+    background: #132a3e;
+    border: 1px solid rgba(91, 196, 255, 0.2);
     padding: 28px 24px;
-    border-radius: 12px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
     min-width: 520px;
-    max-width: 490vw;
+    max-width: 90vw;
 }
 
 .modal h2 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
-    color: #1f2937;
+    color: #ffffff;
     margin: 0 0 20px 0;
 }
 
 .modal-form label {
     display: block;
     margin-bottom: 16px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    color: #d0e8f5;
 }
 
 .modal-form input,
 .modal-form select {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 12px;
     margin-top: 6px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border: 1px solid rgba(91, 196, 255, 0.2);
+    border-radius: 6px;
     font-size: 14px;
-    background: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2ecf4;
     box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .modal-form input:focus,
 .modal-form select:focus {
-    border-color: #5b21b6;
+    border-color: #5bc4ff;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+    box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
+}
+
+.modal-form select option {
+    background: #132a3e;
+    color: #e2ecf4;
 }
 
 .modal-actions {
@@ -394,48 +411,49 @@
 }
 
 .save-button {
-    background: #5b21b6;
-    color: #fff;
+    background: #5bc4ff;
+    color: #0f1e2e;
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    font-weight: 600;
-    transition: background-color 0.2s;
+    font-weight: 700;
+    transition: background 0.2s;
 }
 
 .save-button:hover {
-    background: #4c1d95;
+    background: #87d6ff;
 }
 
 .cancel-button {
-    background: #fff;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: rgba(255, 255, 255, 0.05);
+    color: #d0e8f5;
+    border: 1px solid rgba(91, 196, 255, 0.2);
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-    transition: background-color 0.2s, border-color 0.2s;
+    transition: background 0.2s, border-color 0.2s;
 }
 
 .cancel-button:hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(91, 196, 255, 0.4);
+    color: #ffffff;
 }
 
-/* ==================== LEGACY STYLES (kept for compatibility) ==================== */
+/* ==================== LEGACY ==================== */
 .team-management .admin-title {
     font-size: 2rem;
-    color: #1f2937;
+    color: #ffffff;
     font-weight: 700;
     margin-bottom: 12px;
 }
 
 .team-management .admin-description {
     font-size: 1rem;
-    color: #6b7280;
+    color: #b0c8dc;
     margin-bottom: 24px;
 }

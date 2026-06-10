@@ -1097,7 +1097,7 @@ export default function WeeklyPlan() {
                 value={selectedProjects}
                 onChange={(values: string[]) => setSelectedProjects(values)}
                 options={projectOptions.map(p => ({ value: p, label: p }))}
-                style={{ minWidth: 200 }}
+                style={{ width: '100%', minWidth: 200 }}
                 filterOption={(input, option) =>
                   (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                 }

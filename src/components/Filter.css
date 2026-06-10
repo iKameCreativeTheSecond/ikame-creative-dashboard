@@ -1,23 +1,20 @@
-/* Card container to match screenshot */
-
-.date-filter {
+﻿.date-filter {
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 18px;
-  background: #ffffff;
+  background: #132a3e;
   border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-  border: 1px solid #eef2f6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(91, 196, 255, 0.15);
 }
 
-/* Header for the filter card */
 .filter-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px 12px;
-  border-bottom: 1px solid #eef2f6;
+  border-bottom: 1px solid rgba(91, 196, 255, 0.12);
 }
 
 .filter-header-left {
@@ -28,15 +25,14 @@
 
 .filter-header-title {
   font-weight: 600;
-  color: #101828;
-  font-size: 16px;
+  color: #ffffff;
+  font-size: 15px;
 }
 
 .filter-header-icon {
   display: inline-block;
 }
 
-/* Row for the start/end date inputs */
 .date-filter-row {
   display: flex;
   gap: 16px;
@@ -49,22 +45,21 @@
   gap: 10px;
   align-items: center;
   font-size: 13px;
-  color: #0f172a;
+  color: #d0e8f5;
 }
 
 .date-filter label span {
-  color: #475569;
+  color: #b0c8dc;
   font-size: 13px;
 }
 
-/* Stylized connected date inputs to look like a range control */
 .date-input-wrapper {
   display: inline-flex;
   align-items: center;
-  background: #f8fafc;
-  border: 1px solid #e6eef6;
-  border-radius: 8px;
-  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(91, 196, 255, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
   gap: 8px;
 }
 
@@ -73,7 +68,8 @@
   border: none;
   padding: 6px 8px;
   font-size: 13px;
-  color: #0f172a;
+  color: #e2ecf4;
+  color-scheme: dark;
 }
 
 .date-input-wrapper input[type="date"]:focus {
@@ -82,42 +78,41 @@
 
 .date-separator {
   font-size: 13px;
-  color: #64748b;
+  color: #b0c8dc;
   padding: 0 6px;
 }
 
-/* Modern styling for date inputs (scoped to the filter only) */
 .date-filter input[type="date"] {
   -webkit-appearance: none;
   appearance: none;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #0f172a;
-  font-size: 13px;
-  border-radius: 8px;
-  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(91, 196, 255, 0.2);
+  color: #e2ecf4;
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 8px 12px;
   height: 36px;
   line-height: 20px;
   min-width: 175px;
-  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color-scheme: dark;
 }
 
 .date-filter input[type="date"]:hover {
-  background: #f8fafc;
-  border-color: #d0d8e2;
+  background: rgba(91, 196, 255, 0.06);
+  border-color: rgba(91, 196, 255, 0.35);
 }
 
 .date-filter input[type="date"]:focus {
   outline: none;
-  border-color: #6366f1; /* indigo */
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  border-color: #5bc4ff;
+  box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
 }
 
 .date-filter input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  opacity: 0.75;
-  filter: invert(38%) sepia(16%) saturate(986%) hue-rotate(191deg) brightness(94%) contrast(92%);
+  opacity: 0.7;
+  filter: invert(1) brightness(0.8);
   margin-left: 4px;
 }
 
@@ -126,16 +121,12 @@
 }
 
 .date-filter input[type="date"]:disabled {
-  background: #f1f5f9;
-  color: #94a3b8;
-  border-color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.02);
+  color: #7a9bb8;
+  border-color: rgba(91, 196, 255, 0.08);
   cursor: not-allowed;
-  box-shadow: none;
 }
 
-/* Quick presets area */
-
-/* Quick presets row (placed under date row) */
 .date-filter-quick {
   display: flex;
   gap: 12px;
@@ -145,7 +136,7 @@
 }
 
 .date-filter-quick span {
-  color: #0f172a;
+  color: #d0e8f5;
   font-weight: 600;
   font-size: 13px;
   min-width: 120px;
@@ -157,29 +148,85 @@
   align-items: center;
 }
 
-/* Pill style buttons, look like select dropdowns in screenshot */
 .quick-buttons button {
-  padding: 8px 12px;
+  padding: 7px 12px;
   border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #0f172a;
+  border: 1px solid rgba(91, 196, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d0e8f5;
   font-size: 13px;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(16,24,40,0.03);
+  transition: all 0.15s;
 }
 
 .quick-buttons button:hover {
-  background: #f8fafc;
+  background: rgba(91, 196, 255, 0.1);
+  border-color: #5bc4ff;
+  color: #ffffff;
 }
 
 .quick-buttons button.clear {
-  border-color: #f1a6a6;
-  background: #fff6f6;
-  color: #9b1b1b;
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.07);
+  color: #f87171;
 }
 
-/* Responsive: stack on small screens */
+.quick-buttons button.clear:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}
+
+/* ===== Ant Design Select overrides — match date inputs ===== */
+.date-filter-dropdowns .ant-select .ant-select-selector {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(91, 196, 255, 0.2) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  min-height: 36px !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+
+.date-filter-dropdowns .ant-select:hover .ant-select-selector {
+  border-color: rgba(91, 196, 255, 0.4) !important;
+  background: rgba(91, 196, 255, 0.04) !important;
+}
+
+.date-filter-dropdowns .ant-select-focused .ant-select-selector {
+  border-color: #5bc4ff !important;
+  box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15) !important;
+}
+
+.date-filter-dropdowns .ant-select .ant-select-selection-placeholder {
+  color: #7a9bb8;
+  font-size: 14px;
+}
+
+.date-filter-dropdowns .ant-select .ant-select-selection-item {
+  color: #e2ecf4;
+  font-size: 14px;
+}
+
+.date-filter-dropdowns .ant-select .ant-select-arrow,
+.date-filter-dropdowns .ant-select .ant-select-clear {
+  color: #7a9bb8;
+}
+
+.date-filter-dropdowns .ant-select-selection-item {
+  background: rgba(91, 196, 255, 0.12) !important;
+  border: 1px solid rgba(91, 196, 255, 0.3) !important;
+  color: #e2ecf4 !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+}
+
+.date-filter-dropdowns .ant-select-selection-item-remove {
+  color: #7a9bb8 !important;
+}
+
+.date-filter-dropdowns .ant-select-selection-item-remove:hover {
+  color: #f87171 !important;
+}
+
 @media (max-width: 720px) {
   .date-filter {
     padding: 12px;
