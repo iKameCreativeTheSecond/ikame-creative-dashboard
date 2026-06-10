@@ -4,7 +4,7 @@ import { Button, Card, Space, Typography } from 'antd';
 import './Landing.css';
 import { GlobalData } from "../common/GlobalData";
 import logoImg from '../assets/logo.png';
-import bgImg from '../assets/background.jpg';
+import bgImg from '../assets/background.JPG';
 
 const { Title, Text, Paragraph } = Typography;
 
