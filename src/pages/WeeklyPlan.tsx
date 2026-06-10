@@ -1014,7 +1014,7 @@ export default function WeeklyPlan() {
         }
 
         deleteItem(item.id);
-        setDeleteSuccessMsg(`Đã xoá kế hoạch "${item.project}" thành công!`);
+        messageApi.success(`Đã xoá kế hoạch "${item.project}" thành công!`);
       },
     });
   };
