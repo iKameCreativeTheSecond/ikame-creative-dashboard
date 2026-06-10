@@ -41,6 +41,14 @@
   --text-white:     #ffffff;
 }
 
+/* Unified section header icon used across Filter, Charts, ProjectIssueTable, TeamTargetProgress */
+.section-icon {
+  color: #5bc4ff;
+  font-size: 15px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
 a {
   font-weight: 500;
   color: #5bc4ff;

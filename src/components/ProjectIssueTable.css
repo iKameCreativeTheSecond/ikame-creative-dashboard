@@ -1,10 +1,10 @@
 ﻿.project-issue-table-container {
     background: #132a3e;
-    border: 1px solid rgba(91, 196, 255, 0.15);
+    border: none;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: none;
     padding: 1.5rem;
-    margin: 1rem 0;
+    margin: 0;
 }
 
 .project-issue-header {
@@ -13,7 +13,7 @@
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(91, 196, 255, 0.12);
+    border-bottom: none;
 }
 
 .project-issue-header h3 {
@@ -35,45 +35,9 @@
 .table-wrapper {
     overflow-x: auto;
     border-radius: 8px;
-    border: 1px solid rgba(91, 196, 255, 0.1);
+    border: none;
 }
 
-.project-issue-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: transparent;
-}
-
-.project-issue-table thead {
-    background: rgba(91, 196, 255, 0.08);
-}
-
-.project-issue-table th {
-    padding: 1rem 0.75rem;
-    text-align: left;
-    font-weight: 600;
-    color: #5bc4ff;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid rgba(91, 196, 255, 0.15);
-}
-
-.project-issue-table td {
-    padding: 0.875rem 0.75rem;
-    border-bottom: 1px solid rgba(91, 196, 255, 0.06);
-    color: #e2ecf4;
-    font-size: 0.9rem;
-}
-
-.project-issue-table tbody tr:hover {
-    background: rgba(91, 196, 255, 0.05);
-    transition: background 0.15s ease;
-}
-
-.project-issue-table tbody tr:last-child td {
-    border-bottom: none;
-}
 
 .project-name {
     font-weight: 600;
@@ -164,8 +128,8 @@
         align-items: flex-start;
     }
 
-    .project-issue-table th,
-    .project-issue-table td {
+    .team-table th,
+    .team-table td {
         padding: 0.5rem 0.4rem;
         font-size: 0.8rem;
     }
@@ -182,92 +146,38 @@
     padding: 1rem;
     background: rgba(255, 255, 255, 0.03);
     border-radius: 8px;
-    border: 1px solid rgba(91, 196, 255, 0.12);
+    border: none;
 }
 
-/* Multi-Select */
-.multi-select-container {
-    position: relative;
-    display: inline-block;
-    width: 100%;
+/* Ant Design Select overrides — match Filter component style */
+.filter-controls .ant-select .ant-select-selector {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(91, 196, 255, 0.2) !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    min-height: 36px !important;
 }
 
-.multi-select-display {
-    padding: 8px 12px;
-    border: 1px solid rgba(91, 196, 255, 0.2);
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #e2ecf4;
-    cursor: pointer;
-    font-size: 14px;
-    transition: border-color 0.15s;
-    position: relative;
+.filter-controls .ant-select:hover .ant-select-selector {
+    border-color: rgba(91, 196, 255, 0.4) !important;
+    background: rgba(91, 196, 255, 0.04) !important;
 }
 
-.multi-select-display::after {
-    content: 'â–¼';
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.75rem;
-    color: #b0c8dc;
+.filter-controls .ant-select-focused .ant-select-selector {
+    border-color: #5bc4ff !important;
+    box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15) !important;
 }
 
-.multi-select-container:hover .multi-select-display {
-    border-color: #5bc4ff;
+.filter-controls .ant-select-selection-item {
+    background: rgba(91, 196, 255, 0.12) !important;
+    border: 1px solid rgba(91, 196, 255, 0.3) !important;
+    color: #e2ecf4 !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
 }
 
-.multi-select-options {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: #132a3e;
-    border: 1px solid rgba(91, 196, 255, 0.2);
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1000;
-    display: none;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.multi-select-container:hover .multi-select-options,
-.multi-select-container:focus-within .multi-select-options {
-    display: block;
-}
-
-.multi-select-option {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #d0e8f5;
-    border-bottom: 1px solid rgba(91, 196, 255, 0.06);
-    transition: background 0.1s;
-}
-
-.multi-select-option:hover {
-    background: rgba(91, 196, 255, 0.08);
-    color: #ffffff;
-}
-
-.multi-select-option:last-child {
-    border-bottom: none;
-}
-
-.multi-select-option input[type="checkbox"] {
-    margin-right: 0.5rem;
-    cursor: pointer;
-    accent-color: #5bc4ff;
-}
-
-.multi-select-option span {
-    flex: 1;
-    cursor: pointer;
+.filter-controls .ant-select-selection-placeholder {
+    color: #7a9bb8 !important;
 }
 
 .filter-row {
@@ -377,11 +287,11 @@
         font-size: 0.75rem;
     }
 
-    .project-issue-table th {
+    .team-table th {
         padding: 0.5rem 0.25rem;
     }
 
-    .project-issue-table td {
+    .team-table td {
         padding: 0.5rem 0.25rem;
     }
 

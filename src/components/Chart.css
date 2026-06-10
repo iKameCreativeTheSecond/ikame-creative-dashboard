@@ -1,9 +1,9 @@
 ﻿.chart-card {
   width: 100%;
   background: #132a3e;
-  border: 1px solid rgba(91, 196, 255, 0.15);
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   overflow: visible;
@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(91, 196, 255, 0.12);
+  border-bottom: none;
 }
 
 .chart-header-left {
@@ -120,7 +120,7 @@
 .custom-tooltip {
   background: #132a3e !important;
   border: 1px solid rgba(91, 196, 255, 0.2);
-  max-width: 260px;
+  max-width: 360px;
   border-radius: 12px;
   padding: 10px 12px;
   z-index: 99999 !important;
@@ -129,9 +129,21 @@
 
 .custom-tooltip-issue-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
   z-index: 99999 !important;
+}
+
+.custom-tooltip-issue-card {
+  padding: 6px;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 8px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  word-break: break-word;
 }
 
 .custom-tooltip > div:last-child {

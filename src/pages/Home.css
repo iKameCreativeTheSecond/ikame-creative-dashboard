@@ -1,5 +1,8 @@
 ﻿.home-container {
-    padding: 80px 90px 20px 90px;
+    padding: 80px 90px 40px 90px;
     background-color: #0f1e2e;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }

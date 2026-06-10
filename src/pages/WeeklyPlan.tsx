@@ -1067,7 +1067,7 @@ export default function WeeklyPlan() {
     <div className="weekly-plan-page">
       {modalContextHolder}
       {messageContextHolder}
-      <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} siteName="Weekly Plan Dashboard" showHomeButton={true} />
+      <TopBar userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'} imageUrl={GlobalData.getUser().picture} siteName="Weekly Plan Dashboard" />
       <div className="weekly-plan-container">
         <div className="filter-controls weekly-plan-filter-controls">
           <div className="filter-row">
@@ -1100,21 +1100,21 @@ export default function WeeklyPlan() {
             <div className="filter-group weekly-plan-quick-group">
               <label>Tùy chọn nhanh</label>
               <div className="weekly-plan-quick-buttons">
-                <Button size="small" onClick={() => shiftWeekRange(-1)}>← Tuần trước</Button>
-                <Button size="small" onClick={() => handleQuickFilter(1)}>1 Tuần trước</Button>
-                <Button size="small" onClick={() => handleQuickFilter(2)}>2 Tuần trước</Button>
-                <Button size="small" onClick={() => handleQuickFilter(4)}>4 Tuần trước</Button>
-                <Button size="small" onClick={() => handleQuickFilter(6)}>6 Tuần trước</Button>
-                <Button size="small" onClick={handleNextWeekFilter}>1 Tuần tới</Button>
-                <Button size="small" onClick={() => shiftWeekRange(1)} disabled={!canShiftWeekRange(1)}>Tuần sau →</Button>
-                <Button size="small" danger onClick={clearDateFilters}>Xóa</Button>
+                <Button shape="round" onClick={() => shiftWeekRange(-1)}>← Tuần trước</Button>
+                <Button shape="round" onClick={() => handleQuickFilter(1)}>1 Tuần trước</Button>
+                <Button shape="round" onClick={() => handleQuickFilter(2)}>2 Tuần trước</Button>
+                <Button shape="round" onClick={() => handleQuickFilter(4)}>4 Tuần trước</Button>
+                <Button shape="round" onClick={() => handleQuickFilter(6)}>6 Tuần trước</Button>
+                <Button shape="round" onClick={handleNextWeekFilter}>1 Tuần tới</Button>
+                <Button shape="round" onClick={() => shiftWeekRange(1)} disabled={!canShiftWeekRange(1)}>Tuần sau →</Button>
+                <Button shape="round" danger onClick={clearDateFilters}>Xóa</Button>
               </div>
             </div>
 
-            <div className="filter-group">
+            <div className="filter-group" style={{ marginLeft: 'auto', flex: '0 0 auto', borderLeft: '1px solid rgba(255,255,255,0.12)', paddingLeft: '24px' }}>
               <label>Thêm mục</label>
               <div>
-                <Button type="primary" size="small" onClick={openAddForm}>+ Thêm mục mới</Button>
+                <Button type="primary" onClick={openAddForm}>+ Thêm mục mới</Button>
               </div>
             </div>
           </div>

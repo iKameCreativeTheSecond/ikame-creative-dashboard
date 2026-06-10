@@ -1,5 +1,4 @@
 import './Home.css';
-import { Typography } from 'antd';
 import Charts, { type ChartObjectData } from '../components/Charts'
 import TeamTargetProgress, { type WeeklyTeamPerformaceData } from '../components/TeamTargetProgress';
 import ProjectIssueTable, { type ProjectIssue } from '../components/ProjectIssueTable';
@@ -380,17 +379,11 @@ export default function Home()
             <div className="home-container">
                     <TeamTargetProgress teams={teamWeeklyPerformance} />
 
-                    <div>
-                        <Filter
-                            onChange={handleFilterChange}
-                            teamOptions={teamOptions}
-                            staffOptions={staffOptions}
-                        />
-                        <Typography.Text style={{ marginTop: 8, display: 'block', fontSize: 14 }}>
-                            <Typography.Text strong>Đã chọn:</Typography.Text>{' '}
-                            {range ? `${range.startDate ?? '-'} → ${range.endDate ?? '-'}` : 'Chưa chọn'}
-                        </Typography.Text>
-                    </div>
+                    <Filter
+                        onChange={handleFilterChange}
+                        teamOptions={teamOptions}
+                        staffOptions={staffOptions}
+                    />
                     <Charts
                         data={chartsData}
                         issues={filteredProjectIssues}

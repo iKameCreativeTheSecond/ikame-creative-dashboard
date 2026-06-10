@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Button, Typography } from 'antd'
+import { FaChartBar, FaChartLine } from 'react-icons/fa'
 import LineChart, { type MultiObjectData } from './LineChart'
 import ColumnChart, { type ColumnObjectData } from './ColumnChart'
 import './Chart.css'
@@ -67,53 +69,20 @@ export default function Charts({ data, issues = [], assigneeNameByEmail, title =
         <div className="chart-card" style={{ height }}>
             <div className="chart-header">
                 <div className="chart-header-left">
-                    <svg 
-                        className="chart-header-icon" 
-                        width="18" 
-                        height="18" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        aria-hidden
-                    >
-                        {chartType === 'line' ? (
-                            <path 
-                                d="M4 20V10M10 20V4M16 20v-6M3 20h18" 
-                                stroke="#5F6D7A" 
-                                strokeWidth="2" 
-                                strokeLinecap="round"
-                            />
-                        ) : (
-                            <path 
-                                d="M3 13h4v7H3zM10 9h4v11h-4zM17 5h4v15h-4z" 
-                                fill="#5F6D7A"
-                            />
-                        )}
-                    </svg>
-                    <span className="chart-header-title">{title}</span>
+                    {chartType === 'line'
+                        ? <FaChartLine className="section-icon" />
+                        : <FaChartBar className="section-icon" />
+                    }
+                    <Typography.Text strong className="chart-header-title">{title}</Typography.Text>
                 </div>
                 <div className="chart-actions">
-                    <button 
-                        className="icon-button" 
-                        title="Đổi kiểu biểu đồ" 
-                        aria-label="Đổi kiểu biểu đồ"
+                    <Button
+                        type="text"
+                        size="small"
+                        title="Đổi kiểu biểu đồ"
+                        icon={chartType === 'line' ? <FaChartBar style={{ color: '#5F6D7A' }} /> : <FaChartLine style={{ color: '#5F6D7A' }} />}
                         onClick={toggleChartType}
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                            {chartType === 'line' ? (
-                                <path 
-                                    d="M3 13h4v7H3zM10 9h4v11h-4zM17 5h4v15h-4z" 
-                                    fill="#5F6D7A"
-                                />
-                            ) : (
-                                <path 
-                                    d="M4 20V10M10 20V4M16 20v-6M3 20h18" 
-                                    stroke="#5F6D7A" 
-                                    strokeWidth="2" 
-                                    strokeLinecap="round"
-                                />
-                            )}
-                        </svg>
-                    </button>
+                    />
                 </div>
             </div>
             

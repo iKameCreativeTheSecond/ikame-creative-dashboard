@@ -63,9 +63,9 @@
   margin-bottom: 2rem;
   padding: 1.5rem;
   background: #132a3e;
-  border: 1px solid rgba(91, 196, 255, 0.15);
+  border: none;
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
 }
 
 .weekly-plan-header h1 {
@@ -159,7 +159,7 @@
   padding: 1rem;
   background: #132a3e;
   border-radius: 8px;
-  border: 1px solid rgba(91, 196, 255, 0.15);
+  border: none;
   position: sticky;
   top: 60px;
   z-index: 100;
@@ -236,7 +236,6 @@
 .weekly-plan-page .weekly-plan-quick-group {
   flex: 1 1 auto;
   min-width: 520px;
-  margin-left: auto;
   align-items: flex-end;
 }
 
@@ -316,7 +315,7 @@
 .timeline-display {
   margin-top: 1rem;
   padding: 0.75rem 0;
-  border-top: 1px solid rgba(91, 196, 255, 0.12);
+  border-top: none;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -350,9 +349,9 @@
 
 .plan-table-wrapper {
   background: #132a3e;
-  border: 1px solid rgba(91, 196, 255, 0.15);
+  border: none;
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
   overflow-x: auto;
   max-height: calc(100vh - 280px);
   overflow-y: auto;
@@ -360,7 +359,7 @@
 
 .weekly-plan-table-footer {
   margin-bottom: 12px;
-  border: 1px solid rgba(91, 196, 255, 0.12);
+  border: none;
   border-radius: 8px;
 }
 
@@ -409,15 +408,15 @@
   margin-bottom: 1rem;
   background: #132a3e;
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(91, 196, 255, 0.15);
+  box-shadow: none;
+  border: none;
   overflow: hidden;
 }
 
 .weekly-plan-add-header {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid rgba(91, 196, 255, 0.12);
-  background: rgba(91, 196, 255, 0.05);
+  border-bottom: none;
+  background: transparent;
 }
 
 .weekly-plan-add-title {
@@ -488,8 +487,8 @@
 
 .weekly-plan-add-qty {
   padding: 0.75rem;
-  background: rgba(91, 196, 255, 0.04);
-  border: 1px solid rgba(91, 196, 255, 0.12);
+  background: transparent;
+  border: none;
   border-radius: 8px;
   margin-bottom: 0.75rem;
 }
@@ -513,8 +512,8 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.5rem 0.6rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(91, 196, 255, 0.12);
+  background: transparent;
+  border: none;
   border-radius: 8px;
 }
 

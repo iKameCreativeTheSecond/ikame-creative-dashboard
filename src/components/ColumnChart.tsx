@@ -53,35 +53,32 @@ const CustomTooltip = ({
 
   return (
     <div className="custom-tooltip" style={{ zIndex: 9999 }}>
-      <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '14px', color: '#1F2937' }}>
+      <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', fontSize: '14px', color: '#e2ecf4' }}>
         {currentItem.name} - {new Date(currentItem.timeGroup).toLocaleDateString('vi-VN')}
       </p>
       {payload.length > 0 && (
         <>
-          <p style={{ margin: '0 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#6B7280' }}>
+          <p style={{ margin: '0 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#94b8d0' }}>
             ĐIỂM HIỆU SUẤT:
           </p>
-          {/* Hiển thị các score từ payload */}
           {payload.map((entry: any) => {
-            const displayName = entry.dataKey === 'score1' ? 'Performance' : 
-                               entry.dataKey === 'score2' ? 'Base' : 
+            const displayName = entry.dataKey === 'score1' ? 'Performance' :
+                               entry.dataKey === 'score2' ? 'Base' :
                                entry.dataKey === 'score3' ? 'Creative' : entry.dataKey;
-            // Hiển thị giá trị gốc cho score1 trong tooltip
             const displayValue = entry.dataKey === 'score1' ? currentItem.originalScore1 : entry.value;
             return (
               <div key={entry.dataKey} style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '12px' }}>
-                <span style={{ width: '12px', height: '12px', borderRadius: '2px', marginRight: '8px', display: 'inline-block', backgroundColor: entry.color }}></span>
-                <span style={{ color: '#374151' }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: entry.color }}></span>
+                <span style={{ color: '#d0e4f0' }}>
                   {displayName}: {displayValue !== null ? displayValue : '-'}
                 </span>
               </div>
             )
           })}
-          {/* Hiển thị Creative (score3) riêng biệt vì không có trong payload */}
           {currentItem.score3 !== undefined && (
             <div key="creative-score" style={{ display: 'flex', alignItems: 'center', marginBottom: '4px', fontSize: '12px' }}>
-              <span style={{ width: '12px', height: '12px', borderRadius: '2px', marginRight: '8px', display: 'inline-block', backgroundColor: '#06B6D4' }}></span>
-              <span style={{ color: '#374151' }}>
+              <span style={{ width: '10px', height: '10px', borderRadius: '2px', marginRight: '6px', display: 'inline-block', backgroundColor: '#06B6D4' }}></span>
+              <span style={{ color: '#d0e4f0' }}>
                 Creative: {currentItem.score3 !== null ? currentItem.score3 : '-'}
               </span>
             </div>
@@ -90,15 +87,15 @@ const CustomTooltip = ({
       )}
       {issuesAtTime.length > 0 && (
         <>
-          <p style={{ margin: '12px 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#DC2626' }}>
+          <p style={{ margin: '12px 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#fca5a5' }}>
             ISSUE:
           </p>
           <div className="custom-tooltip-issue-list">
             {issuesAtTime.map((issue: ProjectIssue, idx: number) => (
-              <div key={idx} style={{ marginBottom: '4px', padding: '6px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', fontSize: '11px', display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '120px', wordBreak: 'break-word' }}>
-                <span style={{ fontWeight: '600', color: '#DC2626', fontSize: '12px' }}>{issue.Project}</span>
-                <span style={{ color: '#7F1D1D', fontSize: '10px' }}>Team: {issue.Team}</span>
-                <span style={{ color: '#7F1D1D', fontSize: '10px' }}>
+              <div key={idx} className="custom-tooltip-issue-card">
+                <span style={{ fontWeight: '600', color: '#fca5a5', fontSize: '12px' }}>{issue.Project}</span>
+                <span style={{ color: '#f87171', fontSize: '10px' }}>Team: {issue.Team}</span>
+                <span style={{ color: '#f87171', fontSize: '10px' }}>
                   Assignees:{' '}
                   {(issue.Assignees && issue.Assignees.length > 0)
                     ? issue.Assignees
@@ -109,7 +106,7 @@ const CustomTooltip = ({
                         .join(', ')
                     : '—'}
                 </span>
-                <span style={{ color: issue.Difference > 0 ? '#059669' : '#DC2626', fontSize: '10px', fontWeight: '600' }}>
+                <span style={{ color: issue.Difference > 0 ? '#34d399' : '#f87171', fontSize: '10px', fontWeight: '600' }}>
                   Difference: {issue.Difference > 0 ? '+' : ''}{issue.Difference}
                 </span>
               </div>
@@ -283,10 +280,11 @@ export default function ColumnChart({
               tick={{ fontSize: 12, fill: '#667085' }} 
               label={{ value: 'Điểm số', angle: -90, position: 'insideLeft', offset: 10 }} 
             />
-            <Tooltip 
+            <Tooltip
               content={<CustomTooltip issues={issues} assigneeNameByEmail={assigneeNameByEmail} />}
               allowEscapeViewBox={{ x: false, y: true }}
               position={{ x: undefined, y: undefined }}
+              cursor={{ fill: 'rgba(91, 196, 255, 0.07)' }}
             />
             <Legend 
               verticalAlign="bottom"
@@ -294,23 +292,25 @@ export default function ColumnChart({
               formatter={(value) => value === 'score1' ? 'Performance' : 
                                    value === 'score2' ? 'Base' : value}
             />
-            <Bar 
-              dataKey="score2" 
+            <Bar
+              dataKey="score2"
               name="score2"
               stackId="stack"
               fill={PALETTE[1].fill}
               stroke={PALETTE[1].stroke}
               strokeWidth={1}
               radius={[0, 0, 0, 0]}
+              activeBar={{ fill: PALETTE[1].fill, stroke: PALETTE[1].stroke, strokeWidth: 1, fillOpacity: 0.75 }}
             />
-            <Bar 
-              dataKey="score1" 
+            <Bar
+              dataKey="score1"
               name="score1"
               stackId="stack"
               fill={PALETTE[0].fill}
               stroke={PALETTE[0].stroke}
               strokeWidth={1}
               radius={[2, 2, 0, 0]}
+              activeBar={{ fill: PALETTE[0].fill, stroke: PALETTE[0].stroke, strokeWidth: 1, fillOpacity: 0.75 }}
             />
             {/* ReferenceDot for issues */}
             {issueDots

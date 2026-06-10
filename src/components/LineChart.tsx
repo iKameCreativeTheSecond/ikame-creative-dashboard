@@ -141,15 +141,15 @@ const CustomTooltip = ({
       )}
       {issuesAtTime.length > 0 && (
         <>
-          <p style={{ margin: '12px 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#DC2626' }}>
+          <p style={{ margin: '12px 0 6px 0', fontWeight: '600', fontSize: '12px', color: '#fca5a5' }}>
             ISSUE:
           </p>
           <div className="custom-tooltip-issue-list">
             {issuesAtTime.map((issue: ProjectIssue, idx: number) => (
-              <div key={idx} style={{ marginBottom: '4px', padding: '6px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', fontSize: '11px', display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '120px', wordBreak: 'break-word' }}>
-                <span style={{ fontWeight: '600', color: '#DC2626', fontSize: '12px' }}>{issue.Project}</span>
-                <span style={{ color: '#7F1D1D', fontSize: '10px' }}>Team: {issue.Team}</span>
-                <span style={{ color: '#7F1D1D', fontSize: '10px' }}>
+              <div key={idx} className="custom-tooltip-issue-card">
+                <span style={{ fontWeight: '600', color: '#fca5a5', fontSize: '12px' }}>{issue.Project}</span>
+                <span style={{ color: '#f87171', fontSize: '10px' }}>Team: {issue.Team}</span>
+                <span style={{ color: '#f87171', fontSize: '10px' }}>
                   Assignees:{' '}
                   {(issue.Assignees && issue.Assignees.length > 0)
                     ? issue.Assignees
@@ -160,7 +160,7 @@ const CustomTooltip = ({
                         .join(', ')
                     : '—'}
                 </span>
-                <span style={{ color: issue.Difference > 0 ? '#059669' : '#DC2626', fontSize: '10px', fontWeight: '600' }}>
+                <span style={{ color: issue.Difference > 0 ? '#34d399' : '#f87171', fontSize: '10px', fontWeight: '600' }}>
                   Difference: {issue.Difference > 0 ? '+' : ''}{issue.Difference}
                 </span>
               </div>

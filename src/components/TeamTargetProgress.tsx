@@ -1,4 +1,6 @@
 import React from "react";
+import { Typography } from 'antd';
+import { FaBullseye } from 'react-icons/fa';
 import "./TeamTargetProgress.css";
 
 export type WeeklyTeamPerformaceData = {
@@ -59,9 +61,9 @@ const TeamTargetProgress: React.FC<{ teams: WeeklyTeamPerformaceData[] }> = ({ t
   return (
     <div className="team-target-progress-container">
       <div className="team-target-header">
-        <span className="team-target-icon">🎯</span>
-        <span className="team-target-title">Team's Target Progress</span>
-        <span className="team-target-date">(Tuần gần nhất: {getPreviousMonday()})</span>
+        <FaBullseye className="section-icon" style={{ marginRight: 8 }} />
+        <Typography.Text strong className="team-target-title">Team's Target Progress</Typography.Text>
+        <Typography.Text className="team-target-date">(Tuần gần nhất: {getPreviousMonday()})</Typography.Text>
       </div>
       <div className="team-cards-row">
         {teams.map((team) => (

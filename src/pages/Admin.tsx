@@ -7,13 +7,14 @@ import CreativeToolManagement from '../components/CreativeToolManagement';
 import ProjectDetailsManagement from '../components/ProjectDetailsManagement';
 import TaskLevelManagement from '../components/TaskLevelManagement';
 import { GlobalData } from '../common/GlobalData';
+import TopBar from '../components/TopBar';
+import './Admin.css';
 
-const { Sider, Content, Header } = Layout;
+const { Sider, Content } = Layout;
 
 const menuItems: MenuProps['items'] = [
     { key: 'team',            icon: <span>👥</span>, label: 'Team Management'  },
     { key: 'creative-tool',   icon: <span>🎨</span>, label: 'Creative Tool'    },
-    { key: 'weekly-orders',   icon: <span>🗓️</span>, label: 'Weekly Orders'    },
     { key: 'project-details', icon: <span>📋</span>, label: 'Project Details'  },
     { key: 'task-level',      icon: <span>📊</span>, label: 'Task Level'       },
     { key: 'contacts',        icon: <span>📇</span>, label: 'Contacts'         },
@@ -53,15 +54,31 @@ export default function Admin() {
         switch (activeTab) {
             case 'team':            return <TeamManagement />;
             case 'creative-tool':   return <CreativeToolManagement />;
-            case 'weekly-orders':   return <WeeklyOrderManagement />;
             case 'project-details': return <ProjectDetailsManagement />;
             case 'task-level':      return <TaskLevelManagement />;
-            case 'contacts':        return <Typography.Text style={{ display: 'block', padding: '40px 24px', fontSize: '1.1rem' }}>Contacts content goes here.</Typography.Text>;
+            case 'contacts': return (
+                <div style={{ padding: '40px 24px', maxWidth: 600 }}>
+                    <Typography.Title level={4} style={{ marginBottom: 24 }}>Contacts</Typography.Title>
+
+                    <Typography.Title level={5} style={{ marginBottom: 12 }}>Developer</Typography.Title>
+                    <div style={{ marginBottom: 24, lineHeight: 2 }}>
+                        <div><strong>Name:</strong> Phạm Tiến Chượng</div>
+                        <div><strong>Email:</strong> chuongpt@ikameglobal.com</div>
+                        <div><strong>Role:</strong> Developer</div>
+                    </div>
+
+                    <Typography.Title level={5} style={{ marginBottom: 12 }}>Admin</Typography.Title>
+                    <div style={{ lineHeight: 2 }}>
+                        <div><strong>Name:</strong> Hoàng Hữu Thành</div>
+                        <div><strong>Email:</strong> thanhhd@ikameglobal.com</div>
+                        <div><strong>Role:</strong> System Administrator</div>
+                    </div>
+                </div>
+            );
             default:                return null;
         }
     };
 
-    const pageTitle = (menuItems.find(i => i?.key === activeTab)?.label ?? 'Admin') as string;
 
     if (isAdmin === null) {
         return (
@@ -76,39 +93,32 @@ export default function Admin() {
     }
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
-            <Sider
-                width={240}
-                style={{ position: 'fixed', height: '100vh', overflow: 'auto', left: 0, top: 0 }}
-            >
-                <div style={{ padding: '20px', borderBottom: '1px solid rgba(91, 196, 255, 0.12)' }}>
-                    <Typography.Text strong style={{ color: '#fff', fontSize: 15 }}>
-                        Creative Administration
-                    </Typography.Text>
-                </div>
-                <Menu
-                    mode="inline"
-                    selectedKeys={[activeTab]}
-                    items={menuItems}
-                    onClick={({ key }) => setActiveTab(key)}
-                    style={{ border: 'none', marginTop: 8 }}
-                />
-            </Sider>
-            <Layout style={{ marginLeft: 240 }}>
-                <Header style={{
-                    padding: '0 24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    borderBottom: '1px solid rgba(91, 196, 255, 0.12)',
-                }}>
-                    <Typography.Title level={5} style={{ margin: 0, color: '#fff' }}>
-                        {pageTitle}
-                    </Typography.Title>
-                </Header>
-                <Content style={{ padding: 10 }}>
-                    {renderContent()}
-                </Content>
+        <>
+            <TopBar
+                userName={GlobalData.getUser().name || GlobalData.getUser().email || 'User'}
+                imageUrl={GlobalData.getUser().picture}
+                siteName="Creative Administration"
+            />
+            <Layout style={{ minHeight: '100vh', paddingTop: 60 }}>
+                <Sider
+                    width={240}
+                    className="admin-sider"
+                    style={{ position: 'fixed', height: 'calc(100vh - 60px)', overflow: 'auto', left: 0, top: 60 }}
+                >
+                    <Menu
+                        mode="inline"
+                        selectedKeys={[activeTab]}
+                        items={menuItems}
+                        onClick={({ key }) => setActiveTab(key)}
+                        style={{ border: 'none', marginTop: 8 }}
+                    />
+                </Sider>
+                <Layout style={{ marginLeft: 240 }}>
+                    <Content style={{ padding: 10 }}>
+                        {renderContent()}
+                    </Content>
+                </Layout>
             </Layout>
-        </Layout>
+        </>
     );
 }

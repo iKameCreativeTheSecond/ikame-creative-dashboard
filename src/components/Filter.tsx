@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, DatePicker, Select, Space, Typography } from 'antd';
+import { FaFilter } from 'react-icons/fa';
 import dayjs from 'dayjs';
 import './Filter.css';
 
@@ -98,9 +99,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
     <div className="date-filter">
       <div className="filter-header">
         <div className="filter-header-left">
-          <svg className="filter-header-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M3 5a1 1 0 011-1h16a1 1 0 01.8 1.6l-6.2 8.27a1 1 0 00-.2.6V19a1 1 0 01-.55.9l-3 1.5A1 1 0 019 20.5v-5.03a1 1 0 00-.2-.6L2.2 6.6A1 1 0 013 5z" fill="#5F6D7A" />
-          </svg>
+          <FaFilter className="section-icon" />
           <Typography.Text strong style={{ color: '#fff', fontSize: 15 }}>Filter</Typography.Text>
         </div>
       </div>
@@ -161,11 +160,11 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
           Quick Options:
         </Typography.Text>
         <Space size={8} wrap>
-          <Button size="small" shape="round" onClick={() => setQuickRange(0, 1)}>1 tuần</Button>
-          <Button size="small" shape="round" onClick={() => setQuickRange(1)}>1 tháng</Button>
-          <Button size="small" shape="round" onClick={() => setQuickRange(3)}>3 tháng</Button>
-          <Button size="small" shape="round" onClick={() => setQuickRange(6)}>6 tháng</Button>
-          <Button size="small" shape="round" danger onClick={() => applyChange(null, null, selectedTeams, selectedStaff)}>Xóa</Button>
+          <Button  shape="round" onClick={() => setQuickRange(0, 1)}>1 tuần</Button>
+          <Button  shape="round" onClick={() => setQuickRange(1)}>1 tháng</Button>
+          <Button  shape="round" onClick={() => setQuickRange(3)}>3 tháng</Button>
+          <Button  shape="round" onClick={() => setQuickRange(6)}>6 tháng</Button>
+          <Button  shape="round" danger onClick={() => applyChange(null, null, selectedTeams, selectedStaff)}>Xóa</Button>
         </Space>
       </div>
     </div>

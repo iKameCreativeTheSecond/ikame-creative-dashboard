@@ -1,1 +1,50 @@
-/* Layout handled by antd */
+/* Content area: no background */
+.ant-layout-content {
+  background: transparent !important;
+}
+
+/* Sider background to match app theme */
+.admin-sider.ant-layout-sider {
+  background: #0d1a28 !important;
+}
+
+/* Menu background flush with sider */
+.admin-sider .ant-menu {
+  background: transparent !important;
+}
+
+/* All menu items: no background box */
+.admin-sider .ant-menu-item {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Selected item: teal text, no background */
+.admin-sider .ant-menu-item-selected {
+  background: transparent !important;
+  color: #2dd4bf !important;
+}
+
+.admin-sider .ant-menu-item-selected::after {
+  border-right-color: #2dd4bf !important;
+}
+
+/* Hover: subtle highlight only */
+.admin-sider .ant-menu-item:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #e2ecf4 !important;
+}
+
+/* Icon color inherits from item */
+.admin-sider .ant-menu-item .ant-menu-item-icon,
+.admin-sider .ant-menu-item span[role="img"] {
+  opacity: 0.75;
+}
+
+.admin-sider .ant-menu-item-selected .ant-menu-item-icon,
+.admin-sider .ant-menu-item-selected span[role="img"] {
+  opacity: 1;
+}

@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { Button, Select, Typography } from 'antd';
+import { FaTable } from 'react-icons/fa';
 import './ProjectIssueTable.css';
 
 export type ProjectIssue = {
@@ -108,15 +110,8 @@ export default function ProjectIssueTable({
         onFilteredDataChange?.(filteredData);
     }, [filteredData, onFilteredDataChange]);
 
-    // Handle filter changes for multi-select
-    const handleFilterChange = useCallback((key: keyof FilterState, value: string) => {
-        setFilters(prev => {
-            const currentValues = prev[key] as string[];
-            const newValues = currentValues.includes(value)
-                ? currentValues.filter(v => v !== value)
-                : [...currentValues, value];
-            return { ...prev, [key]: newValues };
-        });
+    const handleFilterChange = useCallback((key: keyof FilterState, values: string[]) => {
+        setFilters(prev => ({ ...prev, [key]: values }));
     }, []);
 
     // Clear all filters
@@ -166,7 +161,10 @@ export default function ProjectIssueTable({
     return (
         <div className="project-issue-table-container">
             <div className="project-issue-header">
-                <h3>{title}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <FaTable className="section-icon" />
+                    <h3 style={{ margin: 0 }}>{title}</h3>
+                </div>
                 <span className="project-count">{filteredData.length} of {data.length}</span>
             </div>
             
@@ -174,74 +172,48 @@ export default function ProjectIssueTable({
             <div className="filter-controls">
                 <div className="filter-row">
                     <div className="filter-group">
-                        <label>Project Name:</label>
-                        <div className="multi-select-container">
-                            <div className="multi-select-display">
-                                {filters.projectName.length === 0 ? 'All Projects' : `${filters.projectName.length} selected`}
-                            </div>
-                            <div className="multi-select-options">
-                                {uniqueProjects.map(project => (
-                                    <label key={project} className="multi-select-option">
-                                        <input
-                                            type="checkbox"
-                                            checked={filters.projectName.includes(project)}
-                                            onChange={() => handleFilterChange('projectName', project)}
-                                        />
-                                        <span>{project}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
+                        <Typography.Text style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Project Name</Typography.Text>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            placeholder="All Projects"
+                            style={{ width: '100%' }}
+                            value={filters.projectName}
+                            onChange={(values) => handleFilterChange('projectName', values)}
+                            options={uniqueProjects.map(p => ({ value: p, label: p }))}
+                        />
                     </div>
 
                     <div className="filter-group">
-                        <label>Difference:</label>
-                        <div className="multi-select-container">
-                            <div className="multi-select-display">
-                                {filters.status.length === 0 ? 'All Differences' : `${filters.status.length} selected`}
-                            </div>
-                            <div className="multi-select-options">
-                                <label className="multi-select-option">
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.status.includes('positive')}
-                                        onChange={() => handleFilterChange('status', 'positive')}
-                                    />
-                                    <span>Positive (+)</span>
-                                </label>
-                                <label className="multi-select-option">
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.status.includes('negative')}
-                                        onChange={() => handleFilterChange('status', 'negative')}
-                                    />
-                                    <span>Negative (-)</span>
-                                </label>
-                                <label className="multi-select-option">
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.status.includes('zero')}
-                                        onChange={() => handleFilterChange('status', 'zero')}
-                                    />
-                                    <span>Zero (0)</span>
-                                </label>
-                            </div>
-                        </div>
+                        <Typography.Text style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Difference</Typography.Text>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            placeholder="All Differences"
+                            style={{ width: '100%' }}
+                            value={filters.status}
+                            onChange={(values) => handleFilterChange('status', values)}
+                            options={[
+                                { value: 'positive', label: 'Positive (+)' },
+                                { value: 'negative', label: 'Negative (-)' },
+                                { value: 'zero',     label: 'Zero (0)'     },
+                            ]}
+                        />
                     </div>
 
-                    <button
+                    <Button
                         onClick={clearFilters}
-                        className={`clear-filters-btn ${hasActiveFilters ? 'active' : ''}`}
-                        title="Clear all filters"
                         disabled={!hasActiveFilters}
+                        danger={hasActiveFilters}
+                        style={{ alignSelf: 'flex-end' }}
                     >
-                        Clear Filters {hasActiveFilters && '✕'}
-                    </button>
+                        Clear Filters
+                    </Button>
                 </div>
             </div>
             
             <div className="table-wrapper">
-                <table className="project-issue-table">
+                <table className="team-table">
                     <thead>
                         <tr>
                             <th>Project</th>

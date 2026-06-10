@@ -1,8 +1,8 @@
-import React from 'react';
-import { useNavigate } from "react-router-dom";
-import { Avatar, Button, Dropdown, Space, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
+import { Avatar, Dropdown, Space, Typography } from 'antd';
 import type { MenuProps } from 'antd';
-import { FaUserCircle, FaCog, FaSignOutAlt, FaEdit, FaCalendarAlt, FaChevronDown } from 'react-icons/fa';
+import { FaUserCircle, FaCog, FaSignOutAlt, FaChevronDown } from 'react-icons/fa';
 import { GlobalData } from '../common/GlobalData';
 import './TopBar.css';
 
@@ -10,15 +10,33 @@ interface TopBarProps {
     userName: string;
     imageUrl?: string;
     siteName?: string;
-    showHomeButton?: boolean;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Performance Dashboard', showHomeButton = false }) => {
-    const navigate = useNavigate();
+const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
 
-    const handleSettings = () => {
-        alert('Chuyển đến trang cài đặt!');
-    };
+const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Performance Dashboard' }) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        let isMounted = true;
+        (async () => {
+            try {
+                const response = await fetch(`${serverUrl}/get/admin-role`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': GlobalData.getUserToken() || ''
+                    }
+                });
+                if (isMounted) setIsAdmin(response.ok);
+            } catch {
+                if (isMounted) setIsAdmin(false);
+            }
+        })();
+        return () => { isMounted = false; };
+    }, []);
 
     const handleLogout = () => {
         GlobalData.logout();
@@ -32,24 +50,38 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Perform
     ];
 
     const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
-        if (key === 'settings') handleSettings();
+        if (key === 'settings') alert('Chuyển đến trang cài đặt!');
         else if (key === 'logout') handleLogout();
     };
 
+    const navLinks = [
+        { key: 'home', label: 'Home', path: '/home' },
+        { key: 'weekly-plan', label: 'Weekly Plan', path: '/weekly-plan' },
+        ...(isAdmin ? [{ key: 'admin', label: 'Admin', path: '/admin' }] : []),
+    ];
+
     return (
         <header className="topbar">
-            <Typography.Text strong style={{ fontSize: '1.15rem', color: '#ffffff', letterSpacing: -0.2 }}>
+            <Typography.Text strong style={{ fontSize: '1.15rem', color: '#ffffff', letterSpacing: -0.2, minWidth: 180 }}>
                 {siteName}
             </Typography.Text>
-            <Space size={8}>
-                <Button
-                    icon={<FaCalendarAlt />}
-                    onClick={() => navigate(showHomeButton ? '/home' : '/weekly-plan')}
-                    ghost
-                >
-                    {showHomeButton ? 'Home' : 'Weekly Plan'}
-                </Button>
-                <Button icon={<FaEdit />} ghost onClick={() => navigate('/admin')} />
+
+            <nav className="topbar-nav">
+                {navLinks.map(link => {
+                    const isActive = location.pathname.startsWith(link.path);
+                    return (
+                        <button
+                            key={link.key}
+                            className={`topbar-nav-item${isActive ? ' active' : ''}`}
+                            onClick={() => navigate(link.path)}
+                        >
+                            {link.label}
+                        </button>
+                    );
+                })}
+            </nav>
+
+            <Space size={8} style={{ minWidth: 180, justifyContent: 'flex-end', display: 'flex' }}>
                 {imageUrl
                     ? <Avatar src={imageUrl} size={32} />
                     : <Avatar icon={<FaUserCircle />} size={32} />
