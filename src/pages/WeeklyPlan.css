@@ -76,6 +76,85 @@
 }
 
 /* ===== Ant Design overrides — match native inputs throughout Weekly Plan ===== */
+
+/* InputNumber: index.css adds a border to every <input>, so the inner input and the
+   wrapper both show a border — fix by zeroing the inner input border. */
+.weekly-plan-page .ant-input-number {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(91, 196, 255, 0.2);
+  border-radius: 6px;
+  box-shadow: none !important;
+  color: #e2ecf4;
+}
+
+.weekly-plan-page .ant-input-number:hover {
+  border-color: rgba(91, 196, 255, 0.4);
+}
+
+.weekly-plan-page .ant-input-number-focused,
+.weekly-plan-page .ant-input-number:focus-within {
+  border-color: #5bc4ff !important;
+  box-shadow: 0 0 0 2px rgba(91, 196, 255, 0.18) !important;
+}
+
+.weekly-plan-page .ant-input-number .ant-input-number-input {
+  background: transparent !important;
+  color: #e2ecf4 !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-align: right;
+}
+
+.weekly-plan-page .report-input-negative .ant-input-number-input { color: #f87171 !important; }
+.weekly-plan-page .report-input-positive .ant-input-number-input { color: #4ade80 !important; }
+
+/* Ghi chú column */
+.plan-table td.col-note { padding: 0.5rem 0.5rem; vertical-align: top; }
+
+.note-list { display: flex; flex-direction: column; gap: 6px; }
+
+.note-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.note-list-item .qty-label {
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.weekly-plan-page .note-textarea {
+  flex: 1;
+  min-width: 0;
+  resize: none;
+}
+
+.weekly-plan-page .note-textarea.ant-input,
+.weekly-plan-page .note-textarea textarea {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(91, 196, 255, 0.15) !important;
+  color: #a8c5da !important;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  border-radius: 4px;
+  box-shadow: none !important;
+  resize: none;
+  width: 100%;
+}
+
+.weekly-plan-page .note-textarea.ant-input::placeholder,
+.weekly-plan-page .note-textarea textarea::placeholder { color: rgba(168, 197, 218, 0.3); }
+
+.weekly-plan-page .note-textarea.ant-input:hover,
+.weekly-plan-page .note-textarea:hover textarea { border-color: rgba(91, 196, 255, 0.35) !important; }
+
+.weekly-plan-page .note-textarea.ant-input:focus,
+.weekly-plan-page .note-textarea:focus-within textarea {
+  border-color: #5bc4ff !important;
+  box-shadow: 0 0 0 2px rgba(91, 196, 255, 0.12) !important;
+}
+
 .weekly-plan-page .ant-select .ant-select-selector,
 .weekly-plan-page .ant-picker {
   background: rgba(255, 255, 255, 0.05) !important;
@@ -364,7 +443,6 @@
 }
 
 .plan-table {
-  width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
@@ -535,13 +613,28 @@
   padding: 0;
 }
 
-/* Column widths */
-.col-timeline  { width: 190px; min-width: 190px; }
-.col-project   { width: 150px; min-width: 150px; }
-.col-objectives { width: 300px; min-width: 250px; }
-.col-strategy  { width: 300px; min-width: 250px; }
-.col-quantity  { width: 150px; min-width: 140px; }
-.col-status    { width: 140px; min-width: 130px; }
+/* Resizable column headers */
+.plan-table th.col-resizable {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 14px;
+}
+
+.col-resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 1;
+  transition: background 0.15s;
+}
+.col-resize-handle:hover,
+.col-resize-handle:active {
+  background: rgba(91, 196, 255, 0.5);
+}
 
 .confirm-diff-list {
   display: flex;
@@ -800,7 +893,6 @@
 @media (max-width: 1400px) {
   .weekly-plan-container { padding: 1rem; }
   .plan-table { font-size: 0.85rem; }
-  .col-objectives, .col-strategy { min-width: 200px; }
 }
 
 @media (max-width: 768px) {

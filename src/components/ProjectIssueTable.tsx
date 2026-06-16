@@ -2,18 +2,9 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Button, Select, Typography } from 'antd';
 import { FaTable } from 'react-icons/fa';
 import './ProjectIssueTable.css';
+import type { ProjectIssue } from '../common/GlobalData';
 
-export type ProjectIssue = {
-    Id?: string;
-    Project: string;
-    StartWeek: string;
-    CompletedCount: number;
-    Assignees: string[];
-    Difference: number;
-    Team: string;
-    OrderCount: number;
-    TaskType : string;
-}
+export type { ProjectIssue };
 
 interface ProjectIssueTableProps {
     data: ProjectIssue[];
@@ -235,7 +226,7 @@ export default function ProjectIssueTable({
                             </tr>
                         ) : (
                             filteredData.map((issue, index) => (
-                                <tr key={issue.Id || index}>
+                                <tr key={issue.ID || index}>
                                     <td className="project-name">{issue.Project}</td>
                                     <td className="team-name">{issue.Team}</td>
                                     <td className="task-type">{issue.TaskType || 'N/A'}</td>

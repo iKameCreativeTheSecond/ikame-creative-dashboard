@@ -1,9 +1,22 @@
-//#region 
+//#region
 
 export type UserInfo = {
     email: string;
     name: string;
     picture: string;
+}
+
+export type ProjectIssue = {
+    ID?: string;
+    Project: string;
+    StartWeek: string;
+    CompletedCount: number;
+    Assignees: string[];
+    Difference: number;
+    Team: string;
+    OrderCount: number;
+    TaskType: string;
+    Note?: string;
 }
 
 //endregion
@@ -67,6 +80,10 @@ export class GlobalData
         localStorage.removeItem('userToken');
         localStorage.removeItem('user');
     }
+
+    // Keyed by "${projectKey}|${mondayMs}|${normalizedType}"
+    // Survives component unmount/remount within the same browser session
+    static projectIssuesCache: Map<string, ProjectIssue> = new Map();
 }
 
 export function GetTeamFromTaskType(taskType: string): string

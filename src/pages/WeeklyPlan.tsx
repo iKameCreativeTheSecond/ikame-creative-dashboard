@@ -6,7 +6,7 @@ import AdminData from '../common/AdministratorData';
 import { GlobalData } from '../common/GlobalData';
 import './WeeklyPlan.css';
 
-import type { ProjectIssue } from '../components/ProjectIssueTable';
+import type { ProjectIssue } from '../common/GlobalData';
 
 interface WeeklyPlanItem {
   id: number;
@@ -34,12 +34,18 @@ interface WeeklyPlanItem {
   completedBanner: number;
   completedPLA: number;
   completedVideo: number;
-  // Report values (backend-provided Difference/Different per task type)
+  // Report values (backend-provided Difference per task type)
   reportCPP: number;
   reportIcon: number;
   reportBanner: number;
   reportPLA: number;
   reportVideo: number;
+  // Note per task type (from ProjectIssue.Note)
+  noteCPP: string;
+  noteIcon: string;
+  noteBanner: string;
+  notePLA: string;
+  noteVideo: string;
   confirmationStatus: 'sufficient' | 'lacking' | 'pending';
 }
 
@@ -58,12 +64,31 @@ type QuantityField =
   | 'completedIcon'
   | 'completedBanner'
   | 'completedPLA'
-  | 'completedVideo';
+  | 'completedVideo'
+  | 'reportCPP'
+  | 'reportIcon'
+  | 'reportBanner'
+  | 'reportPLA'
+  | 'reportVideo';
 
 type CompletedField = 'completedCPP' | 'completedIcon' | 'completedBanner' | 'completedPLA' | 'completedVideo';
 type ReportField = 'reportCPP' | 'reportIcon' | 'reportBanner' | 'reportPLA' | 'reportVideo';
+type NoteField = 'noteCPP' | 'noteIcon' | 'noteBanner' | 'notePLA' | 'noteVideo';
 
 type TextField = 'objectives' | 'strategy';
+
+const PROJECT_PALETTE: { bg: string; color: string }[] = [
+  { bg: 'rgba(91, 196, 255, 0.15)',  color: '#5bc4ff' },
+  { bg: 'rgba(77, 208, 225, 0.15)',  color: '#4dd0e1' },
+  { bg: 'rgba(167, 139, 250, 0.15)', color: '#a78bfa' },
+  { bg: 'rgba(251, 191, 36, 0.15)',  color: '#fbbf24' },
+  { bg: 'rgba(52, 211, 153, 0.15)',  color: '#34d399' },
+  { bg: 'rgba(251, 146, 60, 0.15)',  color: '#fb923c' },
+  { bg: 'rgba(236, 72, 153, 0.15)',  color: '#ec4899' },
+  { bg: 'rgba(129, 140, 248, 0.15)', color: '#818cf8' },
+  { bg: 'rgba(34, 211, 238, 0.15)',  color: '#22d3ee' },
+  { bg: 'rgba(250, 204, 21, 0.15)',  color: '#facc15' },
+];
 
 // Returns today's date as a local Date object using Vietnam timezone (UTC+7)
 function getVietnamNow(): Date {
@@ -80,6 +105,7 @@ function getVietnamNow(): Date {
 export default function WeeklyPlan() {
   const [planData, setPlanData] = useState<WeeklyPlanItem[]>([]);
   const [filteredData, setFilteredData] = useState<WeeklyPlanItem[]>([]);
+  const [isPlanDataLoaded, setIsPlanDataLoaded] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [modal, modalContextHolder] = Modal.useModal();
   const [messageApi, messageContextHolder] = message.useMessage();
@@ -107,10 +133,17 @@ export default function WeeklyPlan() {
   const [newItem, setNewItem] = useState<WeeklyPlanItem | null>(null);
   const [projectOptions, setProjectOptions] = useState<string[]>(() => AdminData.getListProjects());
 
+  const [colWidths, setColWidths] = useState({ timeline: 190, project: 210, objectives: 300, strategy: 300, confirm: 210, report: 210, note: 280 });
+
   const addFormRef = useRef<HTMLDivElement>(null);
   const rowRefsMap = useRef<Map<number, HTMLTableRowElement>>(new Map());
   const tableWrapperRef = useRef<HTMLDivElement>(null);
+  const resizingRef = useRef<{ key: keyof typeof colWidths; startX: number; startWidth: number } | null>(null);
   const didInitialLoadRef = useRef(false);
+  const planDataRef = useRef<WeeklyPlanItem[]>([]);
+  const confirmAutoSaveTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  const reportAutoSaveTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  const noteAutoSaveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? 'http://localhost:8888';
 
@@ -139,24 +172,7 @@ export default function WeeklyPlan() {
     });
   };
 
-  // Serialize WeeklyPlanItem proposed fields → temp-weekly-order payload (same structure as WeeklyOrder)
-  // For new items (no backendId yet), omit ID so backend can generate it.
-  const serializeTempOrder = (item: WeeklyPlanItem) => ({
-    ID: item.backendId ?? undefined,
-    StartWeek: item.timeline.toISOString(),
-    Project: item.project,
-    Status: item.status,
-    Goal: item.objectives,
-    Strategy: item.strategy,
-    CPP: item.proposedCPP,
-    Icon: item.proposedIcon,
-    Banner: item.proposedBanner,
-    PLA: item.proposedPLA,
-    Video: item.proposedVideo,
-  });
-
-  // Serialize WeeklyPlanItem confirmed fields → weekly-order update payload.
-  // Keep the same payload shape as temp-weekly-order update (Status/Goal/Strategy + CPP/Icon/Banner/PLA/Video).
+  // Serialize WeeklyPlanItem confirmed fields → weekly-order payload.
   const serializeConfirmedPlan = (item: WeeklyPlanItem) => ({
     ID: item.backendId ?? String(item.id),
     StartWeek: item.timeline.toISOString(),
@@ -171,15 +187,14 @@ export default function WeeklyPlan() {
     Video: item.confirmedVideo,
   });
 
-  // Deserialize temp-weekly-order response → full WeeklyPlanItem (proposed side, confirmed = 0)
-  const deserializeTempOrder = (data: any): WeeklyPlanItem => {
+  // Deserialize weekly-order response → full WeeklyPlanItem
+  const deserializeWeeklyOrder = (data: any): WeeklyPlanItem => {
     const timeline = new Date(data.StartWeek);
     const project = (data.Project ?? '') as string;
     const backendIdRaw = data.ID ?? data.id;
     const backendId = backendIdRaw === undefined || backendIdRaw === null || backendIdRaw === '' ? undefined : String(backendIdRaw);
     const parsedBackendId = backendId ? Number(backendId) : NaN;
 
-    // If backend doesn't provide a usable ID, derive a stable client id from (project + monday)
     const d = new Date(timeline);
     const dow = d.getDay();
     d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
@@ -187,6 +202,11 @@ export default function WeeklyPlan() {
     const derivedId = -1 * (stableHash32(`${project.trim().toLowerCase()}|${mondayMs}`) + 1);
 
     const id = Number.isFinite(parsedBackendId) ? parsedBackendId : derivedId;
+    const cpp = data.CPP ?? 0;
+    const icon = data.Icon ?? 0;
+    const banner = data.Banner ?? 0;
+    const pla = data.PLA ?? 0;
+    const video = data.Video ?? 0;
 
     return {
       id,
@@ -197,16 +217,16 @@ export default function WeeklyPlan() {
       objectives: data.Goal ?? '',
       strategy: data.Strategy ?? '',
       confirmationStatus: 'pending',
-      proposedCPP: data.CPP ?? 0,
-      proposedIcon: data.Icon ?? 0,
-      proposedBanner: data.Banner ?? 0,
-      proposedPLA: data.PLA ?? 0,
-      proposedVideo: data.Video ?? 0,
-      confirmedCPP: 0,
-      confirmedIcon: 0,
-      confirmedBanner: 0,
-      confirmedPLA: 0,
-      confirmedVideo: 0,
+      proposedCPP: cpp,
+      proposedIcon: icon,
+      proposedBanner: banner,
+      proposedPLA: pla,
+      proposedVideo: video,
+      confirmedCPP: cpp,
+      confirmedIcon: icon,
+      confirmedBanner: banner,
+      confirmedPLA: pla,
+      confirmedVideo: video,
       completedCPP: 0,
       completedIcon: 0,
       completedBanner: 0,
@@ -217,43 +237,22 @@ export default function WeeklyPlan() {
       reportBanner: 0,
       reportPLA: 0,
       reportVideo: 0,
+      noteCPP: '',
+      noteIcon: '',
+      noteBanner: '',
+      notePLA: '',
+      noteVideo: '',
     };
   };
 
-  // Deserialize weekly-plan response → confirmed quantities only (for merging)
-  const deserializeConfirmedPlan = (data: any) => {
-    const d = new Date(data.StartWeek);
-    const dow = d.getDay();
-    d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
-    return {
-      project: (data.Project ?? '') as string,
-      mondayMs: new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(),
-      confirmedCPP: (data.CPP ?? 0) as number,
-      confirmedIcon: (data.Icon ?? 0) as number,
-      confirmedBanner: (data.Banner ?? 0) as number,
-      confirmedPLA: (data.PLA ?? 0) as number,
-      confirmedVideo: (data.Video ?? 0) as number,
-    };
-  };
-
-  const fetchTempWeeklyPlans = async (): Promise<WeeklyPlanItem[]> => {
-    const response = await fetch(serverUrl + '/get/temp-weekly-order', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    return ensureUniqueIds(data.map(deserializeTempOrder));
-  };
-
-  const fetchWeeklyPlans = async () => {
+  const fetchWeeklyPlans = async (): Promise<WeeklyPlanItem[]> => {
     const response = await fetch(serverUrl + '/get/weekly-order', {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
-    return data.map(deserializeConfirmedPlan);
+    return ensureUniqueIds(data.map(deserializeWeeklyOrder));
   };
 
   const apiUpdateWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
@@ -261,6 +260,32 @@ export default function WeeklyPlan() {
     const response = await fetch(serverUrl + '/post/update-weekly-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  };
+
+  const apiUpdateProjectIssue = async (issue: ProjectIssue, newDifference: number, newNote: string): Promise<void> => {
+    if (!issue.ID) throw new Error('Missing issue ID');
+    const masterToken = import.meta.env.VITE_SERVER_MASTER_TOKEN;
+    const payload = {
+      ID: issue.ID,
+      Project: issue.Project,
+      StartWeek: issue.StartWeek,
+      TaskType: issue.TaskType,
+      CompletedCount: issue.CompletedCount ?? 0,
+      Assignees: issue.Assignees ?? [],
+      Difference: newDifference,
+      Team: issue.Team ?? '',
+      OrderCount: issue.OrderCount ?? 0,
+      Note: newNote,
+    };
+    const response = await fetch(serverUrl + '/post/update-project-issue', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': masterToken,
+      },
       body: JSON.stringify(payload),
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -275,9 +300,21 @@ export default function WeeklyPlan() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   };
 
-  const apiAddTempWeeklyPlan = async (item: WeeklyPlanItem): Promise<WeeklyPlanItem> => {
-    const payload = serializeTempOrder(item);
-    const response = await fetch(serverUrl + '/post/add-new-temp-weekly-order', {
+  const apiAddWeeklyPlan = async (item: WeeklyPlanItem): Promise<WeeklyPlanItem> => {
+    const payload = {
+      ID: item.backendId ?? undefined,
+      StartWeek: item.timeline.toISOString(),
+      Project: item.project,
+      Status: item.status,
+      Goal: item.objectives,
+      Strategy: item.strategy,
+      CPP: item.confirmedCPP,
+      Icon: item.confirmedIcon,
+      Banner: item.confirmedBanner,
+      PLA: item.confirmedPLA,
+      Video: item.confirmedVideo,
+    };
+    const response = await fetch(serverUrl + '/post/add-new-weekly-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -293,25 +330,6 @@ export default function WeeklyPlan() {
       backendId,
       id: Number.isFinite(nextId) ? nextId : item.id,
     };
-  };
-
-  const apiUpdateTempWeeklyPlan = async (item: WeeklyPlanItem): Promise<void> => {
-    const payload = serializeTempOrder(item);
-    const response = await fetch(serverUrl + '/post/temp-update-weekly-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-  };
-
-  const apiDeleteTempWeeklyPlan = async (project: string, startWeekIso: string): Promise<void> => {
-    const response = await fetch(serverUrl + '/post/delete-temp-weekly-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ Project: project, StartWeek: startWeekIso }),
-    });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   };
 
   useEffect(() => {
@@ -470,7 +488,9 @@ export default function WeeklyPlan() {
 
   // Load completed counts from backend whenever filters change,
   // then map into completedCPP/Icon/Banner/PLA/Video so the Report column updates.
+  // Guard on isPlanDataLoaded: avoids patching an empty array when both effects fire on mount.
   useEffect(() => {
+    if (!isPlanDataLoaded) return;
     const { from, to } = getEffectiveRange();
 
     const fromIso = new Date(from.getFullYear(), from.getMonth(), from.getDate()).toISOString();
@@ -483,25 +503,36 @@ export default function WeeklyPlan() {
 
     const mapTaskTypeToFields = (
       taskTypeRaw: string | undefined | null
-    ): { completed: CompletedField; report: ReportField } | null => {
+    ): { completed: CompletedField; report: ReportField; note: NoteField } | null => {
       const taskType = String(taskTypeRaw ?? '').trim().toLowerCase();
       switch (taskType) {
         case 'art_cpp':
         case 'cpp':
-          return { completed: 'completedCPP', report: 'reportCPP' };
+          return { completed: 'completedCPP', report: 'reportCPP', note: 'noteCPP' };
         case 'art_icon':
         case 'icon':
-          return { completed: 'completedIcon', report: 'reportIcon' };
+          return { completed: 'completedIcon', report: 'reportIcon', note: 'noteIcon' };
         case 'art_banner':
         case 'banner':
-          return { completed: 'completedBanner', report: 'reportBanner' };
+          return { completed: 'completedBanner', report: 'reportBanner', note: 'noteBanner' };
         case 'playable':
         case 'pla':
-          return { completed: 'completedPLA', report: 'reportPLA' };
+          return { completed: 'completedPLA', report: 'reportPLA', note: 'notePLA' };
         case 'video':
-          return { completed: 'completedVideo', report: 'reportVideo' };
+          return { completed: 'completedVideo', report: 'reportVideo', note: 'noteVideo' };
         default:
           return null;
+      }
+    };
+
+    const normalizeTaskType = (raw: string | undefined | null): string | null => {
+      switch (String(raw ?? '').trim().toLowerCase()) {
+        case 'art_cpp': case 'cpp': return 'cpp';
+        case 'art_icon': case 'icon': return 'icon';
+        case 'art_banner': case 'banner': return 'banner';
+        case 'playable': case 'pla': return 'pla';
+        case 'video': return 'video';
+        default: return null;
       }
     };
 
@@ -516,6 +547,14 @@ export default function WeeklyPlan() {
         Pick<WeeklyPlanItem, 'reportCPP' | 'reportIcon' | 'reportBanner' | 'reportPLA' | 'reportVideo'>
       >();
 
+      const noteByKey = new Map<
+        string,
+        Pick<WeeklyPlanItem, 'noteCPP' | 'noteIcon' | 'noteBanner' | 'notePLA' | 'noteVideo'>
+      >();
+
+      // Rebuild the cache from the fresh fetch result
+      GlobalData.projectIssuesCache = new Map();
+
       for (const issue of issues ?? []) {
         if (!issue?.Project || !issue?.StartWeek) continue;
 
@@ -527,6 +566,12 @@ export default function WeeklyPlan() {
 
         const issueMondayMs = getMondayMsFromDate(new Date(issue.StartWeek));
         const key = `${projectKey}|${issueMondayMs}`;
+
+        // Cache by (project|mondayMs|normalizedType) so we can look up by field name
+        const nt = normalizeTaskType(issue.TaskType);
+        if (nt) {
+          GlobalData.projectIssuesCache.set(`${projectKey}|${issueMondayMs}|${nt}`, issue);
+        }
 
         const current = completedByKey.get(key) ?? {
           completedCPP: 0,
@@ -554,6 +599,11 @@ export default function WeeklyPlan() {
           ? reportCurrent[fields.report] + diffIncrement
           : reportCurrent[fields.report];
         reportByKey.set(key, { ...reportCurrent, [fields.report]: nextReport });
+
+        const noteCurrent = noteByKey.get(key) ?? {
+          noteCPP: '', noteIcon: '', noteBanner: '', notePLA: '', noteVideo: '',
+        };
+        noteByKey.set(key, { ...noteCurrent, [fields.note]: issue.Note ?? '' });
       }
 
       const isInRange = (timeline: Date) => {
@@ -568,19 +618,14 @@ export default function WeeklyPlan() {
         if (!isInRange(item.timeline)) return item;
 
         const projectKey = String(item.project).trim().toLowerCase();
+        const emptyNotes = { noteCPP: '', noteIcon: '', noteBanner: '', notePLA: '', noteVideo: '' };
+
         if (selectedProjectSet.size > 0 && !selectedProjectSet.has(projectKey)) {
           return {
             ...item,
-            completedCPP: 0,
-            completedIcon: 0,
-            completedBanner: 0,
-            completedPLA: 0,
-            completedVideo: 0,
-            reportCPP: 0,
-            reportIcon: 0,
-            reportBanner: 0,
-            reportPLA: 0,
-            reportVideo: 0,
+            completedCPP: 0, completedIcon: 0, completedBanner: 0, completedPLA: 0, completedVideo: 0,
+            reportCPP: 0, reportIcon: 0, reportBanner: 0, reportPLA: 0, reportVideo: 0,
+            ...emptyNotes,
           };
         }
 
@@ -588,39 +633,22 @@ export default function WeeklyPlan() {
         const key = `${projectKey}|${mondayMs}`;
         const completed = completedByKey.get(key);
         const report = reportByKey.get(key);
+        const note = noteByKey.get(key);
 
-        if (!completed && !report) {
+        if (!completed && !report && !note) {
           return {
             ...item,
-            completedCPP: 0,
-            completedIcon: 0,
-            completedBanner: 0,
-            completedPLA: 0,
-            completedVideo: 0,
-            reportCPP: 0,
-            reportIcon: 0,
-            reportBanner: 0,
-            reportPLA: 0,
-            reportVideo: 0,
+            completedCPP: 0, completedIcon: 0, completedBanner: 0, completedPLA: 0, completedVideo: 0,
+            reportCPP: 0, reportIcon: 0, reportBanner: 0, reportPLA: 0, reportVideo: 0,
+            ...emptyNotes,
           };
         }
 
         return {
           ...item,
-          ...(completed ?? {
-            completedCPP: 0,
-            completedIcon: 0,
-            completedBanner: 0,
-            completedPLA: 0,
-            completedVideo: 0,
-          }),
-          ...(report ?? {
-            reportCPP: 0,
-            reportIcon: 0,
-            reportBanner: 0,
-            reportPLA: 0,
-            reportVideo: 0,
-          }),
+          ...(completed ?? { completedCPP: 0, completedIcon: 0, completedBanner: 0, completedPLA: 0, completedVideo: 0 }),
+          ...(report ?? { reportCPP: 0, reportIcon: 0, reportBanner: 0, reportPLA: 0, reportVideo: 0 }),
+          ...(note ?? emptyNotes),
         };
       };
 
@@ -652,7 +680,7 @@ export default function WeeklyPlan() {
     })();
 
     return () => controller.abort();
-  }, [selectedProjects, dateFrom, dateTo]);
+  }, [selectedProjects, dateFrom, dateTo, isPlanDataLoaded]);
 
   const canShiftWeekRange = (direction: -1 | 1) => {
     if (direction === -1) return true;
@@ -712,6 +740,11 @@ export default function WeeklyPlan() {
       reportBanner: 0,
       reportPLA: 0,
       reportVideo: 0,
+      noteCPP: '',
+      noteIcon: '',
+      noteBanner: '',
+      notePLA: '',
+      noteVideo: '',
       confirmationStatus: 'pending'
     };
     setNewItem(defaultItem);
@@ -777,6 +810,26 @@ export default function WeeklyPlan() {
             ...snapshot,
             id: duplicateItem.id,
             backendId: duplicateItem.backendId,
+            confirmedCPP: snapshot.proposedCPP,
+            confirmedIcon: snapshot.proposedIcon,
+            confirmedBanner: snapshot.proposedBanner,
+            confirmedPLA: snapshot.proposedPLA,
+            confirmedVideo: snapshot.proposedVideo,
+            completedCPP: duplicateItem.completedCPP,
+            completedIcon: duplicateItem.completedIcon,
+            completedBanner: duplicateItem.completedBanner,
+            completedPLA: duplicateItem.completedPLA,
+            completedVideo: duplicateItem.completedVideo,
+            reportCPP: duplicateItem.reportCPP,
+            reportIcon: duplicateItem.reportIcon,
+            reportBanner: duplicateItem.reportBanner,
+            reportPLA: duplicateItem.reportPLA,
+            reportVideo: duplicateItem.reportVideo,
+            noteCPP: duplicateItem.noteCPP,
+            noteIcon: duplicateItem.noteIcon,
+            noteBanner: duplicateItem.noteBanner,
+            notePLA: duplicateItem.notePLA,
+            noteVideo: duplicateItem.noteVideo,
           };
 
           setPlanData(prev => prev.map(item => (item.id === duplicateItem.id ? optimistic : item)));
@@ -792,9 +845,9 @@ export default function WeeklyPlan() {
 
           try {
             if (optimistic.backendId) {
-              await apiUpdateTempWeeklyPlan(optimistic);
+              await apiUpdateWeeklyPlan(optimistic);
             } else {
-              const saved = await apiAddTempWeeklyPlan({ ...optimistic, backendId: undefined });
+              const saved = await apiAddWeeklyPlan({ ...optimistic, backendId: undefined });
               setPlanData(prev => prev.map(item => (item.id === duplicateItem.id ? saved : item)));
               setFilteredData(prev => prev.map(item => (item.id === duplicateItem.id ? saved : item)));
               setAddedItemId(saved.id);
@@ -813,7 +866,16 @@ export default function WeeklyPlan() {
     }
 
     const nextId = planData.reduce((m, i) => Math.max(m, i.id), 0) + 1;
-    const toAdd: WeeklyPlanItem = { ...newItem, id: nextId, backendId: undefined };
+    const toAdd: WeeklyPlanItem = {
+      ...newItem,
+      id: nextId,
+      backendId: undefined,
+      confirmedCPP: newItem.proposedCPP,
+      confirmedIcon: newItem.proposedIcon,
+      confirmedBanner: newItem.proposedBanner,
+      confirmedPLA: newItem.proposedPLA,
+      confirmedVideo: newItem.proposedVideo,
+    };
 
     // Optimistic UI update (keeps current UX), then persist to DB.
     setPlanData(prev => [...prev, toAdd]);
@@ -829,8 +891,7 @@ export default function WeeklyPlan() {
     setDateTo(formatDateForInput(getSundayOfWeek(toAdd.timeline)));
 
     try {
-      const saved = await apiAddTempWeeklyPlan(toAdd);
-      // Backend may return a different ID; sync it back into state.
+      const saved = await apiAddWeeklyPlan(toAdd);
       setPlanData(prev => prev.map(item => (item.id === nextId ? saved : item)));
       setFilteredData(prev => prev.map(item => (item.id === nextId ? saved : item)));
       setAddedItemId(saved.id);
@@ -849,34 +910,14 @@ export default function WeeklyPlan() {
     if (didInitialLoadRef.current) return;
     didInitialLoadRef.current = true;
 
-    Promise.all([fetchTempWeeklyPlans(), fetchWeeklyPlans()])
-      .then(([tempItems, confirmedItems]) => {
-        // Merge confirmed quantities into temp items by matching project + Monday of week
-        const merged = tempItems.map(temp => {
-          const d = new Date(temp.timeline);
-          const dow = d.getDay();
-          d.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1));
-          const tempMondayMs = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-          const match = confirmedItems.find((c: ReturnType<typeof deserializeConfirmedPlan>) =>
-            c.project.trim().toLowerCase() === temp.project.trim().toLowerCase() &&
-            c.mondayMs === tempMondayMs
-          );
-          if (!match) return temp;
-          return {
-            ...temp,
-            confirmedCPP: match.confirmedCPP,
-            confirmedIcon: match.confirmedIcon,
-            confirmedBanner: match.confirmedBanner,
-            confirmedPLA: match.confirmedPLA,
-            confirmedVideo: match.confirmedVideo,
-          };
-        });
-        const uniqueMerged = ensureUniqueIds(merged);
-        setPlanData(uniqueMerged);
-        setFilteredData(uniqueMerged);
+    fetchWeeklyPlans()
+      .then(items => {
+        setPlanData(items);
+        setFilteredData(items);
+        setIsPlanDataLoaded(true);
         setProjectOptions(prev => {
           if (prev.length > 0) return prev;
-          return [...new Set(uniqueMerged.map(item => item.project))];
+          return [...new Set(items.map(item => item.project))];
         });
       })
       .catch(err => console.error('Error fetching weekly plans:', err));
@@ -916,6 +957,29 @@ export default function WeeklyPlan() {
     setFilteredData(filtered);
   }, [selectedProjects, planData, dateFrom, dateTo]);
 
+  // Scale column widths to fit the container on first load
+  useEffect(() => {
+    const wrapper = tableWrapperRef.current;
+    if (!wrapper) return;
+    const containerWidth = wrapper.clientWidth;
+    if (containerWidth <= 0) return;
+    const totalWidth = Object.values(colWidths).reduce((a, b) => a + b, 0);
+    if (totalWidth <= containerWidth) return;
+    const scale = containerWidth / totalWidth;
+    setColWidths(prev => {
+      const keys = Object.keys(prev) as Array<keyof typeof prev>;
+      const scaled = { ...prev };
+      let newTotal = 0;
+      keys.forEach(key => {
+        scaled[key] = Math.max(80, Math.floor(prev[key] * scale));
+        newTotal += scaled[key];
+      });
+      // Distribute rounding remainder so the table fills the container exactly
+      scaled.objectives += containerWidth - newTotal;
+      return scaled;
+    });
+  }, []);
+
   // Scroll to add form when it opens
   useEffect(() => {
     if (isAddFormOpen && addFormRef.current) {
@@ -947,15 +1011,15 @@ export default function WeeklyPlan() {
     return sorted;
   }, [filteredData]);
 
-  const getStatusClass = (status: string) => {
-    switch (status) {
-      case 'success': return 'status-success';
-      case 'warning': return 'status-warning';
-      case 'danger': return 'status-danger';
-      case 'info': return 'status-info';
-      default: return 'status-neutral';
-    }
+  const getProjectColorStyle = (project: string): React.CSSProperties => {
+    const idx = stableHash32(project.trim().toLowerCase()) % PROJECT_PALETTE.length;
+    return { background: PROJECT_PALETTE[idx].bg, color: PROJECT_PALETTE[idx].color };
   };
+
+  const getReportInputClass = (value: number) =>
+    value < 0 ? 'report-input-negative' : value > 0 ? 'report-input-positive' : '';
+
+  useEffect(() => { planDataRef.current = planData; }, [planData]);
 
   const updateQuantity = (id: number, field: QuantityField, value: number) => {
     const nextValue = Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
@@ -964,16 +1028,157 @@ export default function WeeklyPlan() {
     setFilteredData(prev => prev.map(item => (item.id === id ? { ...item, [field]: nextValue } : item)));
   };
 
+  const handleConfirmedQuantityChange = (id: number, field: QuantityField, value: number) => {
+    updateQuantity(id, field, value);
+
+    const existing = confirmAutoSaveTimers.current.get(id);
+    if (existing) clearTimeout(existing);
+
+    const timer = setTimeout(() => {
+      const item = planDataRef.current.find(i => i.id === id);
+      if (!item) return;
+      apiUpdateWeeklyPlan(item)
+        .catch(err => {
+          console.error('Auto-save error:', err);
+          messageApi.error(`Lỗi lưu kế hoạch "${item.project}"!`);
+        });
+    }, 800);
+
+    confirmAutoSaveTimers.current.set(id, timer);
+  };
+
+  const reportFieldToNormalizedType: Record<string, string> = {
+    reportCPP: 'cpp',
+    reportIcon: 'icon',
+    reportBanner: 'banner',
+    reportPLA: 'pla',
+    reportVideo: 'video',
+  };
+
+  const noteFieldToNormalizedType: Record<string, string> = {
+    noteCPP: 'cpp',
+    noteIcon: 'icon',
+    noteBanner: 'banner',
+    notePLA: 'pla',
+    noteVideo: 'video',
+  };
+
+  const normalizedTypeToNoteField: Record<string, NoteField> = {
+    cpp: 'noteCPP',
+    icon: 'noteIcon',
+    banner: 'noteBanner',
+    pla: 'notePLA',
+    video: 'noteVideo',
+  };
+
+  const handleReportQuantityChange = (id: number, field: QuantityField, value: number) => {
+    updateQuantity(id, field, value);
+
+    const existing = reportAutoSaveTimers.current.get(id);
+    if (existing) clearTimeout(existing);
+
+    const timer = setTimeout(() => {
+      const item = planDataRef.current.find(i => i.id === id);
+      if (!item) return;
+
+      const normalizedType = reportFieldToNormalizedType[field];
+      if (!normalizedType) return;
+
+      const projectKey = String(item.project).trim().toLowerCase();
+      const mondayMs = getMondayMsFromDate(item.timeline);
+      const cacheKey = `${projectKey}|${mondayMs}|${normalizedType}`;
+      const issue = GlobalData.projectIssuesCache.get(cacheKey);
+
+      if (!issue?.ID) {
+        console.warn(`No cached project issue for key: ${cacheKey}`);
+        return;
+      }
+
+      const latestItem = planDataRef.current.find(i => i.id === id);
+      const latestValue = (latestItem?.[field] as number) ?? 0;
+      const noteField = normalizedTypeToNoteField[normalizedType];
+      const latestNote = noteField ? ((latestItem?.[noteField] as string) ?? '') : '';
+      apiUpdateProjectIssue(issue, latestValue, latestNote)
+        .catch((err: unknown) => {
+          console.error('Auto-save report error:', err);
+          messageApi.error(`Lỗi lưu báo cáo "${item.project}"!`);
+        });
+    }, 800);
+
+    reportAutoSaveTimers.current.set(id, timer);
+  };
+
+  const handleNoteChange = (id: number, field: NoteField, value: string) => {
+    setPlanData(prev => prev.map(item => (item.id === id ? { ...item, [field]: value } : item)));
+    planDataRef.current = planDataRef.current.map(item => (item.id === id ? { ...item, [field]: value } : item));
+
+    const timerKey = `${id}|${field}`;
+    const existing = noteAutoSaveTimers.current.get(timerKey);
+    if (existing) clearTimeout(existing);
+
+    const timer = setTimeout(() => {
+      const item = planDataRef.current.find(i => i.id === id);
+      if (!item) return;
+
+      const normalizedType = noteFieldToNormalizedType[field];
+      if (!normalizedType) return;
+
+      const projectKey = String(item.project).trim().toLowerCase();
+      const mondayMs = getMondayMsFromDate(item.timeline);
+      const cacheKey = `${projectKey}|${mondayMs}|${normalizedType}`;
+      const issue = GlobalData.projectIssuesCache.get(cacheKey);
+
+      if (!issue?.ID) {
+        console.warn(`No cached project issue for key: ${cacheKey}`);
+        return;
+      }
+
+      const reportFieldMap: Record<string, ReportField> = {
+        cpp: 'reportCPP', icon: 'reportIcon', banner: 'reportBanner', pla: 'reportPLA', video: 'reportVideo',
+      };
+      const reportField = reportFieldMap[normalizedType];
+      const currentDiff = reportField ? ((planDataRef.current.find(i => i.id === id)?.[reportField] as number) ?? 0) : 0;
+      const latestNote = (planDataRef.current.find(i => i.id === id)?.[field] as string) ?? '';
+
+      apiUpdateProjectIssue(issue, currentDiff, latestNote)
+        .catch((err: unknown) => {
+          console.error('Auto-save note error:', err);
+          messageApi.error(`Lỗi lưu ghi chú "${item.project}"!`);
+        });
+    }, 800);
+
+    noteAutoSaveTimers.current.set(timerKey, timer);
+  };
+
+  const startResize = (e: React.MouseEvent, key: keyof typeof colWidths) => {
+    e.preventDefault();
+    resizingRef.current = { key, startX: e.clientX, startWidth: colWidths[key] };
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!resizingRef.current) return;
+      const delta = ev.clientX - resizingRef.current.startX;
+      const newWidth = Math.max(80, resizingRef.current.startWidth + delta);
+      setColWidths(prev => ({ ...prev, [resizingRef.current!.key]: newWidth }));
+    };
+
+    const onMouseUp = () => {
+      resizingRef.current = null;
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
   const updateTextField = (id: number, field: TextField, value: string) => {
     setPlanData(prev => prev.map(item => (item.id === id ? { ...item, [field]: value } : item)));
     // Keep `filteredData` in sync so textareas are editable immediately.
     setFilteredData(prev => prev.map(item => (item.id === id ? { ...item, [field]: value } : item)));
-  };
-
-  const copyToConfirmed = (id: number, proposedField: QuantityField) => {
-    const confirmedField = proposedField.replace('proposed', 'confirmed') as QuantityField;
-    setPlanData(prev => prev.map(item => (item.id === id ? { ...item, [confirmedField]: item[proposedField] } : item)));
-    setFilteredData(prev => prev.map(item => (item.id === id ? { ...item, [confirmedField]: item[proposedField] } : item)));
   };
 
   const deleteItem = (id: number) => {
@@ -998,13 +1203,9 @@ export default function WeeklyPlan() {
           return;
         }
 
-        const results = await Promise.allSettled([
-          apiDeleteTempWeeklyPlan(project, startWeekIso),
-          apiDeleteWeeklyPlan(project, startWeekIso),
-        ]);
-
-        const okCount = results.filter(r => r.status === 'fulfilled').length;
-        if (okCount === 0) {
+        try {
+          await apiDeleteWeeklyPlan(project, startWeekIso);
+        } catch {
           modal.error({
             title: 'Lỗi xoá dữ liệu',
             content: 'Không thể xoá kế hoạch trong DB. Vui lòng thử lại.',
@@ -1017,37 +1218,6 @@ export default function WeeklyPlan() {
         messageApi.success(`Đã xoá kế hoạch "${item.project}" thành công!`);
       },
     });
-  };
-
-  const copyAllToConfirmed = (id: number) => {
-    const applyCopy = (item: WeeklyPlanItem) =>
-      item.id === id
-        ? {
-            ...item,
-            confirmedCPP: item.proposedCPP,
-            confirmedIcon: item.proposedIcon,
-            confirmedBanner: item.proposedBanner,
-            confirmedPLA: item.proposedPLA,
-            confirmedVideo: item.proposedVideo,
-          }
-        : item;
-
-    setPlanData(prev => prev.map(applyCopy));
-    setFilteredData(prev => prev.map(applyCopy));
-  };
-
-  const renderQuantityInput = (item: WeeklyPlanItem, field: QuantityField) => {
-    return (
-      <InputNumber
-        min={0}
-        step={1}
-        value={item[field]}
-        onChange={(value) => updateQuantity(item.id, field, Number(value ?? 0))}
-        controls={false}
-        size="small"
-        style={{ width: 64 }}
-      />
-    );
   };
 
   const renderTextArea = (item: WeeklyPlanItem, field: TextField) => {
@@ -1190,7 +1360,7 @@ export default function WeeklyPlan() {
               </div>
 
               <div className="weekly-plan-add-qty">
-                <div className="weekly-plan-add-qty-title">Số lượng order</div>
+                <div className="weekly-plan-add-qty-title">Số lượng</div>
                 <div className="weekly-plan-qty-grid">
                   <div className="weekly-plan-qty-item"><span className="qty-label">CPP</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedCPP} onChange={(v) => updateNewItemQuantity('proposedCPP', Number(v ?? 0))} style={{ width: '100%' }} /></div>
                   <div className="weekly-plan-qty-item"><span className="qty-label">Icon</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedIcon} onChange={(v) => updateNewItemQuantity('proposedIcon', Number(v ?? 0))} style={{ width: '100%' }} /></div>
@@ -1213,16 +1383,25 @@ export default function WeeklyPlan() {
         )}
 
         <div className="plan-table-wrapper" ref={tableWrapperRef}>
-          <table className="plan-table">
+          <table className="plan-table" style={{ tableLayout: 'fixed', width: '100%', minWidth: Object.values(colWidths).reduce((a, b) => a + b, 0) + 'px' }}>
+            <colgroup>
+              <col style={{ width: colWidths.timeline }} />
+              <col style={{ width: colWidths.project }} />
+              <col style={{ width: colWidths.objectives }} />
+              <col style={{ width: colWidths.strategy }} />
+              <col style={{ width: colWidths.confirm }} />
+              <col style={{ width: colWidths.report }} />
+              <col />
+            </colgroup>
             <thead>
               <tr>
-                <th className="col-timeline">Timeline</th>
-                <th className="col-project">Dự án</th>
-                <th className="col-objectives">Mục tiêu</th>
-                <th className="col-strategy">Chiến lược</th>
-                <th className="col-quantity">Số lượng order</th>
-                <th className="col-quantity">Số lượng confirm</th>
-                <th className="col-status">Báo cáo</th>
+                <th className="col-resizable"><span>Timeline</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'timeline')} /></th>
+                <th className="col-resizable"><span>Dự án</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'project')} /></th>
+                <th className="col-resizable"><span>Mục tiêu</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'objectives')} /></th>
+                <th className="col-resizable"><span>Chiến lược</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'strategy')} /></th>
+                <th className="col-resizable"><span>Số lượng confirm</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'confirm')} /></th>
+                <th className="col-resizable"><span>Báo cáo</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'report')} /></th>
+                <th className="col-resizable"><span>Ghi chú</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'note')} /></th>
               </tr>
             </thead>
             <tbody>
@@ -1241,7 +1420,7 @@ export default function WeeklyPlan() {
                     </span>
                   </td>
                   <td className="col-project">
-                    <span className={`project-badge ${getStatusClass(item.status)}`}>
+                    <span className="project-badge" style={getProjectColorStyle(item.project)}>
                       {item.project}
                     </span>
                     <Button danger size="small" block style={{ marginTop: '2rem' }} onClick={() => requestDeleteItem(item)}>Xoá</Button>
@@ -1254,65 +1433,29 @@ export default function WeeklyPlan() {
                   </td>
                   <td className="col-quantity">
                     <div className="quantity-list">
-                      <div className="quantity-item"><span className="qty-label">CPP:</span> {renderQuantityInput(item, 'proposedCPP')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedCPP')}>→</Button></div>
-                      <div className="quantity-item"><span className="qty-label">Icon:</span> {renderQuantityInput(item, 'proposedIcon')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedIcon')}>→</Button></div>
-                      <div className="quantity-item"><span className="qty-label">Banner:</span> {renderQuantityInput(item, 'proposedBanner')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedBanner')}>→</Button></div>
-                      <div className="quantity-item"><span className="qty-label">PLA:</span> {renderQuantityInput(item, 'proposedPLA')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedPLA')}>→</Button></div>
-                      <div className="quantity-item"><span className="qty-label">Video:</span> {renderQuantityInput(item, 'proposedVideo')}<Button type="text" size="small" title="Copy sang Confirm" onClick={() => copyToConfirmed(item.id, 'proposedVideo')}>→</Button></div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <Button
-                        type="primary"
-                        size="small"
-                        block
-                        onClick={() => {
-                          apiUpdateTempWeeklyPlan(item)
-                            .then(() => messageApi.success(`Đã lưu kế hoạch "${item.project}" thành công!`))
-                            .catch(err => { console.error('Lỗi lưu:', err); messageApi.error(`Lỗi khi lưu kế hoạch "${item.project}"!`); });
-                        }}
-                      >Save</Button>
-                      <Button size="small" block onClick={() => copyAllToConfirmed(item.id)}>Copy all →</Button>
+                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber min={0} step={1} value={item.confirmedCPP} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
+                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber min={0} step={1} value={item.confirmedIcon} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
+                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber min={0} step={1} value={item.confirmedBanner} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
+                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber min={0} step={1} value={item.confirmedPLA} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
+                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber min={0} step={1} value={item.confirmedVideo} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
                     </div>
                   </td>
-                  <td className="col-quantity">
+                  <td className="col-quantity col-report">
                     <div className="quantity-list">
-                      <div className="quantity-item"><span className="qty-label">CPP:</span> {renderQuantityInput(item, 'confirmedCPP')}</div>
-                      <div className="quantity-item"><span className="qty-label">Icon:</span> {renderQuantityInput(item, 'confirmedIcon')}</div>
-                      <div className="quantity-item"><span className="qty-label">Banner:</span> {renderQuantityInput(item, 'confirmedBanner')}</div>
-                      <div className="quantity-item"><span className="qty-label">PLA:</span> {renderQuantityInput(item, 'confirmedPLA')}</div>
-                      <div className="quantity-item"><span className="qty-label">Video:</span> {renderQuantityInput(item, 'confirmedVideo')}</div>
+                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber step={1} value={item.reportCPP} onChange={(v) => handleReportQuantityChange(item.id, 'reportCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportCPP)} /></div>
+                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber step={1} value={item.reportIcon} onChange={(v) => handleReportQuantityChange(item.id, 'reportIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportIcon)} /></div>
+                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber step={1} value={item.reportBanner} onChange={(v) => handleReportQuantityChange(item.id, 'reportBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportBanner)} /></div>
+                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber step={1} value={item.reportPLA} onChange={(v) => handleReportQuantityChange(item.id, 'reportPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportPLA)} /></div>
+                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber step={1} value={item.reportVideo} onChange={(v) => handleReportQuantityChange(item.id, 'reportVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportVideo)} /></div>
                     </div>
-                    <Button
-                      type="primary"
-                      size="small"
-                      block
-                      style={{ marginTop: '0.6rem' }}
-                      onClick={() => {
-                        apiUpdateWeeklyPlan(item)
-                          .then(() => messageApi.success(`Đã lưu kế hoạch "${item.project}" thành công!`))
-                          .catch(err => {
-                            console.error('Lỗi confirm:', err);
-                            messageApi.error(`Lỗi khi lưu kế hoạch "${item.project}"!`);
-                          });
-                      }}
-                    >
-                      Confirm
-                    </Button>
                   </td>
-                  <td className="col-status">
-                    <div className="confirm-diff-list">
-                      {(['CPP', 'Icon', 'Banner', 'PLA', 'Video'] as const).map(type => {
-                        const reportKey = (`report${type}`) as ReportField;
-                        const diff = item[reportKey];
-                        const cls = diff > 0 ? 'diff-surplus' : diff < 0 ? 'diff-lacking' : 'diff-exact';
-                        const label = diff > 0 ? `+${diff}` : diff < 0 ? `${diff}` : '✓';
-                        return (
-                          <div key={type} className="confirm-diff-item">
-                            <span className="qty-label">{type}:</span>
-                            <span className={`confirm-diff-value ${cls}`}>{label}</span>
-                          </div>
-                        );
-                      })}
+                  <td className="col-note">
+                    <div className="note-list">
+                      <div className="note-list-item"><span className="qty-label">CPP:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteCPP} onChange={(e) => handleNoteChange(item.id, 'noteCPP', e.target.value)} /></div>
+                      <div className="note-list-item"><span className="qty-label">Icon:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteIcon} onChange={(e) => handleNoteChange(item.id, 'noteIcon', e.target.value)} /></div>
+                      <div className="note-list-item"><span className="qty-label">Banner:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteBanner} onChange={(e) => handleNoteChange(item.id, 'noteBanner', e.target.value)} /></div>
+                      <div className="note-list-item"><span className="qty-label">PLA:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.notePLA} onChange={(e) => handleNoteChange(item.id, 'notePLA', e.target.value)} /></div>
+                      <div className="note-list-item"><span className="qty-label">Video:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteVideo} onChange={(e) => handleNoteChange(item.id, 'noteVideo', e.target.value)} /></div>
                     </div>
                   </td>
                 </tr>
