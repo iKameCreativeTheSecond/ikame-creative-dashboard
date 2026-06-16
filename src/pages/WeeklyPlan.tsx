@@ -1303,11 +1303,15 @@ export default function WeeklyPlan() {
           )}
         </div>
 
-        {isAddFormOpen && newItem && (
-          <div className="weekly-plan-add-card" ref={addFormRef}>
-            <div className="weekly-plan-add-header">
-              <h3 className="weekly-plan-add-title">Thêm kế hoạch tuần mới</h3>
-            </div>
+        <Modal
+          open={isAddFormOpen && !!newItem}
+          title="Thêm kế hoạch tuần mới"
+          onCancel={cancelAddForm}
+          footer={null}
+          width={1000}
+          destroyOnHidden
+        >
+          {newItem && (
             <form onSubmit={(e) => { e.preventDefault(); handleAddSubmit(e); }} className="weekly-plan-add-form">
               <div className="weekly-plan-add-top">
                 <div className="weekly-plan-field weekly-plan-field-date">
@@ -1319,6 +1323,7 @@ export default function WeeklyPlan() {
                     }}
                     format="DD/MM/YYYY"
                     allowClear={false}
+                    size="large"
                     style={{ width: '100%' }}
                   />
                 </div>
@@ -1330,6 +1335,7 @@ export default function WeeklyPlan() {
                     value={newItem.project || undefined}
                     onChange={(value: string) => setNewItem(prev => (prev ? { ...prev, project: value } : prev))}
                     options={projectOptions.map(p => ({ value: p, label: p }))}
+                    size="large"
                     style={{ width: '100%' }}
                     filterOption={(input, option) =>
                       (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -1343,6 +1349,7 @@ export default function WeeklyPlan() {
                   <label>Mục tiêu</label>
                   <Input.TextArea
                     rows={7}
+                    size="large"
                     value={newItem.objectives}
                     onChange={(e) => updateNewItemText('objectives', e.target.value)}
                     placeholder="Nhập mục tiêu"
@@ -1352,6 +1359,7 @@ export default function WeeklyPlan() {
                   <label>Chiến lược</label>
                   <Input.TextArea
                     rows={7}
+                    size="large"
                     value={newItem.strategy}
                     onChange={(e) => updateNewItemText('strategy', e.target.value)}
                     placeholder="Nhập chiến lược"
@@ -1362,11 +1370,11 @@ export default function WeeklyPlan() {
               <div className="weekly-plan-add-qty">
                 <div className="weekly-plan-add-qty-title">Số lượng</div>
                 <div className="weekly-plan-qty-grid">
-                  <div className="weekly-plan-qty-item"><span className="qty-label">CPP</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedCPP} onChange={(v) => updateNewItemQuantity('proposedCPP', Number(v ?? 0))} style={{ width: '100%' }} /></div>
-                  <div className="weekly-plan-qty-item"><span className="qty-label">Icon</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedIcon} onChange={(v) => updateNewItemQuantity('proposedIcon', Number(v ?? 0))} style={{ width: '100%' }} /></div>
-                  <div className="weekly-plan-qty-item"><span className="qty-label">Banner</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedBanner} onChange={(v) => updateNewItemQuantity('proposedBanner', Number(v ?? 0))} style={{ width: '100%' }} /></div>
-                  <div className="weekly-plan-qty-item"><span className="qty-label">PLA</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedPLA} onChange={(v) => updateNewItemQuantity('proposedPLA', Number(v ?? 0))} style={{ width: '100%' }} /></div>
-                  <div className="weekly-plan-qty-item"><span className="qty-label">Video</span><InputNumber min={0} step={1} controls={false} value={newItem.proposedVideo} onChange={(v) => updateNewItemQuantity('proposedVideo', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">CPP</span><InputNumber size="large" min={0} step={1} controls={false} value={newItem.proposedCPP} onChange={(v) => updateNewItemQuantity('proposedCPP', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">Icon</span><InputNumber size="large" min={0} step={1} controls={false} value={newItem.proposedIcon} onChange={(v) => updateNewItemQuantity('proposedIcon', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">Banner</span><InputNumber size="large" min={0} step={1} controls={false} value={newItem.proposedBanner} onChange={(v) => updateNewItemQuantity('proposedBanner', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">PLA</span><InputNumber size="large" min={0} step={1} controls={false} value={newItem.proposedPLA} onChange={(v) => updateNewItemQuantity('proposedPLA', Number(v ?? 0))} style={{ width: '100%' }} /></div>
+                  <div className="weekly-plan-qty-item"><span className="qty-label">Video</span><InputNumber size="large" min={0} step={1} controls={false} value={newItem.proposedVideo} onChange={(v) => updateNewItemQuantity('proposedVideo', Number(v ?? 0))} style={{ width: '100%' }} /></div>
                 </div>
               </div>
 
@@ -1375,12 +1383,12 @@ export default function WeeklyPlan() {
               )}
 
               <div className="weekly-plan-add-actions">
-                <Button type="primary" htmlType="submit">Thêm</Button>
-                <Button danger onClick={cancelAddForm}>Hủy</Button>
+                <Button type="primary" size="large" htmlType="submit">Thêm</Button>
+                <Button danger size="large" onClick={cancelAddForm}>Hủy</Button>
               </div>
             </form>
-          </div>
-        )}
+          )}
+        </Modal>
 
         <div className="plan-table-wrapper" ref={tableWrapperRef}>
           <table className="plan-table" style={{ tableLayout: 'fixed', width: '100%', minWidth: Object.values(colWidths).reduce((a, b) => a + b, 0) + 'px' }}>
