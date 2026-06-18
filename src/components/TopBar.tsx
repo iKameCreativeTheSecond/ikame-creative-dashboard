@@ -12,8 +12,6 @@ interface TopBarProps {
     siteName?: string;
 }
 
-const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
-
 const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Performance Dashboard' }) => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -23,14 +21,7 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Perform
         let isMounted = true;
         (async () => {
             try {
-                const response = await fetch(`${serverUrl}/get/admin-role`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': GlobalData.getUserToken() || ''
-                    }
-                });
-                if (isMounted) setIsAdmin(response.ok);
+                if (isMounted) setIsAdmin(GlobalData.getUser().role.toLowerCase() === 'admin');
             } catch {
                 if (isMounted) setIsAdmin(false);
             }

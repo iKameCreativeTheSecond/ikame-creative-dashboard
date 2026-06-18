@@ -19,17 +19,9 @@ const menuItems: MenuProps['items'] = [
     { key: 'contacts',        icon: <span>📇</span>, label: 'Contacts'         },
 ];
 
-const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
 
 async function IsAdminCheckAsync() {
-    const response = await fetch(`${serverUrl}/get/admin-role`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': GlobalData.getUserToken() || ''
-        }
-    });
-    return response.ok;
+    return GlobalData.getUser().role.toLowerCase() === 'admin';
 }
 
 export default function Admin() {

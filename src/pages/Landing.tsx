@@ -40,6 +40,18 @@ export default function Landing() {
         return data.token;
     }
 
+    async function getUserRoleAndTeam(email: string): Promise<{ role: string, team: string }>{
+        const serverUrl = import.meta.env.VITE_REACT_APP_SERVER_URL ?? "http://localhost:8888";
+        const response = await fetch(`${serverUrl}/post/user-role-n-team`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return { role: data.role, team: data.team };
+    }
+
     const handleGoogleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
@@ -48,8 +60,9 @@ export default function Landing() {
                 });
                 const user: { email: string; name: string; picture: string } = await res.json();
                 const token = await getUserToken(user.email);
+                const roleTeam = await getUserRoleAndTeam(user.email);
                 GlobalData.setUserToken(token);
-                GlobalData.setUser({ email: user.email, name: user.name, picture: user.picture });
+                GlobalData.setUser({ email: user.email, name: user.name, picture: user.picture, team: roleTeam.team, role: roleTeam.role  });
                 navigate('/home');
             } catch (error) {
                 console.error('Error during login:', error);

@@ -4,6 +4,8 @@ export type UserInfo = {
     email: string;
     name: string;
     picture: string;
+    role: string;
+    team: string;
 }
 
 export type ProjectIssue = {
@@ -26,7 +28,9 @@ export type ProjectIssue = {
 export const User: UserInfo = {
     email: '',
     name: '',
-    picture: ''
+    picture: '',
+    role: '',
+    team: ''
 };
 
 export class GlobalData
