@@ -7,6 +7,7 @@ import { GlobalData } from '../common/GlobalData';
 import './WeeklyPlan.css';
 
 import type { ProjectIssue } from '../common/GlobalData';
+import { isTodayAfter } from '../common/DateUtils';
 
 interface WeeklyPlanItem {
   id: number;
@@ -154,6 +155,19 @@ export default function WeeklyPlan() {
     }
     return hash >>> 0;
   };
+
+  const isAllowEdit = (): boolean => 
+  {
+    if (GlobalData.getUser().role.toLowerCase() === 'admin')
+      return true;
+    const team = GlobalData.getUser().team.toLowerCase();
+    if (team !== 'concept' && team !== 'strategy')
+      return false;
+    const deadline = import.meta.env.VITE_WEEKLY_PLAN_EDIT_DEADLINE;
+    if (isTodayAfter(deadline))
+      return false;
+    return true;
+  }
 
   const ensureUniqueIds = (items: WeeklyPlanItem[]): WeeklyPlanItem[] => {
     const used = new Set<number>();
@@ -1220,7 +1234,7 @@ export default function WeeklyPlan() {
     });
   };
 
-  const renderTextArea = (item: WeeklyPlanItem, field: TextField) => {
+  const renderTextArea = (item: WeeklyPlanItem, field: TextField, allowEdit: boolean) => {
     return (
       <div className="table-textarea-wrap">
         <textarea
@@ -1228,10 +1242,13 @@ export default function WeeklyPlan() {
           value={item[field]}
           onChange={(e) => updateTextField(item.id, field, e.target.value)}
           rows={9}
+          readOnly={!allowEdit}
         />
       </div>
     );
   };
+
+  const allowEdit = isAllowEdit();
 
   return (
     <div className="weekly-plan-page">
@@ -1284,7 +1301,7 @@ export default function WeeklyPlan() {
             <div className="filter-group" style={{ marginLeft: 'auto', flex: '0 0 auto', borderLeft: '1px solid rgba(255,255,255,0.12)', paddingLeft: '24px' }}>
               <label>Thêm mục</label>
               <div>
-                <Button type="primary" onClick={openAddForm}>+ Thêm mục mới</Button>
+                <Button type="primary" onClick={openAddForm} disabled={!allowEdit}>+ Thêm mục mới</Button>
               </div>
             </div>
           </div>
@@ -1434,36 +1451,36 @@ export default function WeeklyPlan() {
                     <Button danger size="small" block style={{ marginTop: '2rem' }} onClick={() => requestDeleteItem(item)}>Xoá</Button>
                   </td>
                   <td className="col-objectives">
-                    {renderTextArea(item, 'objectives')}
+                    {renderTextArea(item, 'objectives', allowEdit)}
                   </td>
                   <td className="col-strategy">
-                    {renderTextArea(item, 'strategy')}
+                    {renderTextArea(item, 'strategy', allowEdit)}
                   </td>
                   <td className="col-quantity">
                     <div className="quantity-list">
-                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber min={0} step={1} value={item.confirmedCPP} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
-                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber min={0} step={1} value={item.confirmedIcon} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
-                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber min={0} step={1} value={item.confirmedBanner} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
-                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber min={0} step={1} value={item.confirmedPLA} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
-                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber min={0} step={1} value={item.confirmedVideo} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} /></div>
+                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber min={0} step={1} value={item.confirmedCPP} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber min={0} step={1} value={item.confirmedIcon} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber min={0} step={1} value={item.confirmedBanner} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber min={0} step={1} value={item.confirmedPLA} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber min={0} step={1} value={item.confirmedVideo} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
                     </div>
                   </td>
                   <td className="col-quantity col-report">
                     <div className="quantity-list">
-                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber step={1} value={item.reportCPP} onChange={(v) => handleReportQuantityChange(item.id, 'reportCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportCPP)} /></div>
-                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber step={1} value={item.reportIcon} onChange={(v) => handleReportQuantityChange(item.id, 'reportIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportIcon)} /></div>
-                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber step={1} value={item.reportBanner} onChange={(v) => handleReportQuantityChange(item.id, 'reportBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportBanner)} /></div>
-                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber step={1} value={item.reportPLA} onChange={(v) => handleReportQuantityChange(item.id, 'reportPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportPLA)} /></div>
-                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber step={1} value={item.reportVideo} onChange={(v) => handleReportQuantityChange(item.id, 'reportVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportVideo)} /></div>
+                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber step={1} value={item.reportCPP} onChange={(v) => handleReportQuantityChange(item.id, 'reportCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportCPP)} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber step={1} value={item.reportIcon} onChange={(v) => handleReportQuantityChange(item.id, 'reportIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportIcon)} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber step={1} value={item.reportBanner} onChange={(v) => handleReportQuantityChange(item.id, 'reportBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportBanner)} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber step={1} value={item.reportPLA} onChange={(v) => handleReportQuantityChange(item.id, 'reportPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportPLA)} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber step={1} value={item.reportVideo} onChange={(v) => handleReportQuantityChange(item.id, 'reportVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportVideo)} disabled={!allowEdit} /></div>
                     </div>
                   </td>
                   <td className="col-note">
                     <div className="note-list">
-                      <div className="note-list-item"><span className="qty-label">CPP:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteCPP} onChange={(e) => handleNoteChange(item.id, 'noteCPP', e.target.value)} /></div>
-                      <div className="note-list-item"><span className="qty-label">Icon:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteIcon} onChange={(e) => handleNoteChange(item.id, 'noteIcon', e.target.value)} /></div>
-                      <div className="note-list-item"><span className="qty-label">Banner:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteBanner} onChange={(e) => handleNoteChange(item.id, 'noteBanner', e.target.value)} /></div>
-                      <div className="note-list-item"><span className="qty-label">PLA:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.notePLA} onChange={(e) => handleNoteChange(item.id, 'notePLA', e.target.value)} /></div>
-                      <div className="note-list-item"><span className="qty-label">Video:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteVideo} onChange={(e) => handleNoteChange(item.id, 'noteVideo', e.target.value)} /></div>
+                      <div className="note-list-item"><span className="qty-label">CPP:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteCPP} onChange={(e) => handleNoteChange(item.id, 'noteCPP', e.target.value)} disabled={!allowEdit} /></div>
+                      <div className="note-list-item"><span className="qty-label">Icon:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteIcon} onChange={(e) => handleNoteChange(item.id, 'noteIcon', e.target.value)} disabled={!allowEdit} /></div>
+                      <div className="note-list-item"><span className="qty-label">Banner:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteBanner} onChange={(e) => handleNoteChange(item.id, 'noteBanner', e.target.value)} disabled={!allowEdit} /></div>
+                      <div className="note-list-item"><span className="qty-label">PLA:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.notePLA} onChange={(e) => handleNoteChange(item.id, 'notePLA', e.target.value)} disabled={!allowEdit} /></div>
+                      <div className="note-list-item"><span className="qty-label">Video:</span><Input.TextArea autoSize={{ minRows: 1 }} className="note-textarea" placeholder="ghi chú" value={item.noteVideo} onChange={(e) => handleNoteChange(item.id, 'noteVideo', e.target.value)} disabled={!allowEdit} /></div>
                     </div>
                   </td>
                 </tr>
