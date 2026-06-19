@@ -134,7 +134,7 @@ export default function WeeklyPlan() {
   const [newItem, setNewItem] = useState<WeeklyPlanItem | null>(null);
   const [projectOptions, setProjectOptions] = useState<string[]>(() => AdminData.getListProjects());
 
-  const [colWidths, setColWidths] = useState({ timeline: 190, project: 210, objectives: 300, strategy: 300, confirm: 210, report: 210, note: 280 });
+  const [colWidths, setColWidths] = useState({ timeline: 190, project: 210, objectives: 300, strategy: 300, confirm: 210, completed: 210, report: 210, note: 280 });
 
   const addFormRef = useRef<HTMLDivElement>(null);
   const rowRefsMap = useRef<Map<number, HTMLTableRowElement>>(new Map());
@@ -143,6 +143,7 @@ export default function WeeklyPlan() {
   const didInitialLoadRef = useRef(false);
   const planDataRef = useRef<WeeklyPlanItem[]>([]);
   const confirmAutoSaveTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  const completedAutoSaveTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
   const reportAutoSaveTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
   const noteAutoSaveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
@@ -279,7 +280,7 @@ export default function WeeklyPlan() {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
   };
 
-  const apiUpdateProjectIssue = async (issue: ProjectIssue, newDifference: number, newNote: string): Promise<void> => {
+  const apiUpdateProjectIssue = async (issue: ProjectIssue, newDifference: number, newNote: string, newCompletedCount?: number): Promise<void> => {
     if (!issue.ID) throw new Error('Missing issue ID');
     const masterToken = import.meta.env.VITE_SERVER_MASTER_TOKEN;
     const payload = {
@@ -287,7 +288,7 @@ export default function WeeklyPlan() {
       Project: issue.Project,
       StartWeek: issue.StartWeek,
       TaskType: issue.TaskType,
-      CompletedCount: issue.CompletedCount ?? 0,
+      CompletedCount: newCompletedCount ?? issue.CompletedCount ?? 0,
       Assignees: issue.Assignees ?? [],
       Difference: newDifference,
       Team: issue.Team ?? '',
@@ -1035,8 +1036,8 @@ export default function WeeklyPlan() {
 
   useEffect(() => { planDataRef.current = planData; }, [planData]);
 
-  const updateQuantity = (id: number, field: QuantityField, value: number) => {
-    const nextValue = Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
+  const updateQuantity = (id: number, field: QuantityField, value: number, allowNegative = false) => {
+    const nextValue = Number.isFinite(value) ? (allowNegative ? Math.trunc(value) : Math.max(0, Math.trunc(value))) : 0;
     setPlanData(prev => prev.map(item => (item.id === id ? { ...item, [field]: nextValue } : item)));
     // Keep `filteredData` in sync so controlled inputs update immediately while the filter effect catches up.
     setFilteredData(prev => prev.map(item => (item.id === id ? { ...item, [field]: nextValue } : item)));
@@ -1059,6 +1060,14 @@ export default function WeeklyPlan() {
     }, 800);
 
     confirmAutoSaveTimers.current.set(id, timer);
+  };
+
+  const completedFieldToNormalizedType: Record<string, string> = {
+    completedCPP: 'cpp',
+    completedIcon: 'icon',
+    completedBanner: 'banner',
+    completedPLA: 'pla',
+    completedVideo: 'video',
   };
 
   const reportFieldToNormalizedType: Record<string, string> = {
@@ -1085,8 +1094,63 @@ export default function WeeklyPlan() {
     video: 'noteVideo',
   };
 
-  const handleReportQuantityChange = (id: number, field: QuantityField, value: number) => {
+  const normalizedTypeToCompletedField: Record<string, CompletedField> = {
+    cpp: 'completedCPP',
+    icon: 'completedIcon',
+    banner: 'completedBanner',
+    pla: 'completedPLA',
+    video: 'completedVideo',
+  };
+
+  const normalizedTypeToReportField: Record<string, ReportField> = {
+    cpp: 'reportCPP',
+    icon: 'reportIcon',
+    banner: 'reportBanner',
+    pla: 'reportPLA',
+    video: 'reportVideo',
+  };
+
+  const handleCompletedQuantityChange = (id: number, field: QuantityField, value: number) => {
     updateQuantity(id, field, value);
+
+    const existing = completedAutoSaveTimers.current.get(id);
+    if (existing) clearTimeout(existing);
+
+    const timer = setTimeout(() => {
+      const item = planDataRef.current.find(i => i.id === id);
+      if (!item) return;
+
+      const normalizedType = completedFieldToNormalizedType[field];
+      if (!normalizedType) return;
+
+      const projectKey = String(item.project).trim().toLowerCase();
+      const mondayMs = getMondayMsFromDate(item.timeline);
+      const cacheKey = `${projectKey}|${mondayMs}|${normalizedType}`;
+      const issue = GlobalData.projectIssuesCache.get(cacheKey);
+
+      if (!issue?.ID) {
+        console.warn(`No cached project issue for key: ${cacheKey}`);
+        return;
+      }
+
+      const latestItem = planDataRef.current.find(i => i.id === id);
+      const latestCompleted = (latestItem?.[field] as number) ?? 0;
+      const reportField = normalizedTypeToReportField[normalizedType];
+      const latestDiff = reportField ? ((latestItem?.[reportField] as number) ?? 0) : 0;
+      const noteField = normalizedTypeToNoteField[normalizedType];
+      const latestNote = noteField ? ((latestItem?.[noteField] as string) ?? '') : '';
+      apiUpdateProjectIssue(issue, latestDiff, latestNote, latestCompleted)
+        .catch((err: unknown) => {
+          console.error('Auto-save completed error:', err);
+          messageApi.error(`Lỗi lưu hoàn thành "${item.project}"!`);
+        });
+    }, 800);
+
+    completedAutoSaveTimers.current.set(id, timer);
+  };
+
+  const handleReportQuantityChange = (id: number, field: QuantityField, value: number) => {
+    updateQuantity(id, field, value, true);
 
     const existing = reportAutoSaveTimers.current.get(id);
     if (existing) clearTimeout(existing);
@@ -1112,7 +1176,9 @@ export default function WeeklyPlan() {
       const latestValue = (latestItem?.[field] as number) ?? 0;
       const noteField = normalizedTypeToNoteField[normalizedType];
       const latestNote = noteField ? ((latestItem?.[noteField] as string) ?? '') : '';
-      apiUpdateProjectIssue(issue, latestValue, latestNote)
+      const completedField = normalizedTypeToCompletedField[normalizedType];
+      const latestCompleted = completedField ? ((latestItem?.[completedField] as number) ?? 0) : 0;
+      apiUpdateProjectIssue(issue, latestValue, latestNote, latestCompleted)
         .catch((err: unknown) => {
           console.error('Auto-save report error:', err);
           messageApi.error(`Lỗi lưu báo cáo "${item.project}"!`);
@@ -1147,14 +1213,13 @@ export default function WeeklyPlan() {
         return;
       }
 
-      const reportFieldMap: Record<string, ReportField> = {
-        cpp: 'reportCPP', icon: 'reportIcon', banner: 'reportBanner', pla: 'reportPLA', video: 'reportVideo',
-      };
-      const reportField = reportFieldMap[normalizedType];
+      const reportField = normalizedTypeToReportField[normalizedType];
       const currentDiff = reportField ? ((planDataRef.current.find(i => i.id === id)?.[reportField] as number) ?? 0) : 0;
+      const completedField = normalizedTypeToCompletedField[normalizedType];
+      const currentCompleted = completedField ? ((planDataRef.current.find(i => i.id === id)?.[completedField] as number) ?? 0) : 0;
       const latestNote = (planDataRef.current.find(i => i.id === id)?.[field] as string) ?? '';
 
-      apiUpdateProjectIssue(issue, currentDiff, latestNote)
+      apiUpdateProjectIssue(issue, currentDiff, latestNote, currentCompleted)
         .catch((err: unknown) => {
           console.error('Auto-save note error:', err);
           messageApi.error(`Lỗi lưu ghi chú "${item.project}"!`);
@@ -1172,9 +1237,9 @@ export default function WeeklyPlan() {
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!resizingRef.current) return;
-      const delta = ev.clientX - resizingRef.current.startX;
-      const newWidth = Math.max(80, resizingRef.current.startWidth + delta);
-      setColWidths(prev => ({ ...prev, [resizingRef.current!.key]: newWidth }));
+      const { key, startX, startWidth } = resizingRef.current;
+      const newWidth = Math.max(80, startWidth + (ev.clientX - startX));
+      setColWidths(prev => ({ ...prev, [key]: newWidth }));
     };
 
     const onMouseUp = () => {
@@ -1415,6 +1480,7 @@ export default function WeeklyPlan() {
               <col style={{ width: colWidths.objectives }} />
               <col style={{ width: colWidths.strategy }} />
               <col style={{ width: colWidths.confirm }} />
+              <col style={{ width: colWidths.completed }} />
               <col style={{ width: colWidths.report }} />
               <col />
             </colgroup>
@@ -1425,6 +1491,7 @@ export default function WeeklyPlan() {
                 <th className="col-resizable"><span>Mục tiêu</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'objectives')} /></th>
                 <th className="col-resizable"><span>Chiến lược</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'strategy')} /></th>
                 <th className="col-resizable"><span>Số lượng confirm</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'confirm')} /></th>
+                <th className="col-resizable"><span>Hoàn thành</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'completed')} /></th>
                 <th className="col-resizable"><span>Báo cáo</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'report')} /></th>
                 <th className="col-resizable"><span>Ghi chú</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'note')} /></th>
               </tr>
@@ -1463,6 +1530,15 @@ export default function WeeklyPlan() {
                       <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber min={0} step={1} value={item.confirmedBanner} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
                       <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber min={0} step={1} value={item.confirmedPLA} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
                       <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber min={0} step={1} value={item.confirmedVideo} onChange={(v) => handleConfirmedQuantityChange(item.id, 'confirmedVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                    </div>
+                  </td>
+                  <td className="col-quantity col-completed">
+                    <div className="quantity-list">
+                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber min={0} step={1} value={item.completedCPP} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber min={0} step={1} value={item.completedIcon} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber min={0} step={1} value={item.completedBanner} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber min={0} step={1} value={item.completedPLA} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber min={0} step={1} value={item.completedVideo} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
                     </div>
                   </td>
                   <td className="col-quantity col-report">
