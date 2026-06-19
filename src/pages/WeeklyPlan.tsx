@@ -1492,7 +1492,7 @@ export default function WeeklyPlan() {
                 <th className="col-resizable"><span>Chiến lược</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'strategy')} /></th>
                 <th className="col-resizable"><span>Số lượng confirm</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'confirm')} /></th>
                 <th className="col-resizable"><span>Hoàn thành</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'completed')} /></th>
-                <th className="col-resizable"><span>Báo cáo</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'report')} /></th>
+                <th className="col-resizable"><span>Thiếu/Đủ</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'report')} /></th>
                 <th className="col-resizable"><span>Ghi chú</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'note')} /></th>
               </tr>
             </thead>
@@ -1515,7 +1515,11 @@ export default function WeeklyPlan() {
                     <span className="project-badge" style={getProjectColorStyle(item.project)}>
                       {item.project}
                     </span>
-                    <Button danger size="small" block style={{ marginTop: '2rem' }} onClick={() => requestDeleteItem(item)}>Xoá</Button>
+                    <Button danger size="small" block style={{ marginTop: '2rem' }} onClick={() => {
+                      if (isAllowEdit())
+                        requestDeleteItem(item)
+                    }
+                    }>Xoá</Button>
                   </td>
                   <td className="col-objectives">
                     {renderTextArea(item, 'objectives', allowEdit)}
