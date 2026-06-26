@@ -300,9 +300,9 @@ export default function CompletedTasks() {
         getTaskEntries(isoStart, isoEnd, identifiers, isTeam)
             .then(data => {
                 // [DEBUG] issue 1 — PerformancePoint vs BasePoint+Creative per task
-                const sumPP       = data.reduce((s, t) => s + (t.PerformancePoint      ?? 0), 0);
-                const sumBase     = data.reduce((s, t) => s + (t.BasePoint             ?? 0), 0);
-                const sumCreative = data.reduce((s, t) => s + (t.CreativeProcessPoint  ?? 0) + (t.CreativeTaskPoint ?? 0), 0);
+                // const sumPP       = data.reduce((s, t) => s + (t.PerformancePoint      ?? 0), 0);
+                // const sumBase     = data.reduce((s, t) => s + (t.BasePoint             ?? 0), 0);
+                // const sumCreative = data.reduce((s, t) => s + (t.CreativeProcessPoint  ?? 0) + (t.CreativeTaskPoint ?? 0), 0);
                 // console.log('[CT] point totals across all returned tasks:', {
                 //     taskCount:           data.length,
                 //     sum_PerformancePoint: Math.round(sumPP       * 10) / 10,
@@ -330,11 +330,11 @@ export default function CompletedTasks() {
                     // console.log('[CT] all tasks: PerformancePoint === BasePoint + Creative (no mismatch)');
                 }
 
-                // [DEBUG] DoneDate range actually returned
-                if (data.length > 0) {
-                    const dates = data.map(t => t.DoneDate).filter(Boolean).sort();
-                    // console.log('[CT] DoneDate range in response:', { earliest: dates[0], latest: dates[dates.length - 1] });
-                }
+                // // [DEBUG] DoneDate range actually returned
+                // if (data.length > 0) {
+                //     const dates = data.map(t => t.DoneDate).filter(Boolean).sort();
+                //     // console.log('[CT] DoneDate range in response:', { earliest: dates[0], latest: dates[dates.length - 1] });
+                // }
 
                 setTasks(data);
             })
