@@ -335,7 +335,7 @@ export default function Home()
                             
                             // Push the date back one day
                             const adjustedDate = new Date(performance.StartDate);
-                            adjustedDate.setDate(adjustedDate.getDate() - 1);
+                            adjustedDate.setDate(adjustedDate.getDate());
                             
                             chartData.push({
                                 name: performance.TotalPerformancePoint.Identifier,
