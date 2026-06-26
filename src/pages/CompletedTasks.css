@@ -1,0 +1,205 @@
+.ct-container {
+    padding: 80px 90px 40px 90px;
+    background-color: #0f1e2e;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Week navigator ────────────────────────────────────── */
+
+.ct-week-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ct-week-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #162d43;
+    border: 1px solid rgba(91, 196, 255, 0.15);
+    border-radius: 8px;
+    padding: 10px 16px;
+}
+
+.ct-nav-btn.ant-btn {
+    background: transparent;
+    border-color: rgba(91, 196, 255, 0.25);
+    color: #5bc4ff;
+    flex-shrink: 0;
+}
+
+.ct-nav-btn.ant-btn:hover:not(:disabled) {
+    background: rgba(91, 196, 255, 0.08);
+    border-color: #5bc4ff;
+}
+
+.ct-nav-btn.ant-btn:disabled {
+    border-color: rgba(91, 196, 255, 0.1);
+    color: #4a6a80;
+}
+
+.ct-week-select {
+    min-width: 220px;
+}
+
+.ct-week-counter {
+    color: #7a9bb8;
+    font-size: 13px;
+    white-space: nowrap;
+    margin-left: 4px;
+}
+
+/* ── Stats row ─────────────────────────────────────────── */
+
+.ct-stats-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.ct-stat-card {
+    background: rgba(15, 30, 46, 0.6);
+    border: 1px solid rgba(91, 196, 255, 0.12);
+    border-radius: 8px;
+    padding: 14px 22px;
+    min-width: 160px;
+}
+
+/* ── Task grid ─────────────────────────────────────────── */
+
+.ct-task-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+    gap: 14px;
+}
+
+.ct-task-card {
+    background: #0f1e2e;
+    border: 1px solid rgba(91, 196, 255, 0.1);
+    border-left: 4px solid #5bc4ff;
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.ct-task-card:hover {
+    box-shadow: 0 4px 20px rgba(91, 196, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.ct-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.ct-task-name {
+    color: #e2ecf4;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.ct-level-badge {
+    flex-shrink: 0;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.ct-card-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ct-points-row {
+    display: flex;
+    background: rgba(91, 196, 255, 0.04);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(91, 196, 255, 0.08);
+}
+
+.ct-point {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    flex: 1;
+    border-right: 1px solid rgba(91, 196, 255, 0.07);
+}
+
+.ct-point:last-child {
+    border-right: none;
+}
+
+.ct-pt-label {
+    font-size: 10px;
+    color: #7a9bb8;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 2px;
+}
+
+.ct-pt-val {
+    font-size: 15px;
+    font-weight: 700;
+    color: #b0c8dc;
+}
+
+.ct-point.pp .ct-pt-val {
+    color: #5bc4ff;
+    font-size: 17px;
+}
+
+.ct-point.base .ct-pt-val {
+    color: #52c41a;
+}
+
+.ct-point.creative .ct-pt-val {
+    color: #fa8c16;
+}
+
+.ct-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(91, 196, 255, 0.07);
+    padding-top: 8px;
+}
+
+.ct-assignee {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b0c8dc;
+    font-size: 13px;
+    overflow: hidden;
+}
+
+.ct-assignee span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 130px;
+}
+
+.ct-done-date {
+    color: #52c41a;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}

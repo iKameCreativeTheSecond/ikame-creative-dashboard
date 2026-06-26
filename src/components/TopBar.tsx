@@ -48,6 +48,7 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Perform
     const navLinks = [
         { key: 'home', label: 'Home', path: '/home' },
         { key: 'weekly-plan', label: 'Weekly Plan', path: '/weekly-plan' },
+        { key: 'completed-tasks', label: 'Completed Tasks', path: '/completed-tasks' },
         ...(isAdmin ? [{ key: 'admin', label: 'Admin', path: '/admin' }] : []),
     ];
 

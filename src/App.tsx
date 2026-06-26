@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Landing from './pages/Landing';
 import Admin from './pages/Admin';
 import WeeklyPlan from './pages/WeeklyPlan';
+import CompletedTasks from './pages/CompletedTasks';
 import { GlobalData } from './common/GlobalData';
 
 const antdTheme = {
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
           <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
           <Route path="/weekly-plan" element={<ProtectedRoute element={<WeeklyPlan />} />} />
+          <Route path="/completed-tasks" element={<ProtectedRoute element={<CompletedTasks />} />} />
         </Routes>
       </HashRouter>
     </ConfigProvider>
