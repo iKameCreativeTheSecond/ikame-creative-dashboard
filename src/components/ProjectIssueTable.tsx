@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Button, Select, Typography } from 'antd';
 import { FaTable } from 'react-icons/fa';
+import { useTheme } from '../context/ThemeContext';
 import './ProjectIssueTable.css';
 import type { ProjectIssue } from '../common/GlobalData';
 
@@ -30,6 +31,9 @@ export default function ProjectIssueTable({
     onFilteredDataChange,
     assigneeNameByEmail = {},
 }: ProjectIssueTableProps) {
+    const { theme } = useTheme();
+    const labelColor = theme === 'dark' ? '#d0e8f5' : '#1a3d2c';
+
     // Filter states
     const [filters, setFilters] = useState<FilterState>({
         projectName: [],
@@ -163,7 +167,7 @@ export default function ProjectIssueTable({
             <div className="filter-controls">
                 <div className="filter-row">
                     <div className="filter-group">
-                        <Typography.Text style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Project Name</Typography.Text>
+                        <Typography.Text style={{ display: 'block', marginBottom: 6, color: labelColor, fontSize: 13, fontWeight: 500 }}>Project Name</Typography.Text>
                         <Select
                             mode="multiple"
                             allowClear
@@ -176,7 +180,7 @@ export default function ProjectIssueTable({
                     </div>
 
                     <div className="filter-group">
-                        <Typography.Text style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Difference</Typography.Text>
+                        <Typography.Text style={{ display: 'block', marginBottom: 6, color: labelColor, fontSize: 13, fontWeight: 500 }}>Difference</Typography.Text>
                         <Select
                             mode="multiple"
                             allowClear

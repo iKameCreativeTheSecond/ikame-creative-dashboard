@@ -3,9 +3,9 @@
   background: transparent !important;
 }
 
-/* Sider background to match app theme */
+/* Sider background */
 .admin-sider.ant-layout-sider {
-  background: #0d1a28 !important;
+  background: var(--bg-topbar) !important;
 }
 
 /* Menu background flush with sider */
@@ -13,32 +13,32 @@
   background: transparent !important;
 }
 
-/* All menu items: no background box */
+/* All menu items */
 .admin-sider .ant-menu-item {
   background: transparent !important;
-  color: #94a3b8 !important;
+  color: rgba(255, 255, 255, 0.65) !important;
   border-radius: 0 !important;
   margin: 0 !important;
   width: 100% !important;
 }
 
-/* Selected item: teal text, no background */
+/* Selected item */
 .admin-sider .ant-menu-item-selected {
-  background: transparent !important;
-  color: #2dd4bf !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
 }
 
 .admin-sider .ant-menu-item-selected::after {
-  border-right-color: #2dd4bf !important;
+  border-right-color: var(--nav-active-color) !important;
 }
 
-/* Hover: subtle highlight only */
+/* Hover */
 .admin-sider .ant-menu-item:hover {
-  background: rgba(255, 255, 255, 0.04) !important;
-  color: #e2ecf4 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
 }
 
-/* Icon color inherits from item */
+/* Icon opacity */
 .admin-sider .ant-menu-item .ant-menu-item-icon,
 .admin-sider .ant-menu-item span[role="img"] {
   opacity: 0.75;
@@ -47,4 +47,9 @@
 .admin-sider .ant-menu-item-selected .ant-menu-item-icon,
 .admin-sider .ant-menu-item-selected span[role="img"] {
   opacity: 1;
+}
+
+/* Layout background */
+[data-theme="light"] .ant-layout {
+  background: var(--bg-base) !important;
 }

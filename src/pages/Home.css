@@ -1,6 +1,6 @@
-﻿.home-container {
+.home-container {
     padding: 80px 90px 40px 90px;
-    background-color: #0f1e2e;
+    background-color: var(--bg-base);
     min-height: 100vh;
     display: flex;
     flex-direction: column;

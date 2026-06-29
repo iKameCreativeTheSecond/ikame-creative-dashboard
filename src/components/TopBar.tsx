@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import { Avatar, Dropdown, Space, Typography } from 'antd';
 import type { MenuProps } from 'antd';
-import { FaUserCircle, FaCog, FaSignOutAlt, FaChevronDown } from 'react-icons/fa';
+import { FaUserCircle, FaCog, FaSignOutAlt, FaChevronDown, FaSun, FaMoon } from 'react-icons/fa';
 import { GlobalData } from '../common/GlobalData';
+import { useTheme } from '../context/ThemeContext';
 import './TopBar.css';
 
 interface TopBarProps {
@@ -16,6 +17,7 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Perform
     const navigate = useNavigate();
     const location = useLocation();
     const [isAdmin, setIsAdmin] = useState(false);
+    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         let isMounted = true;
@@ -35,13 +37,19 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Perform
     };
 
     const dropdownItems: MenuProps['items'] = [
+        {
+            key: 'theme-toggle',
+            icon: theme === 'dark' ? <FaSun /> : <FaMoon />,
+            label: theme === 'dark' ? 'Light Mode' : 'Dark Mode',
+        },
         { key: 'settings', icon: <FaCog />, label: 'Cài đặt' },
         { type: 'divider' },
         { key: 'logout', icon: <FaSignOutAlt />, label: 'Đăng xuất', danger: true },
     ];
 
     const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
-        if (key === 'settings') alert('Chuyển đến trang cài đặt!');
+        if (key === 'theme-toggle') toggleTheme();
+        else if (key === 'settings') alert('Chuyển đến trang cài đặt!');
         else if (key === 'logout') handleLogout();
     };
 
@@ -78,12 +86,12 @@ const TopBar: React.FC<TopBarProps> = ({ userName, imageUrl, siteName = 'Perform
                     ? <Avatar src={imageUrl} size={32} />
                     : <Avatar icon={<FaUserCircle />} size={32} />
                 }
-                <Dropdown menu={{ items: dropdownItems, onClick: handleMenuClick }} trigger={['click']}>
+                <Dropdown menu={{ items: dropdownItems, onClick: handleMenuClick }} trigger={['click']} align={{ offset: [0, 22] }}>
                     <Space size={4} style={{ cursor: 'pointer' }}>
-                        <Typography.Text style={{ color: '#d0e8f5', fontSize: '0.9rem', fontWeight: 500 }}>
+                        <Typography.Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', fontWeight: 500 }}>
                             {userName}
                         </Typography.Text>
-                        <FaChevronDown style={{ color: '#c0d8ec', fontSize: '0.8rem' }} />
+                        <FaChevronDown style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem' }} />
                     </Space>
                 </Dropdown>
             </Space>

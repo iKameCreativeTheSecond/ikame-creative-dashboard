@@ -1,6 +1,7 @@
 import './CompletedTasks.css';
 import { useState, useEffect, useMemo } from 'react';
 import { Typography, Tag, Spin, Empty, Statistic, Avatar, Select, Button } from 'antd';
+import { useTheme } from '../context/ThemeContext';
 import { CheckCircleFilled, StarFilled, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import Filter from '../components/Filter';
 import TopBar from '../components/TopBar';
@@ -81,6 +82,10 @@ function groupByWeek(tasks: TaskEntry[]): WeekGroup[] {
 }
 
 function WeekStats({ tasks }: { tasks: TaskEntry[] }) {
+    const { theme } = useTheme();
+    const titleColor = theme === 'dark' ? '#7a9bb8' : '#4a8a70';
+    const valueColor = theme === 'dark' ? '#e2ecf4' : '#0d2016';
+
     const total = tasks.length;
     const totalPP = tasks.reduce((s, t) => s + (t.PerformancePoint ?? 0), 0);
     const avgPP = total > 0 ? Math.round((totalPP / total) * 10) / 10 : 0;
@@ -89,27 +94,27 @@ function WeekStats({ tasks }: { tasks: TaskEntry[] }) {
         <div className="ct-stats-row">
             <div className="ct-stat-card">
                 <Statistic
-                    title={<Typography.Text style={{ color: '#7a9bb8', fontSize: 13 }}>Tasks this week</Typography.Text>}
+                    title={<Typography.Text style={{ color: titleColor, fontSize: 13 }}>Tasks this week</Typography.Text>}
                     value={total}
                     prefix={<CheckCircleFilled style={{ color: '#52c41a' }} />}
-                    valueStyle={{ color: '#e2ecf4' }}
+                    valueStyle={{ color: valueColor }}
                 />
             </div>
             <div className="ct-stat-card">
                 <Statistic
-                    title={<Typography.Text style={{ color: '#7a9bb8', fontSize: 13 }}>Total PP</Typography.Text>}
+                    title={<Typography.Text style={{ color: titleColor, fontSize: 13 }}>Total PP</Typography.Text>}
                     value={Math.round(totalPP * 10) / 10}
                     precision={1}
                     prefix={<StarFilled style={{ color: '#5bc4ff' }} />}
-                    valueStyle={{ color: '#e2ecf4' }}
+                    valueStyle={{ color: valueColor }}
                 />
             </div>
             <div className="ct-stat-card">
                 <Statistic
-                    title={<Typography.Text style={{ color: '#7a9bb8', fontSize: 13 }}>Avg PP</Typography.Text>}
+                    title={<Typography.Text style={{ color: titleColor, fontSize: 13 }}>Avg PP</Typography.Text>}
                     value={avgPP}
                     precision={1}
-                    valueStyle={{ color: '#e2ecf4' }}
+                    valueStyle={{ color: valueColor }}
                 />
             </div>
         </div>
@@ -195,6 +200,9 @@ function TaskGrid({ tasks, allTeams, assigneeNameByEmail }: {
 }
 
 export default function CompletedTasks() {
+    const { theme } = useTheme();
+    const emptyTextColor = theme === 'dark' ? '#7a9bb8' : '#4a8a70';
+
     const [teamOptions, setTeamOptions] = useState<{ value: string; label: string }[]>([]);
     const [staffOptions, setStaffOptions] = useState<{ value: string; label: string; team: string }[]>([]);
     const [tasks, setTasks] = useState<TaskEntry[]>([]);
@@ -376,27 +384,11 @@ export default function CompletedTasks() {
             <div className="ct-container">
                 <Filter onChange={handleFilterChange} teamOptions={teamOptions} staffOptions={staffOptions} />
 
-                {projectOptions.length > 0 && (
-                    <div className="ct-project-filter-bar">
-                        <Typography.Text className="ct-pf-label">Project:</Typography.Text>
-                        <Select
-                            mode="multiple"
-                            allowClear
-                            placeholder="All projects"
-                            value={projectFilter}
-                            onChange={setProjectFilter}
-                            options={projectOptions}
-                            className="ct-pf-select"
-                            popupMatchSelectWidth={false}
-                        />
-                    </div>
-                )}
-
                 <Spin spinning={loading}>
                     {!loading && tasks.length === 0 ? (
                         <Empty
                             description={
-                                <Typography.Text style={{ color: '#7a9bb8' }}>
+                                <Typography.Text style={{ color: emptyTextColor }}>
                                     No completed tasks found. Select a team or staff member and date range.
                                 </Typography.Text>
                             }
@@ -404,37 +396,54 @@ export default function CompletedTasks() {
                         />
                     ) : currentGroup && (
                         <div className="ct-week-panel">
-                            {/* Week navigator */}
-                            <div className="ct-week-nav">
-                                <Button
-                                    icon={<LeftOutlined />}
-                                    onClick={() => setWeekIndex(i => i - 1)}
-                                    disabled={weekIndex === 0}
-                                    className="ct-nav-btn"
-                                />
-                                <Select
-                                    value={weekIndex}
-                                    onChange={setWeekIndex}
-                                    className="ct-week-select"
-                                    popupMatchSelectWidth={false}
-                                    options={weekGroups.map((g, i) => ({
-                                        value: i,
-                                        label: `${fmtDate(g.monday)} – ${fmtDate(g.sunday)}  (${g.tasks.length} tasks)`,
-                                    }))}
-                                />
-                                <Typography.Text className="ct-week-counter">
-                                    {weekIndex + 1} / {total}
-                                </Typography.Text>
-                                <Button
-                                    icon={<RightOutlined />}
-                                    onClick={() => setWeekIndex(i => i + 1)}
-                                    disabled={weekIndex === total - 1}
-                                    className="ct-nav-btn"
-                                />
+                            {/* Toolbar: stats on left, controls on right */}
+                            <div className="ct-toolbar">
+                                <WeekStats tasks={filteredTasks} />
+                                <div className="ct-right-controls">
+                                    <div className="ct-week-nav">
+                                        <Button
+                                            icon={<LeftOutlined />}
+                                            onClick={() => setWeekIndex(i => i - 1)}
+                                            disabled={weekIndex === 0}
+                                            className="ct-nav-btn"
+                                        />
+                                        <Select
+                                            value={weekIndex}
+                                            onChange={setWeekIndex}
+                                            className="ct-week-select"
+                                            popupMatchSelectWidth={false}
+                                            options={weekGroups.map((g, i) => ({
+                                                value: i,
+                                                label: `${fmtDate(g.monday)} – ${fmtDate(g.sunday)}  (${g.tasks.length} tasks)`,
+                                            }))}
+                                        />
+                                        <Typography.Text className="ct-week-counter">
+                                            {weekIndex + 1} / {total}
+                                        </Typography.Text>
+                                        <Button
+                                            icon={<RightOutlined />}
+                                            onClick={() => setWeekIndex(i => i + 1)}
+                                            disabled={weekIndex === total - 1}
+                                            className="ct-nav-btn"
+                                        />
+                                    </div>
+                                    {projectOptions.length > 0 && (
+                                        <div className="ct-project-filter-inline">
+                                            <Typography.Text className="ct-pf-label">Project:</Typography.Text>
+                                            <Select
+                                                mode="multiple"
+                                                allowClear
+                                                placeholder="All projects"
+                                                value={projectFilter}
+                                                onChange={setProjectFilter}
+                                                options={projectOptions}
+                                                className="ct-pf-select"
+                                                popupMatchSelectWidth={false}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-
-                            {/* Per-week content */}
-                            <WeekStats tasks={filteredTasks} />
                             <TaskGrid
                                 tasks={filteredTasks}
                                 allTeams={allTeams}

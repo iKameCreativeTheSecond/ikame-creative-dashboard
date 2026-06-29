@@ -1,5 +1,5 @@
-﻿.project-issue-table-container {
-    background: #132a3e;
+.project-issue-table-container {
+    background: var(--bg-container);
     border: none;
     border-radius: 12px;
     box-shadow: none;
@@ -18,14 +18,14 @@
 
 .project-issue-header h3 {
     margin: 0;
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 15px;
     font-weight: 600;
 }
 
 .project-count {
     background: rgba(91, 196, 255, 0.1);
-    color: #5bc4ff;
+    color: var(--color-primary);
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.875rem;
@@ -38,10 +38,9 @@
     border: none;
 }
 
-
 .project-name {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
     max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -50,7 +49,7 @@
 
 .team-name {
     background: rgba(91, 196, 255, 0.12);
-    color: #5bc4ff;
+    color: var(--color-primary);
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.8rem;
@@ -74,7 +73,7 @@
 .order-count {
     font-weight: 600;
     text-align: center;
-    color: #e2ecf4;
+    color: var(--text-primary);
 }
 
 .difference {
@@ -97,7 +96,7 @@
 
 .status-neutral {
     background: rgba(91, 196, 255, 0.12);
-    color: #5bc4ff;
+    color: var(--color-primary);
 }
 
 .assignees {
@@ -105,13 +104,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #b0c8dc;
+    color: var(--text-muted);
     font-size: 0.85rem;
 }
 
 .no-data {
     text-align: center;
-    color: #7a9bb8;
+    color: var(--text-dim);
     font-style: italic;
     padding: 2rem 1rem !important;
 }
@@ -144,13 +143,13 @@
 .filter-controls {
     margin-bottom: 1.5rem;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--ctrl-bg);
     border-radius: 8px;
     border: none;
 }
 
-/* Ant Design Select overrides — match Filter component style */
-.filter-controls .ant-select .ant-select-selector {
+/* Ant Design Select overrides — dark mode only */
+[data-theme="dark"] .filter-controls .ant-select .ant-select-selector {
     background: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(91, 196, 255, 0.2) !important;
     border-radius: 6px !important;
@@ -158,17 +157,17 @@
     min-height: 36px !important;
 }
 
-.filter-controls .ant-select:hover .ant-select-selector {
+[data-theme="dark"] .filter-controls .ant-select:hover .ant-select-selector {
     border-color: rgba(91, 196, 255, 0.4) !important;
     background: rgba(91, 196, 255, 0.04) !important;
 }
 
-.filter-controls .ant-select-focused .ant-select-selector {
+[data-theme="dark"] .filter-controls .ant-select-focused .ant-select-selector {
     border-color: #5bc4ff !important;
     box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15) !important;
 }
 
-.filter-controls .ant-select-selection-item {
+[data-theme="dark"] .filter-controls .ant-select-selection-item {
     background: rgba(91, 196, 255, 0.12) !important;
     border: 1px solid rgba(91, 196, 255, 0.3) !important;
     color: #e2ecf4 !important;
@@ -176,8 +175,16 @@
     font-size: 13px !important;
 }
 
-.filter-controls .ant-select-selection-placeholder {
+[data-theme="dark"] .filter-controls .ant-select-selection-placeholder {
     color: #7a9bb8 !important;
+}
+
+/* Reset inner input border — prevents global CSS double-border in all themes */
+.filter-controls .ant-select .ant-select-selection-search-input {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
 }
 
 .filter-row {
@@ -198,42 +205,42 @@
 .filter-group label {
     font-size: 13px;
     font-weight: 500;
-    color: #c0d8ec;
+    color: var(--label-color);
     margin-bottom: 0.25rem;
 }
 
 .filter-input,
 .filter-select {
     padding: 8px 12px;
-    border: 1px solid rgba(91, 196, 255, 0.2);
+    border: 1px solid var(--ctrl-border);
     border-radius: 6px;
     font-size: 14px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #e2ecf4;
+    background: var(--ctrl-bg);
+    color: var(--ctrl-color);
     transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .filter-input::placeholder {
-    color: #7a9bb8;
+    color: var(--ctrl-placeholder);
 }
 
 .filter-input:focus,
 .filter-select:focus {
     outline: none;
-    border-color: #5bc4ff;
-    box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
+    border-color: var(--ctrl-focus-border);
+    box-shadow: var(--ctrl-focus-shadow);
 }
 
 .filter-select option {
-    background: #132a3e;
-    color: #e2ecf4;
+    background: var(--bg-dropdown);
+    color: var(--ctrl-color);
 }
 
 .clear-filters-btn {
     padding: 8px 14px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #d0e8f5;
-    border: 1px solid rgba(91, 196, 255, 0.2);
+    background: var(--ctrl-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     font-size: 14px;
     font-weight: 500;
@@ -244,9 +251,9 @@
 }
 
 .clear-filters-btn:hover {
-    background: rgba(91, 196, 255, 0.1);
-    border-color: #5bc4ff;
-    color: #ffffff;
+    background: var(--color-hover-bg);
+    border-color: var(--color-primary);
+    color: var(--text-primary);
 }
 
 .clear-filters-btn:disabled {

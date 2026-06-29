@@ -1,6 +1,6 @@
 ﻿.weekly-plan-page {
   min-height: 100vh;
-  background: #0f1e2e;
+  background: var(--bg-base);
   padding-top: 60px;
 }
 
@@ -62,7 +62,7 @@
   align-items: center;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: #132a3e;
+  background: var(--bg-container);
   border: none;
   border-radius: 10px;
   box-shadow: none;
@@ -71,15 +71,13 @@
 .weekly-plan-header h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #ffffff;
+  color: var(--text-primary);
   font-weight: 700;
 }
 
-/* ===== Ant Design overrides — match native inputs throughout Weekly Plan ===== */
+/* ===== Ant Design overrides — dark mode only ===== */
 
-/* InputNumber: index.css adds a border to every <input>, so the inner input and the
-   wrapper both show a border — fix by zeroing the inner input border. */
-.weekly-plan-page .ant-input-number {
+[data-theme="dark"] .weekly-plan-page .ant-input-number {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(91, 196, 255, 0.2);
   border-radius: 6px;
@@ -87,17 +85,17 @@
   color: #e2ecf4;
 }
 
-.weekly-plan-page .ant-input-number:hover {
+[data-theme="dark"] .weekly-plan-page .ant-input-number:hover {
   border-color: rgba(91, 196, 255, 0.4);
 }
 
-.weekly-plan-page .ant-input-number-focused,
-.weekly-plan-page .ant-input-number:focus-within {
+[data-theme="dark"] .weekly-plan-page .ant-input-number-focused,
+[data-theme="dark"] .weekly-plan-page .ant-input-number:focus-within {
   border-color: #5bc4ff !important;
   box-shadow: 0 0 0 2px rgba(91, 196, 255, 0.18) !important;
 }
 
-.weekly-plan-page .ant-input-number .ant-input-number-input {
+[data-theme="dark"] .weekly-plan-page .ant-input-number .ant-input-number-input {
   background: transparent !important;
   color: #e2ecf4 !important;
   border: none !important;
@@ -105,8 +103,8 @@
   text-align: right;
 }
 
-.weekly-plan-page .report-input-negative .ant-input-number-input { color: #f87171 !important; }
-.weekly-plan-page .report-input-positive .ant-input-number-input { color: #4ade80 !important; }
+[data-theme="dark"] .weekly-plan-page .report-input-negative .ant-input-number-input { color: #f87171 !important; }
+[data-theme="dark"] .weekly-plan-page .report-input-positive .ant-input-number-input { color: #4ade80 !important; }
 
 /* Ghi chú column */
 .plan-table td.col-note { padding: 0.5rem 0.5rem; vertical-align: top; }
@@ -130,8 +128,8 @@
   resize: none;
 }
 
-.weekly-plan-page .note-textarea.ant-input,
-.weekly-plan-page .note-textarea textarea {
+[data-theme="dark"] .weekly-plan-page .note-textarea.ant-input,
+[data-theme="dark"] .weekly-plan-page .note-textarea textarea {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(91, 196, 255, 0.15) !important;
   color: #a8c5da !important;
@@ -143,20 +141,20 @@
   width: 100%;
 }
 
-.weekly-plan-page .note-textarea.ant-input::placeholder,
-.weekly-plan-page .note-textarea textarea::placeholder { color: rgba(168, 197, 218, 0.3); }
+[data-theme="dark"] .weekly-plan-page .note-textarea.ant-input::placeholder,
+[data-theme="dark"] .weekly-plan-page .note-textarea textarea::placeholder { color: rgba(168, 197, 218, 0.3); }
 
-.weekly-plan-page .note-textarea.ant-input:hover,
-.weekly-plan-page .note-textarea:hover textarea { border-color: rgba(91, 196, 255, 0.35) !important; }
+[data-theme="dark"] .weekly-plan-page .note-textarea.ant-input:hover,
+[data-theme="dark"] .weekly-plan-page .note-textarea:hover textarea { border-color: rgba(91, 196, 255, 0.35) !important; }
 
-.weekly-plan-page .note-textarea.ant-input:focus,
-.weekly-plan-page .note-textarea:focus-within textarea {
+[data-theme="dark"] .weekly-plan-page .note-textarea.ant-input:focus,
+[data-theme="dark"] .weekly-plan-page .note-textarea:focus-within textarea {
   border-color: #5bc4ff !important;
   box-shadow: 0 0 0 2px rgba(91, 196, 255, 0.12) !important;
 }
 
-.weekly-plan-page .ant-select .ant-select-selector,
-.weekly-plan-page .ant-picker {
+[data-theme="dark"] .weekly-plan-page .ant-select .ant-select-selector,
+[data-theme="dark"] .weekly-plan-page .ant-picker {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(91, 196, 255, 0.2) !important;
   border-radius: 6px !important;
@@ -166,26 +164,26 @@
   transition: border-color 0.15s, box-shadow 0.15s !important;
 }
 
-.weekly-plan-page .ant-select:hover .ant-select-selector,
-.weekly-plan-page .ant-picker:hover {
+[data-theme="dark"] .weekly-plan-page .ant-select:hover .ant-select-selector,
+[data-theme="dark"] .weekly-plan-page .ant-picker:hover {
   border-color: rgba(91, 196, 255, 0.4) !important;
   background: rgba(91, 196, 255, 0.04) !important;
 }
 
-.weekly-plan-page .ant-select-focused .ant-select-selector,
-.weekly-plan-page .ant-picker-focused {
+[data-theme="dark"] .weekly-plan-page .ant-select-focused .ant-select-selector,
+[data-theme="dark"] .weekly-plan-page .ant-picker-focused {
   border-color: #5bc4ff !important;
   box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15) !important;
 }
 
-.weekly-plan-page .ant-select-selection-placeholder,
-.weekly-plan-page .ant-picker-input input::placeholder {
+[data-theme="dark"] .weekly-plan-page .ant-select-selection-placeholder,
+[data-theme="dark"] .weekly-plan-page .ant-picker-input input::placeholder {
   color: #7a9bb8 !important;
   font-size: 14px;
 }
 
-.weekly-plan-page .ant-select-selection-search-input,
-.weekly-plan-page .ant-picker-input input {
+[data-theme="dark"] .weekly-plan-page .ant-select-selection-search-input,
+[data-theme="dark"] .weekly-plan-page .ant-picker-input input {
   color: #e2ecf4 !important;
   font-size: 14px !important;
   background: transparent !important;
@@ -194,19 +192,18 @@
   padding: 0 !important;
 }
 
-.weekly-plan-page .ant-select-arrow,
-.weekly-plan-page .ant-picker-suffix {
+[data-theme="dark"] .weekly-plan-page .ant-select-arrow,
+[data-theme="dark"] .weekly-plan-page .ant-picker-suffix {
   color: #7a9bb8;
 }
 
-.weekly-plan-page .ant-select-clear,
-.weekly-plan-page .ant-picker-clear {
+[data-theme="dark"] .weekly-plan-page .ant-select-clear,
+[data-theme="dark"] .weekly-plan-page .ant-picker-clear {
   background: rgba(19, 42, 62, 0.9);
   color: #b0c8dc;
 }
 
-/* Multi-select item tags */
-.weekly-plan-page .ant-select-multiple .ant-select-selection-item {
+[data-theme="dark"] .weekly-plan-page .ant-select-multiple .ant-select-selection-item {
   background: rgba(91, 196, 255, 0.12) !important;
   border: 1px solid rgba(91, 196, 255, 0.3) !important;
   color: #e2ecf4 !important;
@@ -217,11 +214,11 @@
   margin-block: 4px !important;
 }
 
-.weekly-plan-page .ant-select-selection-item-remove {
+[data-theme="dark"] .weekly-plan-page .ant-select-selection-item-remove {
   color: #7a9bb8 !important;
 }
 
-.weekly-plan-page .ant-select-selection-item-remove:hover {
+[data-theme="dark"] .weekly-plan-page .ant-select-selection-item-remove:hover {
   color: #f87171 !important;
 }
 
@@ -230,13 +227,24 @@
   z-index: 9999;
 }
 
+/* Reset inner input styling — prevents global CSS double-border in all themes */
+.weekly-plan-page .ant-picker .ant-picker-input input,
+.weekly-plan-page .ant-input-number .ant-input-number-input,
+.weekly-plan-add-form .ant-picker .ant-picker-input input,
+.weekly-plan-add-form .ant-select .ant-select-selection-search-input {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
 /* ===== end Ant Design overrides ===== */
 
 /* Filter area */
 .weekly-plan-page .filter-controls.weekly-plan-filter-controls {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: #132a3e;
+  background: var(--bg-container);
   border-radius: 8px;
   border: none;
   position: sticky;
@@ -280,35 +288,35 @@
 .weekly-plan-page .filter-group label {
   font-size: 13px;
   font-weight: 500;
-  color: #c0d8ec;
+  color: var(--label-color);
   margin-bottom: 0.25rem;
 }
 
 .weekly-plan-page .filter-input,
 .weekly-plan-page .filter-select {
   padding: 8px 12px;
-  border: 1px solid rgba(91, 196, 255, 0.2);
+  border: 1px solid var(--ctrl-border);
   border-radius: 6px;
   font-size: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #e2ecf4;
+  background: var(--ctrl-bg);
+  color: var(--ctrl-color);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .weekly-plan-page .filter-input::placeholder {
-  color: #7a9bb8;
+  color: var(--ctrl-placeholder);
 }
 
 .weekly-plan-page .filter-input:focus,
 .weekly-plan-page .filter-select:focus {
   outline: none;
-  border-color: #5bc4ff;
-  box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
+  border-color: var(--ctrl-focus-border);
+  box-shadow: var(--ctrl-focus-shadow);
 }
 
 .weekly-plan-page .filter-select option {
-  background: #132a3e;
-  color: #e2ecf4;
+  background: var(--bg-dropdown);
+  color: var(--ctrl-color);
 }
 
 /* Quick buttons */
@@ -321,7 +329,7 @@
 .weekly-plan-page .weekly-plan-quick-group label {
   text-align: right;
   width: 100%;
-  color: #c0d8ec;
+  color: var(--label-color);
 }
 
 .weekly-plan-page .weekly-plan-quick-buttons {
@@ -333,9 +341,9 @@
 
 .weekly-plan-page .quick-filter-btn {
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #d0e8f5;
-  border: 1px solid rgba(91, 196, 255, 0.2);
+  background: var(--ctrl-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
@@ -344,9 +352,9 @@
 }
 
 .weekly-plan-page .quick-filter-btn:hover {
-  border-color: #5bc4ff;
-  background: rgba(91, 196, 255, 0.1);
-  color: #ffffff;
+  border-color: var(--color-primary);
+  background: var(--color-hover-bg);
+  color: var(--text-primary);
 }
 
 .weekly-plan-page .quick-filter-btn:disabled {
@@ -355,15 +363,15 @@
 }
 
 .weekly-plan-page .quick-filter-btn:disabled:hover {
-  border-color: rgba(91, 196, 255, 0.2);
-  background: rgba(255, 255, 255, 0.04);
-  color: #d0e8f5;
+  border-color: var(--color-border);
+  background: var(--ctrl-bg);
+  color: var(--text-secondary);
 }
 
 .weekly-plan-page .quick-filter-btn:focus {
   outline: none;
-  border-color: #5bc4ff;
-  box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
+  border-color: var(--ctrl-focus-border);
+  box-shadow: var(--ctrl-focus-shadow);
 }
 
 @media (max-width: 768px) {
@@ -403,7 +411,7 @@
 .timeline-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #c0d8ec;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
@@ -417,9 +425,9 @@
 .timeline-badge {
   display: inline-block;
   padding: 0.4rem 0.8rem;
-  background: linear-gradient(135deg, #1e4976 0%, #1b3a5c 100%);
-  color: #5bc4ff;
-  border: 1px solid rgba(91, 196, 255, 0.25);
+  background: var(--bg-elevated);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
@@ -427,7 +435,7 @@
 }
 
 .plan-table-wrapper {
-  background: #132a3e;
+  background: var(--bg-container);
   border: none;
   border-radius: 10px;
   box-shadow: none;
@@ -448,7 +456,7 @@
 }
 
 .plan-table thead {
-  background: linear-gradient(90deg, #1e4976 0%, #1b3a5c 100%);
+  background: var(--table-header-bg);
   color: #ffffff;
   position: sticky;
   top: 0;
@@ -459,32 +467,32 @@
   padding: 1rem 0.75rem;
   text-align: left;
   font-weight: 600;
-  border: 1px solid rgba(91, 196, 255, 0.15);
+  border: 1px solid var(--color-border-subtle);
   white-space: nowrap;
-  color: #e2ecf4;
+  color: #ffffff;
 }
 
 .plan-table tbody tr {
-  border-bottom: 1px solid rgba(91, 196, 255, 0.07);
+  border-bottom: 1px solid var(--table-border);
   transition: background 0.15s;
 }
 
 .plan-table tbody tr:hover {
-  background: rgba(91, 196, 255, 0.05);
+  background: var(--table-row-hover);
 }
 
 .plan-table td {
   padding: 1rem 0.75rem;
-  border: 1px solid rgba(91, 196, 255, 0.07);
+  border: 1px solid var(--table-border);
   vertical-align: top;
-  color: #e2ecf4;
+  color: var(--text-primary);
   background: transparent;
 }
 
 /* Add-item form */
 .weekly-plan-add-card {
   margin-bottom: 1rem;
-  background: #132a3e;
+  background: var(--bg-container);
   border-radius: 10px;
   box-shadow: none;
   border: none;
@@ -501,7 +509,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .weekly-plan-add-form {
@@ -537,30 +545,30 @@
 .weekly-plan-field label {
   font-size: 13px;
   font-weight: 600;
-  color: #c0d8ec;
+  color: var(--label-color);
 }
 
 .weekly-plan-textarea {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid rgba(91, 196, 255, 0.2);
+  border: 1px solid var(--ctrl-border);
   border-radius: 6px;
   font-size: 14px;
   line-height: 1.4;
-  background: rgba(255, 255, 255, 0.05);
-  color: #e2ecf4;
+  background: var(--ctrl-bg);
+  color: var(--ctrl-color);
   resize: vertical;
   white-space: pre-wrap;
 }
 
 .weekly-plan-textarea::placeholder {
-  color: #7a9bb8;
+  color: var(--ctrl-placeholder);
 }
 
 .weekly-plan-textarea:focus {
   outline: none;
-  border-color: #5bc4ff;
-  box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
+  border-color: var(--ctrl-focus-border);
+  box-shadow: var(--ctrl-focus-shadow);
 }
 
 .weekly-plan-add-qty {
@@ -574,7 +582,7 @@
 .weekly-plan-add-qty-title {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #d0e8f5;
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -607,8 +615,8 @@
   margin-bottom: 0.5rem;
 }
 
-/* Modal form — full dark-theme styling for DatePicker to match Select */
-.weekly-plan-add-form .ant-picker {
+/* Modal form — dark mode Antd overrides */
+[data-theme="dark"] .weekly-plan-add-form .ant-picker {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(91, 196, 255, 0.2) !important;
   border-radius: 6px !important;
@@ -618,17 +626,17 @@
   transition: border-color 0.15s, box-shadow 0.15s !important;
 }
 
-.weekly-plan-add-form .ant-picker:hover {
+[data-theme="dark"] .weekly-plan-add-form .ant-picker:hover {
   border-color: rgba(91, 196, 255, 0.4) !important;
   background: rgba(91, 196, 255, 0.04) !important;
 }
 
-.weekly-plan-add-form .ant-picker-focused {
+[data-theme="dark"] .weekly-plan-add-form .ant-picker-focused {
   border-color: #5bc4ff !important;
   box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15) !important;
 }
 
-.weekly-plan-add-form .ant-picker .ant-picker-input input {
+[data-theme="dark"] .weekly-plan-add-form .ant-picker .ant-picker-input input {
   color: #e2ecf4 !important;
   background: transparent !important;
   border: none !important;
@@ -637,21 +645,20 @@
   padding: 0 !important;
 }
 
-.weekly-plan-add-form .ant-picker .ant-picker-input input::placeholder {
+[data-theme="dark"] .weekly-plan-add-form .ant-picker .ant-picker-input input::placeholder {
   color: #7a9bb8 !important;
 }
 
-.weekly-plan-add-form .ant-picker .ant-picker-suffix {
+[data-theme="dark"] .weekly-plan-add-form .ant-picker .ant-picker-suffix {
   color: #7a9bb8;
 }
 
-.weekly-plan-add-form .ant-picker .ant-picker-clear {
+[data-theme="dark"] .weekly-plan-add-form .ant-picker .ant-picker-clear {
   background: rgba(19, 42, 62, 0.9);
   color: #b0c8dc;
 }
 
-/* Modal form — ensure Select in form also has matching dark theme */
-.weekly-plan-add-form .ant-select .ant-select-selector {
+[data-theme="dark"] .weekly-plan-add-form .ant-select .ant-select-selector {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(91, 196, 255, 0.2) !important;
   border-radius: 6px !important;
@@ -661,32 +668,32 @@
   transition: border-color 0.15s, box-shadow 0.15s !important;
 }
 
-.weekly-plan-add-form .ant-select:hover .ant-select-selector {
+[data-theme="dark"] .weekly-plan-add-form .ant-select:hover .ant-select-selector {
   border-color: rgba(91, 196, 255, 0.4) !important;
   background: rgba(91, 196, 255, 0.04) !important;
 }
 
-.weekly-plan-add-form .ant-select-focused .ant-select-selector {
+[data-theme="dark"] .weekly-plan-add-form .ant-select-focused .ant-select-selector {
   border-color: #5bc4ff !important;
   box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15) !important;
 }
 
-.weekly-plan-add-form .ant-select-selection-placeholder {
+[data-theme="dark"] .weekly-plan-add-form .ant-select-selection-placeholder {
   color: #7a9bb8 !important;
   font-size: 14px;
   line-height: 38px !important;
 }
 
-.weekly-plan-add-form .ant-select-selection-item {
+[data-theme="dark"] .weekly-plan-add-form .ant-select-selection-item {
   color: #e2ecf4 !important;
   line-height: 38px !important;
 }
 
-.weekly-plan-add-form .ant-select-arrow {
+[data-theme="dark"] .weekly-plan-add-form .ant-select-arrow {
   color: #7a9bb8;
 }
 
-.weekly-plan-add-form .ant-select-selection-search-input {
+[data-theme="dark"] .weekly-plan-add-form .ant-select-selection-search-input {
   color: #e2ecf4 !important;
   background: transparent !important;
   border: none !important;
@@ -734,7 +741,7 @@
   justify-content: space-between;
   gap: 0.4rem;
   font-size: 0.85rem;
-  color: #d0e8f5;
+  color: var(--text-secondary);
 }
 
 .confirm-diff-value {
@@ -744,7 +751,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.diff-exact   { color: #b0c8dc; }
+.diff-exact   { color: var(--text-muted); }
 .diff-surplus { color: #4ade80; }
 .diff-lacking { color: #f87171; }
 
@@ -752,8 +759,8 @@
   display: inline-block;
   padding: 0.35rem 0.6rem;
   border-radius: 999px;
-  background: rgba(91, 196, 255, 0.1);
-  color: #5bc4ff;
+  background: var(--color-hover-bg);
+  color: var(--color-primary);
   font-weight: 600;
   font-size: 0.85rem;
   white-space: nowrap;
@@ -777,7 +784,7 @@
 
 .quantity-item .qty-label {
   font-weight: 600;
-  color: #c0d8ec;
+  color: var(--text-secondary);
   min-width: 55px;
   flex: 0 0 auto;
 }
@@ -786,26 +793,26 @@
   width: 64px;
   text-align: right;
   font-size: 0.85rem;
-  color: #e2f0fb;
+  color: var(--text-primary);
 }
 
 .quantity-input {
   width: 64px;
   height: 26px;
   padding: 0.1rem 0.4rem;
-  border: 1px solid rgba(91, 196, 255, 0.2);
+  border: 1px solid var(--ctrl-border);
   border-radius: 6px;
   font-size: 0.85rem;
   line-height: 1;
   text-align: right;
-  background: rgba(255, 255, 255, 0.05);
-  color: #e2ecf4;
+  background: var(--ctrl-bg);
+  color: var(--ctrl-color);
 }
 
 .quantity-input:focus {
   outline: none;
-  border-color: #5bc4ff;
-  box-shadow: 0 0 0 2px rgba(91, 196, 255, 0.18);
+  border-color: var(--ctrl-focus-border);
+  box-shadow: var(--ctrl-focus-shadow);
 }
 
 .qty-copy-btn {
@@ -816,20 +823,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(91, 196, 255, 0.2);
+  background: var(--ctrl-bg);
+  border: 1px solid var(--ctrl-border);
   border-radius: 4px;
   font-size: 0.8rem;
-  color: #b0c8dc;
+  color: var(--text-muted);
   cursor: pointer;
   line-height: 1;
   transition: all 0.15s;
 }
 
 .qty-copy-btn:hover {
-  background: rgba(91, 196, 255, 0.15);
-  border-color: #5bc4ff;
-  color: #ffffff;
+  background: var(--color-hover-bg);
+  border-color: var(--color-primary);
+  color: var(--text-primary);
 }
 
 .qty-copy-btn:active {
@@ -842,39 +849,39 @@
   margin-top: 0.6rem;
   margin-bottom: 0.4rem;
   padding: 0.25rem 0.5rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(91, 196, 255, 0.2);
+  background: var(--ctrl-bg);
+  border: 1px solid var(--ctrl-border);
   border-radius: 4px;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #c0d8ec;
+  color: var(--text-secondary);
   cursor: pointer;
   text-align: center;
   transition: all 0.15s;
 }
 
 .qty-copy-all-btn:hover {
-  background: rgba(91, 196, 255, 0.12);
-  border-color: #5bc4ff;
-  color: #ffffff;
+  background: var(--color-hover-bg);
+  border-color: var(--color-primary);
+  color: var(--text-primary);
 }
 
 .qty-save-btn {
-  background: rgba(91, 196, 255, 0.08) !important;
-  border-color: rgba(91, 196, 255, 0.4) !important;
-  color: #5bc4ff !important;
+  background: var(--color-hover-bg) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-primary) !important;
   font-weight: 700;
   letter-spacing: 0.03em;
 }
 
 .qty-save-btn:hover {
-  background: #5bc4ff !important;
-  border-color: #5bc4ff !important;
-  color: #0f1e2e !important;
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
 }
 
 .qty-save-btn:active {
-  background: #3bb0ee !important;
+  background: var(--color-primary-hover) !important;
 }
 
 .qty-delete-btn {
@@ -939,7 +946,7 @@
 .text-content {
   white-space: pre-wrap;
   line-height: 1.5;
-  color: #e2ecf4;
+  color: var(--text-primary);
 }
 
 .table-textarea-wrap {
@@ -957,7 +964,7 @@
   border-radius: 0;
   font-size: 0.85rem;
   line-height: 1.35;
-  color: #e2ecf4;
+  color: var(--text-primary);
   background: transparent;
   resize: vertical;
   white-space: pre-wrap;
@@ -975,7 +982,7 @@
 .no-data {
   padding: 3rem;
   text-align: center;
-  color: #7a9bb8;
+  color: var(--text-dim);
   font-size: 1.1rem;
 }
 
@@ -1008,7 +1015,7 @@
 
 .timeline-dates {
   font-size: 0.8rem;
-  color: #7a9bb8;
+  color: var(--text-dim);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1029,7 +1036,7 @@
 
 .obj-strategy-divider {
   height: 1px;
-  background: rgba(91, 196, 255, 0.1);
+  background: var(--color-border-faint);
 }
 
 .obj-strategy-cell .table-textarea-wrap {
@@ -1041,7 +1048,7 @@
 
 .obj-strategy-cell .table-textarea {
   font-style: italic;
-  color: #c8dcea;
+  color: var(--text-secondary);
   font-size: 0.88rem;
   line-height: 1.55;
   min-height: 120px;

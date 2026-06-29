@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Card, Col, Row, Space, Statistic, Typography } from 'antd'
 import { FaArrowDown, FaArrowUp, FaExchangeAlt } from 'react-icons/fa'
+import { useTheme } from '../context/ThemeContext'
 import './TimeRangeComparison.css'
 
 export type TimeRangeComparisonProps = {
@@ -13,6 +14,11 @@ type RangeSelection = {
 }
 
 export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) {
+  const { theme } = useTheme();
+  const headingColor = theme === 'dark' ? '#ffffff'  : '#0d2016';
+  const labelColor   = theme === 'dark' ? '#d0e8f5'  : '#1a3d2c';
+  const mutedColor   = theme === 'dark' ? '#b0c8dc'  : '#4a8a70';
+  const dimColor     = theme === 'dark' ? '#7a9bb8'  : '#6ba08a';
   const sortedData = useMemo(() => {
     return [...data].sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
   }, [data])
@@ -173,7 +179,7 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
     <div className="time-range-comparison">
       <div className="time-range-header">
         <FaExchangeAlt className="section-icon" />
-        <Typography.Text strong style={{ color: '#ffffff', fontSize: 15, lineHeight: 1 }}>Kết quả so sánh</Typography.Text>
+        <Typography.Text strong style={{ color: headingColor, fontSize: 15, lineHeight: 1 }}>Kết quả so sánh</Typography.Text>
       </div>
 
       {/* Visual Timeline with draggable ranges */}
@@ -245,9 +251,9 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <rect x="3" y="3" width="18" height="18" rx="2" stroke="#1D7BD9" strokeWidth="2" fill="none"/>
                 </svg>
-                <Typography.Text style={{ color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Khoảng thời gian trước</Typography.Text>
+                <Typography.Text style={{ color: labelColor, fontSize: 13, fontWeight: 500 }}>Khoảng thời gian trước</Typography.Text>
               </Space>
-              <Typography.Text style={{ color: '#b0c8dc', fontSize: 11 }}>
+              <Typography.Text style={{ color: mutedColor, fontSize: 11 }}>
                 {stats1
                   ? `${new Date(stats1.startDate).toLocaleDateString('vi-VN')} - ${new Date(stats1.endDate).toLocaleDateString('vi-VN')}`
                   : ' '}
@@ -255,13 +261,13 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
             </div>
             {stats1 ? (
               <>
-                <Statistic value={stats1.total} valueStyle={{ color: '#ffffff', fontSize: 28, fontWeight: 700, lineHeight: 1 }} />
-                <Typography.Text style={{ color: '#b0c8dc', fontSize: 11, marginTop: 4, display: 'block' }}>
+                <Statistic value={stats1.total} valueStyle={{ color: headingColor, fontSize: 28, fontWeight: 700, lineHeight: 1 }} />
+                <Typography.Text style={{ color: mutedColor, fontSize: 11, marginTop: 4, display: 'block' }}>
                   Creative: {stats1.creative} | Base: {stats1.base}
                 </Typography.Text>
               </>
             ) : (
-              <Typography.Text style={{ color: '#7a9bb8', fontStyle: 'italic', fontSize: 13 }}>Chưa chọn</Typography.Text>
+              <Typography.Text style={{ color: dimColor, fontStyle: 'italic', fontSize: 13 }}>Chưa chọn</Typography.Text>
             )}
           </Card>
         </Col>
@@ -273,9 +279,9 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <rect x="3" y="3" width="18" height="18" rx="2" stroke="#8B5CF6" strokeWidth="2" fill="none"/>
                 </svg>
-                <Typography.Text style={{ color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Khoảng thời gian sau</Typography.Text>
+                <Typography.Text style={{ color: labelColor, fontSize: 13, fontWeight: 500 }}>Khoảng thời gian sau</Typography.Text>
               </Space>
-              <Typography.Text style={{ color: '#b0c8dc', fontSize: 11 }}>
+              <Typography.Text style={{ color: mutedColor, fontSize: 11 }}>
                 {stats2
                   ? `${new Date(stats2.startDate).toLocaleDateString('vi-VN')} - ${new Date(stats2.endDate).toLocaleDateString('vi-VN')}`
                   : ' '}
@@ -283,13 +289,13 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
             </div>
             {stats2 ? (
               <>
-                <Statistic value={stats2.total} valueStyle={{ color: '#ffffff', fontSize: 28, fontWeight: 700, lineHeight: 1 }} />
-                <Typography.Text style={{ color: '#b0c8dc', fontSize: 11, marginTop: 4, display: 'block' }}>
+                <Statistic value={stats2.total} valueStyle={{ color: headingColor, fontSize: 28, fontWeight: 700, lineHeight: 1 }} />
+                <Typography.Text style={{ color: mutedColor, fontSize: 11, marginTop: 4, display: 'block' }}>
                   Creative: {stats2.creative} | Base: {stats2.base}
                 </Typography.Text>
               </>
             ) : (
-              <Typography.Text style={{ color: '#7a9bb8', fontStyle: 'italic', fontSize: 13 }}>Chưa chọn</Typography.Text>
+              <Typography.Text style={{ color: dimColor, fontStyle: 'italic', fontSize: 13 }}>Chưa chọn</Typography.Text>
             )}
           </Card>
         </Col>
@@ -297,7 +303,7 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
         <Col span={8} style={{ display: 'flex', flexDirection: 'column' }}>
           <Card className="stats-card stats-comparison" size="small">
             <div className="stats-card-meta">
-              <Typography.Text style={{ color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Tăng trưởng</Typography.Text>
+              <Typography.Text style={{ color: labelColor, fontSize: 13, fontWeight: 500 }}>Tăng trưởng</Typography.Text>
               <Typography.Text style={{ color: 'transparent', fontSize: 11 }}>{' '}</Typography.Text>
             </div>
             {comparison ? (
@@ -317,12 +323,12 @@ export default function TimeRangeComparison({ data }: TimeRangeComparisonProps) 
                     lineHeight: 1,
                   }}
                 />
-                <Typography.Text style={{ color: '#b0c8dc', fontSize: 12, marginTop: 4, display: 'block' }}>
+                <Typography.Text style={{ color: mutedColor, fontSize: 12, marginTop: 4, display: 'block' }}>
                   {comparison.isIncrease ? 'Tăng' : 'Giảm'} {Math.abs(comparison.totalDiff)} điểm
                 </Typography.Text>
               </>
             ) : (
-              <Typography.Text style={{ color: '#7a9bb8', fontStyle: 'italic', fontSize: 13 }}>—</Typography.Text>
+              <Typography.Text style={{ color: dimColor, fontStyle: 'italic', fontSize: 13 }}>—</Typography.Text>
             )}
           </Card>
         </Col>

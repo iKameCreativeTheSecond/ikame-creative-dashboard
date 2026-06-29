@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, DatePicker, Select, Space, Typography } from 'antd';
 import { FaFilter } from 'react-icons/fa';
 import dayjs from 'dayjs';
+import { useTheme } from '../context/ThemeContext';
 import './Filter.css';
 
 type Range = {
@@ -42,6 +43,9 @@ function getMondayOfWeek(date: Date): Date {
 }
 
 const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
+  const { theme } = useTheme();
+  const titleColor  = theme === 'dark' ? '#ffffff'  : '#0d2016';
+  const labelColor  = theme === 'dark' ? '#d0e8f5'  : '#1a3d2c';
   const today = new Date();
   const currentMonday = getMondayOfWeek(new Date(today));
   const oneWeekAgo = new Date(currentMonday);
@@ -100,13 +104,13 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
       <div className="filter-header">
         <div className="filter-header-left">
           <FaFilter className="section-icon" />
-          <Typography.Text strong style={{ color: '#fff', fontSize: 15 }}>Filter</Typography.Text>
+          <Typography.Text strong style={{ color: titleColor, fontSize: 15 }}>Filter</Typography.Text>
         </div>
       </div>
 
       <div className="date-filter-row">
         <Space size={10} align="center" wrap>
-          <Typography.Text style={{ color: '#d0e8f5', fontSize: 13 }}>From</Typography.Text>
+          <Typography.Text style={{ color: labelColor, fontSize: 13 }}>From</Typography.Text>
           <DatePicker
             value={startDate ? dayjs(startDate) : null}
             onChange={(date) => applyChange(date ? date.format('YYYY-MM-DD') : null, endDate, selectedTeams, selectedStaff)}
@@ -115,7 +119,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
             style={{ width: 150 }}
             allowClear={false}
           />
-          <Typography.Text style={{ color: '#d0e8f5', fontSize: 13 }}>To</Typography.Text>
+          <Typography.Text style={{ color: labelColor, fontSize: 13 }}>To</Typography.Text>
           <DatePicker
             value={endDate ? dayjs(endDate) : null}
             onChange={(date) => applyChange(startDate, date ? date.format('YYYY-MM-DD') : null, selectedTeams, selectedStaff)}
@@ -129,7 +133,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
 
       <div className="date-filter-dropdowns" style={{ display: 'flex', gap: 24, marginBottom: 4 }}>
         <div style={{ flex: 1 }}>
-          <Typography.Text style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Teams</Typography.Text>
+          <Typography.Text style={{ display: 'block', marginBottom: 6, color: labelColor, fontSize: 13, fontWeight: 500 }}>Teams</Typography.Text>
           <Select
             mode="multiple"
             allowClear
@@ -141,7 +145,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
           />
         </div>
         <div style={{ flex: 1 }}>
-          <Typography.Text style={{ display: 'block', marginBottom: 6, color: '#d0e8f5', fontSize: 13, fontWeight: 500 }}>Staff Members</Typography.Text>
+          <Typography.Text style={{ display: 'block', marginBottom: 6, color: labelColor, fontSize: 13, fontWeight: 500 }}>Staff Members</Typography.Text>
           <Select
             mode="multiple"
             allowClear
@@ -156,7 +160,7 @@ const Filter: React.FC<Props> = ({ onChange, teamOptions, staffOptions }) => {
       </div>
 
       <div className="date-filter-quick">
-        <Typography.Text style={{ color: '#d0e8f5', fontWeight: 600, fontSize: 13, minWidth: 120, flexShrink: 0 }}>
+        <Typography.Text style={{ color: labelColor, fontWeight: 600, fontSize: 13, minWidth: 120, flexShrink: 0 }}>
           Quick Options:
         </Typography.Text>
         <Space size={8} wrap>

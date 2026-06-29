@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 18px;
-  background: #132a3e;
+  background: var(--bg-container);
   border-radius: 8px;
 }
 
@@ -34,8 +34,8 @@
   width: 100%;
 }
 
-/* Ant Design DatePicker overrides */
-.date-filter .ant-picker {
+/* Ant Design DatePicker overrides — dark mode only */
+[data-theme="dark"] .date-filter .ant-picker {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(91, 196, 255, 0.2) !important;
   border-radius: 6px !important;
@@ -45,22 +45,22 @@
   transition: border-color 0.15s, box-shadow 0.15s !important;
 }
 
-.date-filter .ant-picker:hover {
+[data-theme="dark"] .date-filter .ant-picker:hover {
   border-color: rgba(91, 196, 255, 0.4) !important;
   background: rgba(91, 196, 255, 0.04) !important;
 }
 
-.date-filter .ant-picker-focused {
+[data-theme="dark"] .date-filter .ant-picker-focused {
   border-color: #5bc4ff !important;
   box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15) !important;
 }
 
-.date-filter .ant-picker-input input::placeholder {
+[data-theme="dark"] .date-filter .ant-picker-input input::placeholder {
   color: #7a9bb8 !important;
   font-size: 14px;
 }
 
-.date-filter .ant-picker-input input {
+[data-theme="dark"] .date-filter .ant-picker-input input {
   color: #e2ecf4 !important;
   font-size: 14px !important;
   background: transparent !important;
@@ -69,17 +69,17 @@
   padding: 0 !important;
 }
 
-.date-filter .ant-picker-suffix {
+[data-theme="dark"] .date-filter .ant-picker-suffix {
   color: #7a9bb8;
 }
 
-.date-filter .ant-picker-clear {
+[data-theme="dark"] .date-filter .ant-picker-clear {
   background: rgba(19, 42, 62, 0.9);
   color: #b0c8dc;
 }
 
-/* Ant Design Select overrides */
-.date-filter-dropdowns .ant-select .ant-select-selector {
+/* Ant Design Select overrides — dark mode only */
+[data-theme="dark"] .date-filter-dropdowns .ant-select .ant-select-selector {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(91, 196, 255, 0.2) !important;
   border-radius: 6px !important;
@@ -87,22 +87,31 @@
   min-height: 36px !important;
 }
 
-.date-filter-dropdowns .ant-select:hover .ant-select-selector {
+[data-theme="dark"] .date-filter-dropdowns .ant-select:hover .ant-select-selector {
   border-color: rgba(91, 196, 255, 0.4) !important;
   background: rgba(91, 196, 255, 0.04) !important;
 }
 
-.date-filter-dropdowns .ant-select-focused .ant-select-selector {
+[data-theme="dark"] .date-filter-dropdowns .ant-select-focused .ant-select-selector {
   border-color: #5bc4ff !important;
   box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15) !important;
 }
 
-.date-filter-dropdowns .ant-select-selection-item {
+[data-theme="dark"] .date-filter-dropdowns .ant-select-selection-item {
   background: rgba(91, 196, 255, 0.12) !important;
   border: 1px solid rgba(91, 196, 255, 0.3) !important;
   color: #e2ecf4 !important;
   border-radius: 4px !important;
   font-size: 13px !important;
+}
+
+/* Reset inner input border — prevents global CSS double-border in all themes */
+.date-filter .ant-picker .ant-picker-input input,
+.date-filter-dropdowns .ant-select .ant-select-selection-search-input {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
 }
 
 @media (max-width: 720px) {

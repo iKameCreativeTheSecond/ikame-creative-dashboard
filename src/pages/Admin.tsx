@@ -58,12 +58,6 @@ export default function Admin() {
                         <div><strong>Role:</strong> Developer</div>
                     </div>
 
-                    <Typography.Title level={5} style={{ marginBottom: 12 }}>Admin</Typography.Title>
-                    <div style={{ lineHeight: 2 }}>
-                        <div><strong>Name:</strong> Hoàng Hữu Thành</div>
-                        <div><strong>Email:</strong> thanhhd@ikameglobal.com</div>
-                        <div><strong>Role:</strong> System Administrator</div>
-                    </div>
                 </div>
             );
             default:                return null;

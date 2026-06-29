@@ -1,4 +1,4 @@
-﻿/* ==================== TEAM MANAGEMENT ==================== */
+/* ==================== TEAM MANAGEMENT ==================== */
 .team-management {
     border-radius: 12px;
     box-shadow: none;
@@ -31,13 +31,13 @@
 .content-title {
     font-size: 18px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0 0 8px 0;
 }
 
 .content-subtitle {
     font-size: 13px;
-    color: #b0c8dc;
+    color: var(--text-muted);
     margin: 0;
     line-height: 1.5;
 }
@@ -48,9 +48,9 @@
 }
 
 .btn-add-policy {
-    background: rgba(91, 196, 255, 0.12);
-    color: #5bc4ff;
-    border: 1px solid rgba(91, 196, 255, 0.3);
+    background: var(--color-hover-bg);
+    color: var(--color-primary);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 10px 20px;
     font-size: 14px;
@@ -61,17 +61,17 @@
 }
 
 .btn-add-policy:hover {
-    background: rgba(91, 196, 255, 0.22);
-    border-color: #5bc4ff;
-    color: #ffffff;
+    background: var(--color-border-subtle);
+    border-color: var(--color-primary);
+    color: var(--text-primary);
 }
 
 /* Filter input styling */
 .filter-input {
     border-radius: 6px;
-    border: 1px solid rgba(91, 196, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
-    color: #e2ecf4;
+    border: 1px solid var(--ctrl-border);
+    background: var(--ctrl-bg);
+    color: var(--ctrl-color);
     box-shadow: none;
     padding: 8px 12px;
     font-size: 14px;
@@ -85,12 +85,12 @@
 }
 
 .filter-input::placeholder {
-    color: #7a9bb8;
+    color: var(--ctrl-placeholder);
 }
 
 .filter-input:focus {
-    border-color: #5bc4ff;
-    box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
+    border-color: var(--ctrl-focus-border);
+    box-shadow: var(--ctrl-focus-shadow);
 }
 
 /* ==================== TABLE ==================== */
@@ -106,29 +106,29 @@
     justify-content: space-between;
     padding: 12px 16px;
     border-top: none;
-    background: #0f1e2e;
+    background: var(--bg-base);
 }
 
 .rows-per-page label {
     font-size: 13px;
-    color: #c0d8ec;
+    color: var(--text-secondary);
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
 
 .rows-per-page select {
-    border: 1px solid rgba(91, 196, 255, 0.2);
+    border: 1px solid var(--ctrl-border);
     border-radius: 6px;
     padding: 6px 10px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #e2ecf4;
+    background: var(--ctrl-bg);
+    color: var(--ctrl-color);
     font-size: 13px;
 }
 
 .pagination-info {
     font-size: 13px;
-    color: #b0c8dc;
+    color: var(--text-muted);
 }
 
 .pagination-controls {
@@ -138,9 +138,9 @@
 }
 
 .page-button {
-    border: 1px solid rgba(91, 196, 255, 0.2);
-    background: rgba(255, 255, 255, 0.04);
-    color: #d0e8f5;
+    border: 1px solid var(--color-border);
+    background: var(--ctrl-bg);
+    color: var(--text-secondary);
     padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
@@ -149,9 +149,9 @@
 }
 
 .page-button:hover {
-    border-color: #5bc4ff;
-    color: #5bc4ff;
-    background: rgba(91, 196, 255, 0.08);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-hover-bg);
 }
 
 .page-button:disabled {
@@ -161,14 +161,14 @@
 
 .page-indicator {
     font-size: 13px;
-    color: #d0e8f5;
+    color: var(--text-secondary);
     margin: 0 6px;
 }
 
 .team-table {
     width: 100%;
     border-collapse: collapse;
-    background: #0f1e2e;
+    background: var(--bg-base);
     border: none;
 }
 
@@ -177,12 +177,12 @@
     padding: 16px;
     text-align: left;
     border: none;
-    border-bottom: 1px solid rgba(91, 196, 255, 0.07);
+    border-bottom: 1px solid var(--table-border);
 }
 
 .team-table th {
-    background: rgba(91, 196, 255, 0.08);
-    color: #5bc4ff;
+    background: var(--color-hover-bg);
+    color: var(--color-primary);
     font-weight: 600;
     font-size: 13px;
     text-transform: uppercase;
@@ -197,7 +197,7 @@
 }
 
 .team-table tbody tr:hover {
-    background: rgba(91, 196, 255, 0.05);
+    background: var(--table-row-hover);
 }
 
 .team-table tbody tr:last-child td {
@@ -215,7 +215,7 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1e4976 0%, #5bc4ff 100%);
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--color-primary) 100%);
     color: #fff;
     display: flex;
     align-items: center;
@@ -234,7 +234,7 @@
 
 .badge-member {
     background: rgba(91, 196, 255, 0.12);
-    color: #5bc4ff;
+    color: var(--color-primary);
 }
 
 .badge-admin {
@@ -258,7 +258,7 @@
 }
 
 .enrolled-count {
-    color: #b0c8dc;
+    color: var(--text-muted);
     font-size: 14px;
 }
 
@@ -279,13 +279,13 @@
     align-items: center;
     justify-content: center;
     transition: transform 0.2s, color 0.2s, background 0.2s;
-    color: #b0c8dc;
+    color: var(--text-muted);
     border-radius: 4px;
 }
 
 .icon-button:hover {
     transform: scale(1.1);
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--color-hover-bg);
 }
 
 .edit-button {
@@ -294,7 +294,7 @@
 }
 
 .edit-button:hover {
-    color: #0f1e2e;
+    color: var(--bg-base);
     background-color: var(--btn-color);
     transform: none;
 }
@@ -306,7 +306,7 @@
 }
 
 .edit-button:hover svg {
-    color: #0f1e2e;
+    color: var(--bg-base);
     fill: currentColor;
     stroke: currentColor;
 }
@@ -354,8 +354,8 @@
 }
 
 .modal {
-    background: #132a3e;
-    border: 1px solid rgba(91, 196, 255, 0.2);
+    background: var(--bg-container);
+    border: 1px solid var(--color-border);
     padding: 28px 24px;
     border-radius: 14px;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
@@ -366,7 +366,7 @@
 .modal h2 {
     font-size: 18px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
     margin: 0 0 20px 0;
 }
 
@@ -375,7 +375,7 @@
     margin-bottom: 16px;
     font-size: 13px;
     font-weight: 500;
-    color: #d0e8f5;
+    color: var(--label-color);
 }
 
 .modal-form input,
@@ -383,25 +383,25 @@
     width: 100%;
     padding: 8px 12px;
     margin-top: 6px;
-    border: 1px solid rgba(91, 196, 255, 0.2);
+    border: 1px solid var(--ctrl-border);
     border-radius: 6px;
     font-size: 14px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #e2ecf4;
+    background: var(--ctrl-bg);
+    color: var(--ctrl-color);
     box-sizing: border-box;
     transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .modal-form input:focus,
 .modal-form select:focus {
-    border-color: #5bc4ff;
+    border-color: var(--ctrl-focus-border);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(91, 196, 255, 0.15);
+    box-shadow: var(--ctrl-focus-shadow);
 }
 
 .modal-form select option {
-    background: #132a3e;
-    color: #e2ecf4;
+    background: var(--bg-dropdown);
+    color: var(--ctrl-color);
 }
 
 .modal-actions {
@@ -412,8 +412,8 @@
 }
 
 .save-button {
-    background: #5bc4ff;
-    color: #0f1e2e;
+    background: var(--color-primary);
+    color: #ffffff;
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
@@ -424,13 +424,13 @@
 }
 
 .save-button:hover {
-    background: #87d6ff;
+    background: var(--color-primary-hover);
 }
 
 .cancel-button {
-    background: rgba(255, 255, 255, 0.05);
-    color: #d0e8f5;
-    border: 1px solid rgba(91, 196, 255, 0.2);
+    background: var(--ctrl-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--color-border);
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
@@ -440,21 +440,21 @@
 }
 
 .cancel-button:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(91, 196, 255, 0.4);
-    color: #ffffff;
+    background: var(--color-hover-bg);
+    border-color: var(--color-primary);
+    color: var(--text-primary);
 }
 
 /* ==================== LEGACY ==================== */
 .team-management .admin-title {
     font-size: 2rem;
-    color: #ffffff;
+    color: var(--text-primary);
     font-weight: 700;
     margin-bottom: 12px;
 }
 
 .team-management .admin-description {
     font-size: 1rem;
-    color: #b0c8dc;
+    color: var(--text-muted);
     margin-bottom: 24px;
 }
