@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button, DatePicker, Empty, Input, InputNumber, message, Modal, Select } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import TopBar from '../components/TopBar';
 import AdminData from '../common/AdministratorData';
@@ -90,6 +91,15 @@ const PROJECT_PALETTE: { bg: string; color: string }[] = [
   { bg: 'rgba(34, 211, 238, 0.15)',  color: '#22d3ee' },
   { bg: 'rgba(250, 204, 21, 0.15)',  color: '#facc15' },
 ];
+
+
+function getReportBadgeClass(value: number): string {
+  return value > 0 ? 'report-badge-positive' : value < 0 ? 'report-badge-negative' : '';
+}
+
+function getReportArrow(value: number): string {
+  return value > 0 ? '↗' : value < 0 ? '↘' : '';
+}
 
 // Returns today's date as a local Date object using Vietnam timezone (UTC+7)
 function getVietnamNow(): Date {
@@ -1486,14 +1496,12 @@ export default function WeeklyPlan() {
             </colgroup>
             <thead>
               <tr>
-                <th className="col-resizable"><span>Timeline</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'timeline')} /></th>
-                <th className="col-resizable"><span>Dự án</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'project')} /></th>
-                <th className="col-resizable"><span>Mục tiêu</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'objectives')} /></th>
-                <th className="col-resizable"><span>Chiến lược</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'strategy')} /></th>
-                <th className="col-resizable"><span>Số lượng confirm</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'confirm')} /></th>
-                <th className="col-resizable"><span>Hoàn thành</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'completed')} /></th>
-                <th className="col-resizable"><span>Thiếu/Đủ</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'report')} /></th>
-                <th className="col-resizable"><span>Ghi chú</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'note')} /></th>
+                <th className="col-resizable" colSpan={2}><span>DỰ ÁN / TIMELINE</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'project')} /></th>
+                <th className="col-resizable" colSpan={2}><span>MỤC TIÊU & CHIẾN LƯỢC</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'strategy')} /></th>
+                <th className="col-resizable"><span>DỰ KIẾN (CONFIRM)</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'confirm')} /></th>
+                <th className="col-resizable"><span>HOÀN THÀNH</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'completed')} /></th>
+                <th className="col-resizable"><span>CHÊNH LỆCH</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'report')} /></th>
+                <th className="col-resizable"><span>GHI CHÚ</span><div className="col-resize-handle" onMouseDown={(e) => startResize(e, 'note')} /></th>
               </tr>
             </thead>
             <tbody>
@@ -1506,26 +1514,28 @@ export default function WeeklyPlan() {
                   }}
                   className={addedItemId === item.id ? 'newly-added-row' : ''}
                 >
-                  <td className="col-timeline">
-                    <span className="timeline-cell">
-                      {formatDateDdMm(getTimelineStartDate(item.timeline))} - {formatDateDdMm(getTimelineEndDate(item.timeline))}
-                    </span>
+                  <td className="col-project-timeline" colSpan={2}>
+                    <div className="project-timeline-cell">
+                      <span className="project-name-main" style={getProjectColorStyle(item.project)}>
+                        {item.project}
+                      </span>
+                      <span className="timeline-dates">
+                        📅 {formatDateDdMm(getTimelineStartDate(item.timeline))} – {formatDateDdMm(getTimelineEndDate(item.timeline))}
+                      </span>
+                      <Button
+                        type="link"
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        style={{ padding: 0, height: 'auto', marginTop: '0.5rem' }}
+                        onClick={() => { if (isAllowEdit()) requestDeleteItem(item); }}
+                      >Xóa dự án</Button>
+                    </div>
                   </td>
-                  <td className="col-project">
-                    <span className="project-badge" style={getProjectColorStyle(item.project)}>
-                      {item.project}
-                    </span>
-                    <Button danger size="small" block style={{ marginTop: '2rem' }} onClick={() => {
-                      if (isAllowEdit())
-                        requestDeleteItem(item)
-                    }
-                    }>Xoá</Button>
-                  </td>
-                  <td className="col-objectives">
-                    {renderTextArea(item, 'objectives', allowEdit)}
-                  </td>
-                  <td className="col-strategy">
-                    {renderTextArea(item, 'strategy', allowEdit)}
+                  <td className="col-obj-strategy" colSpan={2}>
+                    <div className="obj-strategy-cell">
+                      {renderTextArea(item, 'strategy', allowEdit)}
+                    </div>
                   </td>
                   <td className="col-quantity">
                     <div className="quantity-list">
@@ -1538,20 +1548,20 @@ export default function WeeklyPlan() {
                   </td>
                   <td className="col-quantity col-completed">
                     <div className="quantity-list">
-                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber min={0} step={1} value={item.completedCPP} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
-                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber min={0} step={1} value={item.completedIcon} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
-                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber min={0} step={1} value={item.completedBanner} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
-                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber min={0} step={1} value={item.completedPLA} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
-                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber min={0} step={1} value={item.completedVideo} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item${item.completedCPP > 0 ? ' completed-highlight' : ''}`}><span className="qty-label">CPP:</span> <InputNumber min={0} step={1} value={item.completedCPP} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item${item.completedIcon > 0 ? ' completed-highlight' : ''}`}><span className="qty-label">Icon:</span> <InputNumber min={0} step={1} value={item.completedIcon} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item${item.completedBanner > 0 ? ' completed-highlight' : ''}`}><span className="qty-label">Banner:</span> <InputNumber min={0} step={1} value={item.completedBanner} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item${item.completedPLA > 0 ? ' completed-highlight' : ''}`}><span className="qty-label">PLA:</span> <InputNumber min={0} step={1} value={item.completedPLA} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item${item.completedVideo > 0 ? ' completed-highlight' : ''}`}><span className="qty-label">Video:</span> <InputNumber min={0} step={1} value={item.completedVideo} onChange={(v) => handleCompletedQuantityChange(item.id, 'completedVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} disabled={!allowEdit} /></div>
                     </div>
                   </td>
                   <td className="col-quantity col-report">
                     <div className="quantity-list">
-                      <div className="quantity-item"><span className="qty-label">CPP:</span> <InputNumber step={1} value={item.reportCPP} onChange={(v) => handleReportQuantityChange(item.id, 'reportCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportCPP)} disabled={!allowEdit} /></div>
-                      <div className="quantity-item"><span className="qty-label">Icon:</span> <InputNumber step={1} value={item.reportIcon} onChange={(v) => handleReportQuantityChange(item.id, 'reportIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportIcon)} disabled={!allowEdit} /></div>
-                      <div className="quantity-item"><span className="qty-label">Banner:</span> <InputNumber step={1} value={item.reportBanner} onChange={(v) => handleReportQuantityChange(item.id, 'reportBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportBanner)} disabled={!allowEdit} /></div>
-                      <div className="quantity-item"><span className="qty-label">PLA:</span> <InputNumber step={1} value={item.reportPLA} onChange={(v) => handleReportQuantityChange(item.id, 'reportPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportPLA)} disabled={!allowEdit} /></div>
-                      <div className="quantity-item"><span className="qty-label">Video:</span> <InputNumber step={1} value={item.reportVideo} onChange={(v) => handleReportQuantityChange(item.id, 'reportVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 64 }} className={getReportInputClass(item.reportVideo)} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item ${getReportBadgeClass(item.reportCPP)}`}><span className="qty-label">CPP:</span><span className="report-arrow">{getReportArrow(item.reportCPP)}</span> <InputNumber step={1} value={item.reportCPP} onChange={(v) => handleReportQuantityChange(item.id, 'reportCPP', Number(v ?? 0))} controls={false} size="small" style={{ width: 52 }} className={getReportInputClass(item.reportCPP)} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item ${getReportBadgeClass(item.reportIcon)}`}><span className="qty-label">Icon:</span><span className="report-arrow">{getReportArrow(item.reportIcon)}</span> <InputNumber step={1} value={item.reportIcon} onChange={(v) => handleReportQuantityChange(item.id, 'reportIcon', Number(v ?? 0))} controls={false} size="small" style={{ width: 52 }} className={getReportInputClass(item.reportIcon)} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item ${getReportBadgeClass(item.reportBanner)}`}><span className="qty-label">Banner:</span><span className="report-arrow">{getReportArrow(item.reportBanner)}</span> <InputNumber step={1} value={item.reportBanner} onChange={(v) => handleReportQuantityChange(item.id, 'reportBanner', Number(v ?? 0))} controls={false} size="small" style={{ width: 52 }} className={getReportInputClass(item.reportBanner)} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item ${getReportBadgeClass(item.reportPLA)}`}><span className="qty-label">PLA:</span><span className="report-arrow">{getReportArrow(item.reportPLA)}</span> <InputNumber step={1} value={item.reportPLA} onChange={(v) => handleReportQuantityChange(item.id, 'reportPLA', Number(v ?? 0))} controls={false} size="small" style={{ width: 52 }} className={getReportInputClass(item.reportPLA)} disabled={!allowEdit} /></div>
+                      <div className={`quantity-item ${getReportBadgeClass(item.reportVideo)}`}><span className="qty-label">Video:</span><span className="report-arrow">{getReportArrow(item.reportVideo)}</span> <InputNumber step={1} value={item.reportVideo} onChange={(v) => handleReportQuantityChange(item.id, 'reportVideo', Number(v ?? 0))} controls={false} size="small" style={{ width: 52 }} className={getReportInputClass(item.reportVideo)} disabled={!allowEdit} /></div>
                     </div>
                   </td>
                   <td className="col-note">

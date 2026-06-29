@@ -17,6 +17,7 @@ type TaskEntry = {
     TaskName: string;
     AssigneeID: string;
     Team: string;
+    Project?: string;
     Level: number;
     PerformancePoint: number;
     ToolPointsT: ToolPointEntry[];
@@ -152,6 +153,11 @@ function TaskGrid({ tasks, allTeams, assigneeNameByEmail }: {
                             >
                                 {task.Team}
                             </Tag>
+                            {task.Project && (
+                                <Tag className="ct-project-tag">
+                                    {task.Project}
+                                </Tag>
+                            )}
                         </div>
 
                         <div className="ct-points-row">
@@ -194,8 +200,21 @@ export default function CompletedTasks() {
     const [tasks, setTasks] = useState<TaskEntry[]>([]);
     const [loading, setLoading] = useState(false);
     const [weekIndex, setWeekIndex] = useState(0); // 0 = most recent
+    const [projectFilter, setProjectFilter] = useState<string[]>([]);
 
     const allTeams = useMemo(() => teamOptions.map(t => t.value), [teamOptions]);
+
+    const projectOptions = useMemo(() => {
+        const seen = new Set<string>();
+        const opts: { value: string; label: string }[] = [];
+        for (const t of tasks) {
+            if (t.Project && !seen.has(t.Project)) {
+                seen.add(t.Project);
+                opts.push({ value: t.Project, label: t.Project });
+            }
+        }
+        return opts.sort((a, b) => a.label.localeCompare(b.label));
+    }, [tasks]);
 
     const assigneeNameByEmail = useMemo(() => {
         const map: Record<string, string> = {};
@@ -208,13 +227,20 @@ export default function CompletedTasks() {
 
     const weekGroups = useMemo(() => groupByWeek(tasks), [tasks]);
 
-    // Reset to most recent week when data changes
+    // Reset to most recent week and clear project filter when data changes
     useEffect(() => {
         setWeekIndex(0);
+        setProjectFilter([]);
     }, [weekGroups]);
 
     const currentGroup = weekGroups[weekIndex] ?? null;
     const total = weekGroups.length;
+
+    const filteredTasks = useMemo(() => {
+        if (!currentGroup) return [];
+        if (projectFilter.length === 0) return currentGroup.tasks;
+        return currentGroup.tasks.filter(t => projectFilter.includes(t.Project ?? ''));
+    }, [currentGroup, projectFilter]);
 
     async function getTeamMembers(teams: string[]) {
         try {
@@ -350,6 +376,22 @@ export default function CompletedTasks() {
             <div className="ct-container">
                 <Filter onChange={handleFilterChange} teamOptions={teamOptions} staffOptions={staffOptions} />
 
+                {projectOptions.length > 0 && (
+                    <div className="ct-project-filter-bar">
+                        <Typography.Text className="ct-pf-label">Project:</Typography.Text>
+                        <Select
+                            mode="multiple"
+                            allowClear
+                            placeholder="All projects"
+                            value={projectFilter}
+                            onChange={setProjectFilter}
+                            options={projectOptions}
+                            className="ct-pf-select"
+                            popupMatchSelectWidth={false}
+                        />
+                    </div>
+                )}
+
                 <Spin spinning={loading}>
                     {!loading && tasks.length === 0 ? (
                         <Empty
@@ -392,9 +434,9 @@ export default function CompletedTasks() {
                             </div>
 
                             {/* Per-week content */}
-                            <WeekStats tasks={currentGroup.tasks} />
+                            <WeekStats tasks={filteredTasks} />
                             <TaskGrid
-                                tasks={currentGroup.tasks}
+                                tasks={filteredTasks}
                                 allTeams={allTeams}
                                 assigneeNameByEmail={assigneeNameByEmail}
                             />

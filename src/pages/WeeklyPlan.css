@@ -983,6 +983,167 @@
   margin: 0;
 }
 
+/* ── Merged DỰ ÁN / TIMELINE cell ─────────────────────── */
+
+.col-project-timeline {
+  vertical-align: top;
+  padding: 1rem 0.75rem !important;
+}
+
+.project-timeline-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.project-name-main {
+  display: inline-block;
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.timeline-dates {
+  font-size: 0.8rem;
+  color: #7a9bb8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Merged MỤC TIÊU & CHIẾN LƯỢC cell ────────────────── */
+
+.col-obj-strategy {
+  padding: 0.75rem !important;
+  vertical-align: top;
+}
+
+.obj-strategy-cell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.obj-strategy-divider {
+  height: 1px;
+  background: rgba(91, 196, 255, 0.1);
+}
+
+.obj-strategy-cell .table-textarea-wrap {
+  background: rgba(91, 196, 255, 0.04);
+  border: 1px solid rgba(91, 196, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.obj-strategy-cell .table-textarea {
+  font-style: italic;
+  color: #c8dcea;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  min-height: 120px;
+  padding: 0.65rem 0.8rem;
+  background: transparent;
+}
+
+/* ── Quantity inputs: borderless when idle ─────────────── */
+
+.plan-table .col-quantity .ant-input-number {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.plan-table .col-quantity .ant-input-number:hover {
+  border-color: rgba(91, 196, 255, 0.3) !important;
+  background: rgba(91, 196, 255, 0.04) !important;
+}
+
+.plan-table .col-quantity .ant-input-number:focus-within {
+  border-color: #5bc4ff !important;
+  box-shadow: 0 0 0 2px rgba(91, 196, 255, 0.15) !important;
+  background: rgba(91, 196, 255, 0.04) !important;
+}
+
+/* Non-zero HOÀN THÀNH rows */
+.quantity-item.completed-highlight {
+  background: rgba(91, 196, 255, 0.08);
+  border-left: 3px solid #5bc4ff;
+  border-radius: 4px;
+  padding-left: 4px;
+}
+
+.quantity-item.completed-highlight .ant-input-number-input {
+  color: #5bc4ff !important;
+  font-weight: 700 !important;
+}
+
+/* ── CHÊNH LỆCH badge items ────────────────────────────── */
+
+.quantity-item.report-badge-positive {
+  background: rgba(74, 222, 128, 0.08);
+  border-left: 3px solid #4ade80;
+  border-radius: 4px;
+  padding-left: 4px;
+}
+
+.quantity-item.report-badge-negative {
+  background: rgba(248, 113, 113, 0.08);
+  border-left: 3px solid #f87171;
+  border-radius: 4px;
+  padding-left: 4px;
+}
+
+.report-arrow {
+  font-size: 13px;
+  flex-shrink: 0;
+  width: 14px;
+}
+
+.quantity-item.report-badge-positive .report-arrow { color: #4ade80; }
+.quantity-item.report-badge-negative .report-arrow { color: #f87171; }
+
+/* ── GHI CHÚ status tags ───────────────────────────────── */
+
+.status-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.achievement-tag {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.achievement-tag-over {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.35);
+}
+
+.achievement-tag-under {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.achievement-tag-match {
+  background: rgba(176, 200, 220, 0.1);
+  color: #b0c8dc;
+  border: 1px solid rgba(176, 200, 220, 0.25);
+}
+
 @media (max-width: 1400px) {
   .weekly-plan-container { padding: 1rem; }
   .plan-table { font-size: 0.85rem; }
