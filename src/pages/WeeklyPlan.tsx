@@ -49,6 +49,7 @@ interface WeeklyPlanItem {
   notePLA: string;
   noteVideo: string;
   confirmationStatus: 'sufficient' | 'lacking' | 'pending';
+  isEphemeral?: boolean;
 }
 
 type QuantityField =
@@ -577,6 +578,8 @@ export default function WeeklyPlan() {
         Pick<WeeklyPlanItem, 'noteCPP' | 'noteIcon' | 'noteBanner' | 'notePLA' | 'noteVideo'>
       >();
 
+      const projectNameByKey = new Map<string, { project: string; mondayMs: number }>();
+
       // Rebuild the cache from the fresh fetch result
       GlobalData.projectIssuesCache = new Map();
 
@@ -591,6 +594,10 @@ export default function WeeklyPlan() {
 
         const issueMondayMs = getMondayMsFromDate(new Date(issue.StartWeek));
         const key = `${projectKey}|${issueMondayMs}`;
+
+        if (!projectNameByKey.has(key)) {
+          projectNameByKey.set(key, { project: String(issue.Project).trim(), mondayMs: issueMondayMs });
+        }
 
         // Cache by (project|mondayMs|normalizedType) so we can look up by field name
         const nt = normalizeTaskType(issue.TaskType);
@@ -677,8 +684,50 @@ export default function WeeklyPlan() {
         };
       };
 
-      setPlanData(prev => prev.map(patchItem));
-      setFilteredData(prev => prev.map(patchItem));
+      const existingKeys = new Set(
+        planDataRef.current
+          .filter(item => !item.isEphemeral)
+          .map(item => {
+            const pk = String(item.project).trim().toLowerCase();
+            const ms = getMondayMsFromDate(item.timeline);
+            return `${pk}|${ms}`;
+          })
+      );
+
+      const syntheticItems: WeeklyPlanItem[] = [];
+      for (const [key, { project, mondayMs }] of projectNameByKey) {
+        if (existingKeys.has(key)) continue;
+        const completed = completedByKey.get(key) ?? { completedCPP: 0, completedIcon: 0, completedBanner: 0, completedPLA: 0, completedVideo: 0 };
+        const report = reportByKey.get(key) ?? { reportCPP: 0, reportIcon: 0, reportBanner: 0, reportPLA: 0, reportVideo: 0 };
+        const note = noteByKey.get(key) ?? { noteCPP: '', noteIcon: '', noteBanner: '', notePLA: '', noteVideo: '' };
+        const timeline = new Date(mondayMs);
+        const derivedId = -1 * (stableHash32(`ephemeral|${key}`) + 1);
+        syntheticItems.push({
+          id: derivedId,
+          backendId: undefined,
+          timeline,
+          project,
+          status: 'neutral',
+          objectives: '',
+          strategy: '',
+          isEphemeral: true,
+          proposedCPP: 0, proposedIcon: 0, proposedBanner: 0, proposedPLA: 0, proposedVideo: 0,
+          confirmedCPP: 0, confirmedIcon: 0, confirmedBanner: 0, confirmedPLA: 0, confirmedVideo: 0,
+          ...completed,
+          ...report,
+          ...note,
+          confirmationStatus: 'pending',
+        });
+      }
+
+      setPlanData(prev => {
+        const nonEphemeral = prev.filter(item => !item.isEphemeral);
+        return [...nonEphemeral.map(patchItem), ...syntheticItems];
+      });
+      setFilteredData(prev => {
+        const nonEphemeral = prev.filter(item => !item.isEphemeral);
+        return [...nonEphemeral.map(patchItem), ...syntheticItems];
+      });
     };
 
     (async () => {
@@ -835,6 +884,7 @@ export default function WeeklyPlan() {
             ...snapshot,
             id: duplicateItem.id,
             backendId: duplicateItem.backendId,
+            isEphemeral: false,
             confirmedCPP: snapshot.proposedCPP,
             confirmedIcon: snapshot.proposedIcon,
             confirmedBanner: snapshot.proposedBanner,
@@ -1055,6 +1105,9 @@ export default function WeeklyPlan() {
 
   const handleConfirmedQuantityChange = (id: number, field: QuantityField, value: number) => {
     updateQuantity(id, field, value);
+
+    const itemRef = planDataRef.current.find(i => i.id === id);
+    if (itemRef?.isEphemeral) return;
 
     const existing = confirmAutoSaveTimers.current.get(id);
     if (existing) clearTimeout(existing);
@@ -1284,6 +1337,12 @@ export default function WeeklyPlan() {
       cancelText: 'Hủy',
       centered: true,
       onOk: async () => {
+        if (item.isEphemeral) {
+          deleteItem(item.id);
+          messageApi.success(`Đã xoá kế hoạch "${item.project}" thành công!`);
+          return;
+        }
+
         const project = (item.project ?? '').trim();
         const startWeekIso = item.timeline?.toISOString?.() ?? '';
         if (!project || !startWeekIso) {
